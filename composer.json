@@ -1,0 +1,32 @@
+{
+  "name": "onelab/one",
+  "description": "Just one swoole framework.",
+  "type": "library",
+  "homepage": "http://movoin.com/",
+  "authors": [
+    {
+      "name": "Allen Luo",
+      "email": "movoin@gmail.com"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "One\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "One\\Tests\\": "tests/"
+    }
+  },
+  "config": {
+    "preferred-install": "dist",
+    "secure-http": false
+  },
+  "minimum-stability": "stable",
+  "prefer-stable": true,
+  "require": {
+    "php": "^7.0",
+    "ext-swoole": ">=2.1.0"
+  }
+}
