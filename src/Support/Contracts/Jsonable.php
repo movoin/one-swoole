@@ -17,9 +17,7 @@ interface Jsonable
     /**
      * 获得 JSON 字符串
      *
-     * @param  int    $options
-     *
      * @return JSON
      */
-    public function toJson($options = 0);
+    public function toJson();
 }

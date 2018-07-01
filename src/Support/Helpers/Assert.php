@@ -5,18 +5,18 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  *
- * @package     One\Support\Utilities
+ * @package     One\Support\Helpers
  * @author      Allen Luo <movoin@gmail.com>
  * @since       0.1
  */
 
-namespace One\Support\Utilities;
+namespace One\Support\Helpers;
 
 use ArrayAccess;
 use Countable;
 use Traversable;
 
-class Assert
+final class Assert
 {
     /**
      * 判断是否字符串
@@ -25,7 +25,7 @@ class Assert
      *
      * @return bool
      */
-    public static function string($value)
+    public static function string($value): bool
     {
         return is_string($value);
     }
@@ -37,7 +37,7 @@ class Assert
      *
      * @return bool
      */
-    public static function stringNotEmpty($value)
+    public static function stringNotEmpty($value): bool
     {
         return is_string($value) && $value != '';
     }
@@ -49,7 +49,7 @@ class Assert
      *
      * @return bool
      */
-    public static function integer($value)
+    public static function integer($value): bool
     {
         return is_int($value);
     }
@@ -61,7 +61,7 @@ class Assert
      *
      * @return bool
      */
-    public static function float($value)
+    public static function float($value): bool
     {
         return is_float($value);
     }
@@ -73,7 +73,7 @@ class Assert
      *
      * @return bool
      */
-    public static function numeric($value)
+    public static function numeric($value): bool
     {
         return is_numeric($value) || $value == (int) $value;
     }
@@ -85,7 +85,7 @@ class Assert
      *
      * @return bool
      */
-    public static function natural($value)
+    public static function natural($value): bool
     {
         return is_int($value) && $value >= 0;
     }
@@ -97,7 +97,7 @@ class Assert
      *
      * @return bool
      */
-    public static function boolean($value)
+    public static function boolean($value): bool
     {
         return is_bool($value);
     }
@@ -109,7 +109,7 @@ class Assert
      *
      * @return bool
      */
-    public static function object($value)
+    public static function object($value): bool
     {
         return is_object($value);
     }
@@ -122,7 +122,7 @@ class Assert
      *
      * @return bool
      */
-    public static function resource($value, $type = null)
+    public static function resource($value, $type = null): bool
     {
         if ($type !== null) {
             return is_resource($value) && $type === get_resource_type($value);
@@ -138,7 +138,7 @@ class Assert
      *
      * @return bool
      */
-    public static function callable($value)
+    public static function callable($value): bool
     {
         return is_callable($value);
     }
@@ -150,7 +150,7 @@ class Assert
      *
      * @return bool
      */
-    public static function array($value)
+    public static function array($value): bool
     {
         return is_array($value) || $value instanceof ArrayAccess;
     }
@@ -162,7 +162,7 @@ class Assert
      *
      * @return bool
      */
-    public static function countable($value)
+    public static function countable($value): bool
     {
         return is_array($value) && $value instanceof Countable;
     }
@@ -174,7 +174,7 @@ class Assert
      *
      * @return bool
      */
-    public static function iterable($value)
+    public static function iterable($value): bool
     {
         return is_array($value) && $value instanceof Traversable;
     }
@@ -183,23 +183,24 @@ class Assert
      * 判断是否实现自指定类
      *
      * @param  mixed $value
+     * @param  mixed $class
      *
      * @return bool
      */
-    public static function instanceOf($value, $class)
+    public static function instanceOf($value, $class): bool
     {
-        return $value instanceof $classes;
+        return $value instanceof $class;
     }
 
     /**
      * 判断是否实现自指定类
      *
      * @param  mixed $value
-     * @param  array $class
+     * @param  array $classes
      *
      * @return bool
      */
-    public static function instanceOfAny($value, array $classes)
+    public static function instanceOfAny($value, array $classes): bool
     {
         foreach ($classes as $class) {
             if ($value instanceof $class) {
@@ -219,7 +220,7 @@ class Assert
      *
      * @return bool
      */
-    public static function range($value, $min, $max)
+    public static function range($value, $min, $max): bool
     {
         return $value >= $min && $value <= $max;
     }
@@ -232,7 +233,7 @@ class Assert
      *
      * @return bool
      */
-    public static function oneOf($value, array $values)
+    public static function oneOf($value, array $values): bool
     {
         return in_array($value, $values, true);
     }
@@ -245,7 +246,7 @@ class Assert
      *
      * @return bool
      */
-    public static function contains($value, $needle)
+    public static function contains($value, $needle): bool
     {
         return strpos($value, $needle) !== false;
     }
@@ -257,7 +258,7 @@ class Assert
      *
      * @return bool
      */
-    public static function ip($value)
+    public static function ip($value): bool
     {
         return (bool) filter_var($string, FILTER_VALIDATE_IP);
     }
@@ -270,7 +271,7 @@ class Assert
      *
      * @return bool
      */
-    public static function email($value, $domains = null)
+    public static function email($value, $domains = null): bool
     {
         $isEmail = (bool) filter_var($string, FILTER_VALIDATE_EMAIL);
 
@@ -295,7 +296,7 @@ class Assert
      *
      * @return bool
      */
-    public static function url($value)
+    public static function url($value): bool
     {
         return (bool) filter_var($value, FILTER_VALIDATE_URL);
     }
@@ -307,7 +308,7 @@ class Assert
      *
      * @return bool
      */
-    public static function json($value)
+    public static function json($value): bool
     {
         json_decode($value);
         return json_last_error() === JSON_ERROR_NONE;

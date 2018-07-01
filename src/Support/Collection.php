@@ -5,12 +5,12 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  *
- * @package     One\Support\Utilities
+ * @package     One\Support
  * @author      Allen Luo <movoin@gmail.com>
  * @since       0.1
  */
 
-namespace One\Support\Utilities;
+namespace One\Support;
 
 use ArrayAccess;
 use ArrayIterator;
@@ -18,6 +18,7 @@ use Countable;
 use IteratorAggregate;
 use One\Support\Contracts\Arrayable;
 use One\Support\Contracts\Jsonable;
+use One\Support\Helpers\Json;
 
 class Collection implements ArrayAccess, Countable, IteratorAggregate, Arrayable, Jsonable
 {
@@ -53,7 +54,7 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, Arrayable
      *
      * @return array
      */
-    public function keys()
+    public function keys(): array
     {
         return array_keys($this->items);
     }
@@ -85,14 +86,14 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, Arrayable
      *
      * @param  callable $callback
      *
-     * @return \One\Support\Utilities\Collection
+     * @return array
      */
-    public function map(callable $callback)
+    public function map(callable $callback): array
     {
         $keys = array_keys($this->items);
         $items = array_map($callback, $this->items, $keys);
 
-        return new static(array_combine($keys, $items));
+        return array_combine($keys, $items);
     }
 
     /**
@@ -102,7 +103,7 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, Arrayable
      *
      * @return array
      */
-    public function filter(callable $callback)
+    public function filter(callable $callback): array
     {
         return array_filter($this->items, $callback, ARRAY_FILTER_USE_BOTH);
     }
@@ -112,7 +113,7 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, Arrayable
      *
      * @return int
      */
-    public function count()
+    public function count(): int
     {
         return count($this->items);
     }
@@ -136,7 +137,7 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, Arrayable
      *
      * @return bool
      */
-    public function has($key)
+    public function has($key): bool
     {
         return isset($this->items[$key]);
     }
@@ -174,8 +175,6 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, Arrayable
      *
      * @param string $key
      * @param mixed  $value
-     *
-     * @return void
      */
     public function set($key, $value)
     {
@@ -186,8 +185,6 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, Arrayable
      * 推入数据项
      *
      * @param  mixed $item
-     *
-     * @return void
      */
     public function push($item)
     {
@@ -198,8 +195,6 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, Arrayable
      * 推入多条数据
      *
      * @param  array $items
-     *
-     * @return void
      */
     public function pushMany($items = [])
     {
@@ -233,8 +228,6 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, Arrayable
      *
      * @param  mixed $offset
      * @param  mixed $value
-     *
-     * @return void
      */
     public function offsetSet($offset, $value)
     {
@@ -252,7 +245,7 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, Arrayable
      *
      * @return bool
      */
-    public function offsetExists($offset)
+    public function offsetExists($offset): bool
     {
         return isset($this->items[$offset]);
     }
@@ -261,8 +254,6 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, Arrayable
      * 删除数据项
      *
      * @param  mixed $offset
-     *
-     * @return void
      */
     public function offsetUnset($offset)
     {
@@ -296,7 +287,7 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, Arrayable
      *
      * @return array
      */
-    public function toArray()
+    public function toArray(): array
     {
         return $this->items;
     }
@@ -304,12 +295,10 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, Arrayable
     /**
      * 获得 JSON 字符串
      *
-     * @param  int    $options
-     *
-     * @return JSON
+     * @return string
      */
-    public function toJson($options = 0)
+    public function toJson(): string
     {
-        return json_encode($this->items, $options);
+        return Json::encode($this->items);
     }
 }

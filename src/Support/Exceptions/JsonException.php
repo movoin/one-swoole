@@ -5,9 +5,15 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  *
- * @package     One\Swoole
+ * @package     One\Support\Exceptions
  * @author      Allen Luo <movoin@gmail.com>
  * @since       0.1
  */
 
-namespace One\Swoole;
+namespace One\Support\Exceptions;
+
+use Exception;
+
+class JsonException extends Exception
+{
+}
