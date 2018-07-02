@@ -81,7 +81,7 @@ class Container implements ContainerInterface
      * @param  string $id
      * @param  string $alias
      */
-    public function alias($id, $alias)
+    public function alias(string $id, string $alias)
     {
         $this->alias[$alias] = $id;
     }
@@ -94,7 +94,7 @@ class Container implements ContainerInterface
      *
      * @throws \One\Support\Exceptions\ContainerException
      */
-    public function bind($id, $concrete = null)
+    public function bind(string $id, $concrete = null)
     {
         if ($concrete === null) {
             $concrete = $id;
@@ -106,7 +106,7 @@ class Container implements ContainerInterface
                     return $container->resolve($concrete, $parameters);
                 }
                 return $container->make($concrete, $parameters);
-            }
+            };
         }
 
         $this->bindings[$id] = $concrete;
@@ -122,7 +122,7 @@ class Container implements ContainerInterface
      * @return object
      * @throws \One\Support\Exceptions\ContainerException
      */
-    public function make($id, array $parameters = [], $createNew = false)
+    public function make(string $id, array $parameters = [], bool $createNew = false)
     {
         if (isset($this->alias[$id])) {
             $id = $this->alias[$id];
