@@ -47,7 +47,7 @@ class Container implements ContainerInterface
      *
      * @return bool
      */
-    public function has($id)
+    public function has($id): bool
     {
         return isset($this->alias[$id]) ||
                isset($this->bindings[$id]) ||

@@ -38,7 +38,7 @@ trait HasContainer
      *
      * @return \One\Support\Container
      */
-    public function getContainer()
+    public function getContainer(): Container
     {
         return $this->container;
     }

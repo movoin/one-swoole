@@ -44,7 +44,7 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, Arrayable
      *
      * @return array
      */
-    public function all()
+    public function all(): array
     {
         return $this->items;
     }

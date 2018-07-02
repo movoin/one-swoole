@@ -78,9 +78,39 @@ final class Arr
      *
      * @return array
      */
-    public static function filter($array, callable $callback)
+    public static function filter($array, callable $callback): array
     {
         return array_filter($array, $callback, ARRAY_FILTER_USE_BOTH);
+    }
+
+    /**
+     * 返回数组间的差异
+     *
+     * @param  \ArrayAccess|array $before
+     * @param  \ArrayAccess|array $after
+     *
+     * @return array
+     * @throws \InvalidArgumentException
+     */
+    public static function diff($before, $after): array
+    {
+        if (! Assert::array($before) || ! Assert::array($after)) {
+            throw new InvalidArgumentException(
+                '`Arr::diff` two parameters must be `array` or implements interface `ArrayAccess`'
+            );
+        }
+
+        $diff = [];
+
+        foreach ($after as $key => $value) {
+            if (! isset($before[$key])) {
+                $diff[$key] = $value;
+            } elseif ($value != $before[$key]) {
+                $diff[$key] = $value;
+            }
+        }
+
+        return $diff;
     }
 
     /**
@@ -92,7 +122,7 @@ final class Arr
      * @return array
      * @throws \InvalidArgumentException
      */
-    public static function removeByValue($array, $value)
+    public static function removeByValue($array, $value): array
     {
         if (! Assert::array($array)) {
             throw new InvalidArgumentException(
@@ -118,7 +148,7 @@ final class Arr
      * @return array
      * @throws \InvalidArgumentException
      */
-    public static function groupBy($array, string $key)
+    public static function groupBy($array, string $key): array
     {
         if (! Assert::array($array)) {
             throw new InvalidArgumentException(
@@ -138,6 +168,38 @@ final class Arr
     }
 
     /**
+     * 返回指定 Keys 的对应值
+     *
+     * @param  \ArrayAccess|array   $array
+     * @param  string               $key
+     *
+     * @return array
+     * @throws \InvalidArgumentException
+     */
+    public static function columns($array, string $key): array
+    {
+        if (! Assert::array($array)) {
+            throw new InvalidArgumentException(
+                '`Arr::columns` first parameter must be `array` or implements interface `ArrayAccess`'
+            );
+        }
+
+        if (empty($array)) {
+            return [];
+        }
+
+        $columns = [];
+
+        foreach ($array as $item) {
+            if (self::exists($item, $key)) {
+                $columns[] = $item[$key];
+            }
+        }
+
+        return $columns;
+    }
+
+    /**
      * 将一个多维数组转换为键值映射数组
      *
      * @param  \ArrayAccess|array   $array
@@ -147,7 +209,7 @@ final class Arr
      * @return array
      * @throws \InvalidArgumentException
      */
-    public static function hashMap($array, $key, $value = null)
+    public static function hashMap($array, $key, $value = null): array
     {
         if (! Assert::array($array)) {
             throw new InvalidArgumentException(
@@ -177,7 +239,7 @@ final class Arr
      *
      * @return array
      */
-    public static function convertFromStdClass(stdClass $object)
+    public static function convertFromStdClass(stdClass $object): array
     {
         return Json::decode(Json::encode($object));
     }
@@ -190,7 +252,7 @@ final class Arr
      * @return \stdClass
      * @throws \InvalidArgumentException
      */
-    public static function convertToStdClass($array)
+    public static function convertToStdClass($array): stdClass
     {
         if (! Assert::array($array)) {
             throw new InvalidArgumentException(
