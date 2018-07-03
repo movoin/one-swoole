@@ -1,0 +1,10 @@
+# Select image from https://hub.docker.com/r/movoin/devops-swoole/
+image: movoin/devops-swoole:2
+
+before_script:
+- composer install
+
+# Run our tests
+test:
+  script:
+  - composer test
