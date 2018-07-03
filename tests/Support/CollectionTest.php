@@ -13,6 +13,7 @@
 namespace One\Tests\Support;
 
 use One\Support\Collection;
+use One\Support\Helpers\Json;
 
 class CollectionTest extends \PHPUnit\Framework\TestCase
 {
@@ -83,5 +84,107 @@ class CollectionTest extends \PHPUnit\Framework\TestCase
         $this->assertSame(['foo' => 'oof'], $this->collect->filter(function ($value) {
             return $value === 'oof';
         }));
+    }
+
+    public function testCount()
+    {
+        $this->assertEquals(3, $this->collect->count());
+    }
+
+    public function testClear()
+    {
+        $this->collect->clear();
+        $this->assertEquals(0, $this->collect->count());
+    }
+
+    public function testHas()
+    {
+        $this->assertTrue($this->collect->has('foo'));
+    }
+
+    public function testGetValue()
+    {
+        $this->assertEquals('oof', $this->collect->get('foo'));
+        $this->assertNull($this->collect->get('tar'));
+    }
+
+    public function testGetByValue()
+    {
+        $this->collect->replace([
+            [
+                'id' => 1,
+                'type' => 'foo'
+            ],
+            [
+                'id' => 2,
+                'type' => 'bar'
+            ]
+        ]);
+
+        $this->assertSame([ 0 => [
+                        'id' => 1,
+                        'type' => 'foo'
+                ]], $this->collect->getByValue('type', 'foo'));
+    }
+
+    public function testSetValue()
+    {
+        $this->collect->set('foo', 'xxx');
+        $this->assertEquals('xxx', $this->collect->get('foo'));
+    }
+
+    public function testPushItem()
+    {
+        $this->collect->push('tar');
+        $this->assertEquals(4, $this->collect->count());
+    }
+
+    public function testPushMany()
+    {
+        $this->collect->pushMany(['tar', 'jar']);
+        $this->assertEquals(5, $this->collect->count());
+    }
+
+    public function testShift()
+    {
+        $this->assertEquals('oof', $this->collect->shift());
+    }
+
+    public function testPop()
+    {
+        $this->assertEquals('raz', $this->collect->pop());
+    }
+
+    public function testArrayAccess()
+    {
+        $this->collect['bar'] = true;
+        $this->assertTrue($this->collect->get('bar'));
+
+        $this->collect[] = 'push';
+        $this->assertEquals(4, $this->collect->count());
+
+        $this->assertTrue(isset($this->collect['bar']));
+
+        unset($this->collect['bar']);
+        $this->assertFalse($this->collect->has('bar'));
+
+        $this->assertEquals('raz', $this->collect['zar']);
+
+        $this->assertEquals(null, $this->collect['bar']);
+    }
+
+    public function testArrayIterator()
+    {
+        $this->assertInstanceOf('ArrayIterator', $this->collect->getIterator());
+    }
+
+    public function testToArray()
+    {
+        $this->assertSame($this->defaults, $this->collect->toArray());
+    }
+
+    public function testToJson()
+    {
+        $this->assertEquals(Json::encode($this->defaults), $this->collect->toJson());
     }
 }

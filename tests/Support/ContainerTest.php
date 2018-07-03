@@ -47,6 +47,12 @@ class ContainerTest extends \PHPUnit\Framework\TestCase
 
         $this->assertTrue($this->container->has('foo'));
         $this->assertEquals('bar', $this->container->get('foo'));
+
+        $this->container->bind('\\stdClass');
+        $this->assertEquals(new \stdClass, $this->container->get('\\stdClass'));
+
+        $this->container->bind('stdClass', '\\stdClass');
+        $this->assertEquals(new \stdClass, $this->container->get('stdClass'));
     }
 
     public function testMake()
@@ -62,7 +68,7 @@ class ContainerTest extends \PHPUnit\Framework\TestCase
      */
     public function testGetObjectException()
     {
-        $this->container->get('One/Missed/Class');
+        $this->container->get('One/NotFounded/Class');
     }
 
     /**
@@ -70,6 +76,6 @@ class ContainerTest extends \PHPUnit\Framework\TestCase
      */
     public function testResolveException()
     {
-        $this->container->resolve('One/Missed/Class');
+        $this->container->resolve('One/ReflectionException/Class');
     }
 }
