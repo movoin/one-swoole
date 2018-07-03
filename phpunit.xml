@@ -3,7 +3,7 @@
   bootstrap="tests/bootstrap.php"
   backupGlobals="false"
   backupStaticAttributes="false"
-  colors="true"
+  colors="false"
   verbose="true"
   convertErrorsToExceptions="true"
   convertNoticesToExceptions="true"
@@ -23,7 +23,6 @@
     </whitelist>
   </filter>
   <logging>
-    <log type="coverage-html" target="build/coverage" charset="UTF-8" yui="true" highlight="true"/>
-    <log type="coverage-text" target="build/coverage.txt"/>
+    <log type="coverage-text" target="php://stdout"/>
   </logging>
 </phpunit>

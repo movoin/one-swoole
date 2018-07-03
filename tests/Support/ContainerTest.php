@@ -35,7 +35,41 @@ class ContainerTest extends \PHPUnit\Framework\TestCase
 
     public function testSetAlias()
     {
-        $this->container->alias('foo', 'bar');
-        $this->assertTrue($this->container->has('bar'));
+        $this->container->alias('bar', 'foo');
+        $this->assertTrue($this->container->has('foo'));
+    }
+
+    public function testBinding()
+    {
+        $this->container->bind('foo', function ($container, $parameters) {
+            return 'bar';
+        });
+
+        $this->assertTrue($this->container->has('foo'));
+        $this->assertEquals('bar', $this->container->get('foo'));
+    }
+
+    public function testMake()
+    {
+        $this->container->alias('\\stdClass', 'foo');
+        $std = $this->container->make('\\stdClass');
+
+        $this->assertSame($std, $this->container->get('foo'));
+    }
+
+    /**
+     * @expectedException One\Support\Exceptions\ContainerValueNotFoundException
+     */
+    public function testGetObjectException()
+    {
+        $this->container->get('One/Missed/Class');
+    }
+
+    /**
+     * @expectedException One\Support\Exceptions\ContainerException
+     */
+    public function testResolveException()
+    {
+        $this->container->resolve('One/Missed/Class');
     }
 }

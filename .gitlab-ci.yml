@@ -3,8 +3,10 @@ image: movoin/devops-swoole:2
 
 before_script:
 - composer install
+- pecl install xdebug
+- echo 'zend_extension=xdebug.so' > /etc/php/conf.d/xdebug.ini
 
 # Run PHPUnit
 phpunit:
   script:
-  - composer test
+  - vendor/bin/phpunit -c phpunit.xml tests

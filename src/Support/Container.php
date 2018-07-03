@@ -91,8 +91,6 @@ class Container implements ContainerInterface
      *
      * @param  string $id
      * @param  mixed  $concrete
-     *
-     * @throws \One\Support\Exceptions\ContainerException
      */
     public function bind(string $id, $concrete = null)
     {
