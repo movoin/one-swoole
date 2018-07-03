@@ -75,7 +75,7 @@ final class Assert
      */
     public static function numeric($value): bool
     {
-        return is_numeric($value) || $value == (int) $value;
+        return is_numeric($value);
     }
 
     /**
@@ -164,7 +164,7 @@ final class Assert
      */
     public static function countable($value): bool
     {
-        return is_array($value) && $value instanceof Countable;
+        return is_array($value) || $value instanceof Countable;
     }
 
     /**
@@ -176,7 +176,7 @@ final class Assert
      */
     public static function iterable($value): bool
     {
-        return is_array($value) && $value instanceof Traversable;
+        return is_array($value) || $value instanceof Traversable;
     }
 
     /**
@@ -252,6 +252,25 @@ final class Assert
     }
 
     /**
+     * 判断是否由指定字符开头
+     *
+     * @param  string       $haystack
+     * @param  string|array $needles
+     *
+     * @return bool
+     */
+    public static function startsWith(string $haystack, $needles): bool
+    {
+        foreach ((array) $needles as $needle) {
+            if ($needle != '' && substr($haystack, 0, strlen($needle)) === (string) $needle) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * 判断是否 IP
      *
      * @param  mixed  $value
@@ -260,7 +279,7 @@ final class Assert
      */
     public static function ip($value): bool
     {
-        return (bool) filter_var($string, FILTER_VALIDATE_IP);
+        return (bool) filter_var($value, FILTER_VALIDATE_IP);
     }
 
     /**
@@ -273,7 +292,7 @@ final class Assert
      */
     public static function email($value, $domains = null): bool
     {
-        $isEmail = (bool) filter_var($string, FILTER_VALIDATE_EMAIL);
+        $isEmail = (bool) filter_var($value, FILTER_VALIDATE_EMAIL);
 
         if ($isEmail && $domains !== null) {
             list(, $host) = explode('@', $value);
