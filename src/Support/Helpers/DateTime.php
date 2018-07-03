@@ -12,9 +12,6 @@
 
 namespace One\Support\Helpers;
 
-use DateTime as PhpDateTime;
-use DateTimeZone;
-
 final class DateTime
 {
     const MINUTE    = 60;
@@ -28,45 +25,43 @@ final class DateTime
     /**
      * 构造工厂
      *
-     * @param  mixed $time
-     * @param  mixed $timezone
+     * @param  \DateTime|string|int $time
+     * @param  string               $timezone
      *
      * @return \DateTime
      */
-    public static function factory($time = null, $timezone = null): \DateTime
+    public static function factory($time = null, string $timezone = null): \DateTime
     {
-        if (! $timezone instanceof DateTimeZone) {
+        if (! $timezone instanceof \DateTimeZone) {
             $timezone = $timezone ?: date_default_timezone_get();
-            $timezone = new DateTimeZone($timezone);
+            $timezone = new \DateTimeZone($timezone);
         }
 
-        if ($time instanceof PhpDateTime) {
+        if ($time instanceof \DateTime) {
             return $time->setTimezone($timezone);
         }
 
-        $datetime = new PhpDateTime('@' . self::timestamp($time));
+        $datetime = new \DateTime('@' . self::timestamp($time));
         return $datetime->setTimezone($timezone);
     }
 
     /**
      * 转换时间戳
      *
-     * @param  \DateTime|string $time
+     * @param  \DateTime|string|int $time
      *
      * @return int
      */
     public static function timestamp($time = null): int
     {
-        if ($time instanceof PhpDateTime) {
+        if ($time instanceof \DateTime) {
             return $time->format('U');
         }
 
+        $time = time();
+
         if ($time !== null) {
             $time = is_numeric($time) ? (int) $time : strtotime($time);
-        }
-
-        if (! $time) {
-            $time = time();
         }
 
         return $time;
@@ -76,11 +71,12 @@ final class DateTime
      * 获得当前日期
      *
      * @param  string $format
+     * @param  string $timezone
      *
      * @return string
      */
-    public static function now($format = 'Y-m-d H:i:s'): string
+    public static function now(string $format = 'Y-m-d H:i:s', string $timezone = null): string
     {
-        return self::factory()->format($format);
+        return self::factory(null, $timezone)->format($format);
     }
 }

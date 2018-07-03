@@ -51,7 +51,9 @@ final class Arr
             return $default;
         }
 
-        if (is_null($key)) {
+        $key = trim($key);
+
+        if ($key === '') {
             return $array;
         }
 
@@ -131,7 +133,7 @@ final class Arr
         }
 
         foreach ($array as $i => $val) {
-            if ($val === $value) {
+            if (trim($val) === trim($value)) {
                 unset($array[$i]);
             }
         }
@@ -160,7 +162,7 @@ final class Arr
 
         foreach ($array as $row) {
             $k = $row[$key];
-            $grouped[$k] = $row;
+            $grouped[$k][] = $row;
             unset($k);
         }
 
@@ -218,8 +220,10 @@ final class Arr
         }
 
         $hashMap = [];
+        $key     = trim($key);
+        $value   = trim($value);
 
-        if ($value) {
+        if (! empty($value)) {
             foreach ($array as $row) {
                 $hashMap[$row[$key]] = $row[$value];
             }
