@@ -29,15 +29,20 @@
     "php": "^7.0",
     "ext-swoole": ">=2.1.0",
     "psr/container": "^1.0",
-    "psr/http-message": "^1.0"
+    "psr/http-message": "^1.0",
+    "psr/log": "^1.0"
   },
   "require-dev": {
     "phpunit/phpunit": "^6.5",
-    "squizlabs/php_codesniffer": "^3.3"
+    "squizlabs/php_codesniffer": "^3.3",
+    "jakub-onderka/php-parallel-lint": "^1.0"
   },
   "scripts": {
-    "test": "./vendor/bin/phpunit -c ./phpunit.xml ./tests",
-    "check-style": "./vendor/bin/phpcs -p --standard=PSR2 --runtime-set ignore_errors_on_exit 1 --runtime-set ignore_warnings_on_exit 1 src",
-    "fix-style": "./vendor/bin/phpcbf -p --standard=PSR2 --runtime-set ignore_errors_on_exit 1 --runtime-set ignore_warnings_on_exit 1 src"
+    "test": [
+      "phpcs -p --standard=PSR2 --runtime-set ignore_errors_on_exit 1 --runtime-set ignore_warnings_on_exit 1 src",
+      "parallel-lint . --exclude vendor",
+      "phpunit -c ./phpunit.xml ./tests"
+    ],
+    "fix-style": "phpcbf -p --standard=PSR2 --runtime-set ignore_errors_on_exit 1 --runtime-set ignore_warnings_on_exit 1 src"
   }
 }
