@@ -3,13 +3,13 @@
   bootstrap="tests/bootstrap.php"
   backupGlobals="false"
   backupStaticAttributes="false"
-  colors="false"
+  colors="true"
   verbose="true"
   convertErrorsToExceptions="true"
   convertNoticesToExceptions="true"
   convertWarningsToExceptions="true"
   processIsolation="false"
-  stopOnFailure="false"
+  stopOnFailure="true"
   beStrictAboutTestsThatDoNotTestAnything="true"
 >
   <testsuites>

@@ -2,11 +2,12 @@
   "name": "onelab/one",
   "description": "Just one swoole framework.",
   "type": "library",
-  "homepage": "http://movoin.com/",
+  "homepage": "https://gitlab.com/onelab/one.swoole",
   "authors": [
     {
       "name": "Allen Luo",
-      "email": "movoin@gmail.com"
+      "email": "movoin@gmail.com",
+      "homepage": "http://movoin.com"
     }
   ],
   "autoload": {
@@ -30,7 +31,9 @@
     "ext-swoole": ">=2.1.0",
     "psr/container": "^1.0",
     "psr/http-message": "^1.0",
-    "psr/log": "^1.0"
+    "psr/log": "^1.0",
+    "monolog/monolog": "^1.23",
+    "symfony/yaml": "^4.1"
   },
   "require-dev": {
     "phpunit/phpunit": "^6.5",
