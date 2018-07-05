@@ -31,16 +31,10 @@ class Listener
      *
      * @throws \InvalidArgumentException
      */
-    public function __construct($handler)
+    public function __construct($handler = null)
     {
-        if (Assert::array($handler)) {
-            $this->handler = function (Event $event) use ($handler) {
-                return call_user_func_array($handler, [$event]);
-            };
-        } elseif (Assert::instanceOf($handler, '\\Closure')) {
-            $this->handler = $handler;
-        } else {
-            throw new InvalidArgumentException('`Listener::$handler` must be `array` or `Closure`');
+        if ($handler !== null) {
+            $this->setHandler($handler);
         }
     }
 
@@ -62,6 +56,26 @@ class Listener
     public function getHandler(): \Closure
     {
         return $this->handler;
+    }
+
+    /**
+     * 设置事件处理句柄
+     *
+     * @param  \Closure|array $handler
+     *
+     * @throws \InvalidArgumentException
+     */
+    public function setHandler($handler)
+    {
+        if (Assert::array($handler)) {
+            $this->handler = function (Event $event) use ($handler) {
+                return call_user_func_array($handler, [$event]);
+            };
+        } elseif (Assert::instanceOf($handler, '\\Closure')) {
+            $this->handler = $handler;
+        } else {
+            throw new InvalidArgumentException('`Listener::$handler` must be `array` or `Closure`');
+        }
     }
 
     /**

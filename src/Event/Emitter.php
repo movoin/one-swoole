@@ -15,6 +15,7 @@ namespace One\Event;
 use Closure;
 use InvalidArgumentException;
 use One\Support\Helpers\Assert;
+use One\Support\Helpers\Reflection;
 
 class Emitter
 {
@@ -43,9 +44,9 @@ class Emitter
     /**
      * 注册事件监听句柄
      *
-     * @param  \One\Event\Event|string              $event
-     * @param  \Closure|\One\Event\Listener|array   $listener
-     * @param  int                                  $priority
+     * @param  \One\Event\Event|string                      $event
+     * @param  \Closure|\One\Event\Listener|array|string    $listener
+     * @param  int                                          $priority
      *
      * @throws \InvalidArgumentException
      */
@@ -57,9 +58,9 @@ class Emitter
     /**
      * 注册一次性事件监听句柄
      *
-     * @param  \One\Event\Event|string              $event
-     * @param  \Closure|\One\Event\Listener|array   $listener
-     * @param  int                                  $priority
+     * @param  \One\Event\Event|string                      $event
+     * @param  \Closure|\One\Event\Listener|array|string    $listener
+     * @param  int                                          $priority
      *
      * @throws \InvalidArgumentException
      */
@@ -170,10 +171,10 @@ class Emitter
     /**
      * 添加事件监听
      *
-     * @param  \One\Event\Event|string              $event
-     * @param  \Closure|\One\Event\Listener|array   $listener
-     * @param  int                                  $priority
-     * @param  bool                                 $once
+     * @param  \One\Event\Event|string                      $event
+     * @param  \Closure|\One\Event\Listener|array|string    $listener
+     * @param  int                                          $priority
+     * @param  bool                                         $once
      *
      * @throws \InvalidArgumentException
      */
@@ -199,8 +200,8 @@ class Emitter
     /**
      * 移除事件监听
      *
-     * @param  \One\Event\Event|string              $event
-     * @param  \Closure|\One\Event\Listener|array   $listener
+     * @param  \One\Event\Event|string                      $event
+     * @param  \Closure|\One\Event\Listener|array|string    $listener
      *
      * @throws \InvalidArgumentException
      */
@@ -269,7 +270,7 @@ class Emitter
     /**
      * 创建事件监听器实例
      *
-     * @param  \Closure|\One\Event\Listener|array   $listener
+     * @param  \Closure|\One\Event\Listener|array|string   $listener
      *
      * @return \One\Event\Listener
      * @throws \InvalidArgumentException
@@ -280,6 +281,8 @@ class Emitter
             return $listener;
         } elseif (Assert::instanceOf($listener, '\\Closure') || Assert::array($listener)) {
             return new Listener($listener);
+        } elseif (Assert::string($listener)) {
+            return Reflection::newInstance($listener);
         }
 
         throw new InvalidArgumentException(
@@ -290,7 +293,7 @@ class Emitter
     /**
      * 创建一次性事件监听器实例
      *
-     * @param  \Closure|\One\Event\OnceListener|array   $listener
+     * @param  \Closure|\One\Event\OnceListener|array|string   $listener
      *
      * @return \One\Event\OnceListener
      * @throws \InvalidArgumentException
@@ -301,6 +304,8 @@ class Emitter
             return $listener;
         } elseif (Assert::instanceOf($listener, '\\Closure') || Assert::array($listener)) {
             return new OnceListener($listener);
+        } elseif (Assert::string($listener)) {
+            return Reflection::newInstance($listener);
         }
 
         throw new InvalidArgumentException(

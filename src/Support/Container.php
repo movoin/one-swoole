@@ -13,9 +13,9 @@
 namespace One\Support;
 
 use Closure;
-use ReflectionClass;
 use ReflectionException;
 use Psr\Container\ContainerInterface;
+use One\Support\Helpers\Reflection;
 use One\Support\Exceptions\ContainerException;
 use One\Support\Exceptions\ContainerValueNotFoundException;
 
@@ -153,7 +153,7 @@ class Container implements ContainerInterface
         }
 
         try {
-            $reflector = new ReflectionClass($concrete);
+            $instance = Reflection::newInstance($concrete, $parameters);
         } catch (ReflectionException $e) {
             throw new ContainerException(
                 sprintf('Container error while retrieving "%s"', $concrete),
@@ -162,6 +162,6 @@ class Container implements ContainerInterface
             );
         }
 
-        return $reflector->newInstanceArgs($parameters);
+        return $instance;
     }
 }

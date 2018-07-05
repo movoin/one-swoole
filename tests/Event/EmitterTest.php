@@ -54,9 +54,15 @@ class EmitterTest extends \PHPUnit\Framework\TestCase
     public function testEmit()
     {
         $this->emitter->once('array_once', [$this, 'handler']);
+        $this->emitter->emit(new Event('array_once'));
         $this->emitter->emit('array_once');
 
         $this->assertFalse($this->emitter->hasListener('array_once'));
+    }
+
+    public function testGetListeners()
+    {
+        $this->assertEmpty($this->emitter->getListeners('none'));
     }
 
     public function handler(Event $event)
