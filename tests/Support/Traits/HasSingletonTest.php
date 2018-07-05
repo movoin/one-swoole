@@ -18,11 +18,11 @@ class HasSingletonTest extends \PHPUnit\Framework\TestCase
 {
     public function testHasSingleton()
     {
-        $this->assertInstanceOf(MyTest::class, MyTest::singleton());
+        $this->assertInstanceOf(MySingleton::class, MySingleton::singleton());
     }
 }
 
-class MyTest
+class MySingleton
 {
     use HasSingleton;
 }

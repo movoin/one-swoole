@@ -38,7 +38,13 @@ final class Config
      *
      * @var string
      */
-    private static $rootPath;
+    private static $root;
+    /**
+     * 配置文件模式目录
+     *
+     * @var string
+     */
+    private static $path;
 
     /**
      * 设置配置文件根目录
@@ -56,9 +62,31 @@ final class Config
             throw new InvalidArgumentException("'{$path}' not exists");
         }
 
-        static::$rootPath = realpath($path);
+        static::$root = realpath($root);
+        static::$path = realpath($path);
 
         unset($mode, $path);
+    }
+
+    /**
+     * 获得指定配置内容
+     *
+     * @param  string $name
+     * @param  mixed  $default
+     *
+     * @return mixed
+     */
+    public static function get(string $name, $default = null)
+    {
+        return Arr::get(static::$config, $name, $default);
+    }
+
+    /**
+     * 清空配置
+     */
+    public static function clear()
+    {
+        static::$config = [];
     }
 
     /**
@@ -72,12 +100,12 @@ final class Config
             return;
         }
 
-        $conf = static::importFromPath(static::$rootPath);
+        $conf = static::importFromPath(static::$path);
 
         // 全局配置
         $globals = [
-            'swoole' => static::$rootPath . '/swoole.yml',
-            'global' => static::$rootPath . '/global.yml',
+            'swoole' => static::$root . '/swoole.yml',
+            'global' => static::$root . '/global.yml',
         ];
 
         foreach ($globals as $name => $path) {
@@ -89,11 +117,61 @@ final class Config
         unset($globals);
 
         // 主配置
-        if (! isset($conf['main']['name'])) {
-            $conf['main']['name'] = Run::name() . '-' . Run::mode();
+        if (! isset($conf['global']['name'])) {
+            $conf['global']['name'] = Run::name() . '-' . Run::mode();
+        }
+
+        if (! isset($conf['global']['version'])) {
+            $conf['global']['version'] = Run::version();
         }
 
         // 协议配置
+        if (isset($conf['protocol'])) {
+            foreach ($conf['protocol'] as $name => &$protocol) {
+                // Swoole 配置
+                if (isset($protocol['swoole'])) {
+                    $protocol['swoole'] = array_merge(
+                        $conf['swoole'],
+                        $protocol['swoole']
+                    );
+                } else {
+                    $protocol['swoole'] = $conf['swoole'];
+                }
+
+                // Protocol
+                $protocol['protocol'] = isset($protocol['protocol']) ?
+                                        strtolower($protocol['protocol']) :
+                                        'http';
+
+                // Runtime
+                if (! isset($protocol['runtimePath'])) {
+                    $protocol['runtimePath'] = isset($conf['global']['runtimePath']) ?
+                                                $conf['global']['runtimePath'] :
+                                                '/tmp';
+                }
+
+                // Swoole 日志
+                if (! isset($protocol['swoole']['log_file'])) {
+                    $protocol['swoole']['log_file'] = $protocol['runtimePath'] . '/logs/error.log';
+                }
+
+                // TCP 监听
+                if (! isset($protocol['sock'])) {
+                    $protocol['sock'] = $protocol['runtimePath'] . '/var/' . $name . '.sock';
+                }
+
+                // 主进程 PID 文件位置
+                $protocol['swoole']['pid_file'] = $protocol['runtimePath'] . '/var/' . $name . '.pid';
+            }
+        }
+
+        unset($conf['swoole']);
+
+        // {{
+        static::$config = static::preformPlaceHolder($conf);
+        // }}
+
+        unset($conf);
     }
 
     /**
@@ -104,7 +182,7 @@ final class Config
      */
     public static function addPlaceHolder(string $placeholder, string $path)
     {
-        static::$placeholders[$placeholder] = $path;
+        static::$placeholders[$placeholder] = trim($path);
     }
 
     /**
@@ -131,7 +209,7 @@ final class Config
     public static function writeFile(string $filename, array $config): bool
     {
         return (bool) file_put_contents(
-            static::$rootPath . '/' . $filename,
+            static::$root . '/' . $filename,
             Yaml::dump($config)
         );
     }
@@ -161,9 +239,7 @@ final class Config
                 if ($path->getExtension() === 'yml') {
                     $pathinfo = pathinfo($path->getFileName());
 
-                    $conf[$pathinfo['filename']] = static::preformPlaceHolder(
-                        (array) static::readFile($path->getPathName(), [])
-                    );
+                    $conf[$pathinfo['filename']] = (array) static::readFile($path->getPathName(), []);
 
                     unset($pathinfo);
                 }

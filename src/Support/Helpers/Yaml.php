@@ -41,11 +41,7 @@ final class Yaml
     public static function parseFile(string $filename, $default = null)
     {
         if (file_exists($filename)) {
-            if (static::hasYamlExtends()) {
-                return yaml_parse_file($filename);
-            } else {
-                return $this->getParser()->parseFile($filename);
-            }
+            return static::getParser()->parseFile($filename);
         }
 
         return $default;
@@ -60,11 +56,7 @@ final class Yaml
      */
     public static function parse(string $input)
     {
-        if (static::hasYamlExtends()) {
-            return yaml_parse($input);
-        } else {
-            return $this->getParser()->parse($input);
-        }
+        return static::getParser()->parse($input);
     }
 
     /**
@@ -76,21 +68,7 @@ final class Yaml
      */
     public static function dump($input): string
     {
-        if (static::hasYamlExtends()) {
-            return yaml_emit($input);
-        } else {
-            return $this->getDumper()->dump($input);
-        }
-    }
-
-    /**
-     * 判断是否有 YAML 扩展
-     *
-     * @return bool
-     */
-    private static function hasYamlExtends(): bool
-    {
-        return function_exists('yaml_parse_file');
+        return static::getDumper()->dump($input);
     }
 
     /**
@@ -98,7 +76,7 @@ final class Yaml
      *
      * @return \Symfony\Component\Yaml\Parser
      */
-    private static function getParser()
+    public static function getParser()
     {
         if (static::$parser === null) {
             static::$parser = new Parser;
@@ -112,7 +90,7 @@ final class Yaml
      *
      * @return \Symfony\Component\Yaml\Dumper
      */
-    private static function getDumper()
+    public static function getDumper()
     {
         if (static::$dumper === null) {
             static::$dumper = new Dumper;

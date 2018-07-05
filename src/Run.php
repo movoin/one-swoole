@@ -56,7 +56,7 @@ final class Run
      */
     public static function mode(): string
     {
-        if ($mode = strtolower(get_cfg_var('one.run_mode')) && static::checkMode($mode)) {
+        if ($mode = strtolower(get_cfg_var('one.run_mode'))) {
             return $mode;
         }
 
@@ -65,22 +65,5 @@ final class Run
         }
 
         return self::DEPLOY;
-    }
-
-    /**
-     * 检查是否在许可范围
-     *
-     * @param  string $mode
-     *
-     * @return bool
-     */
-    private static function checkMode($mode): bool
-    {
-        return Assert::oneOf($mode, [
-            self::DEPLOY,
-            self::DEV,
-            self::TEST,
-            self::LOCAL
-        ]);
     }
 }
