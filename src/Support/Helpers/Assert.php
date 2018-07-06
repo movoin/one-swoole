@@ -39,7 +39,7 @@ final class Assert
      */
     public static function stringNotEmpty($value): bool
     {
-        return is_string($value) && $value != '';
+        return is_string(trim($value)) && trim($value) != '';
     }
 
     /**
