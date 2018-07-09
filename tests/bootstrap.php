@@ -19,16 +19,16 @@ define('RUN_MODE', 'test');
 /**
  * 根目录
  */
-define('ROOT_PATH', __DIR__ . '/../example');
+define('ROOT_PATH', __DIR__);
 /**
  * 应用根目录
  */
-define('APP_PATH', ROOT_PATH . '/app');
+define('APP_PATH', ROOT_PATH . '/_app');
 /**
  * 配置文件目录
  */
-define('CONFIG_PATH', __DIR__ . '/One/config');
+define('CONFIG_PATH', ROOT_PATH . '/_config');
 /**
  * 运行时文件目录
  */
-define('RUNTIME_PATH', ROOT_PATH . '/runtime');
+define('RUNTIME_PATH', ROOT_PATH . '/_runtime');
