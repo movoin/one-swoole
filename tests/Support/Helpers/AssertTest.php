@@ -39,7 +39,8 @@ class AssertTest extends \PHPUnit\Framework\TestCase
             [ 'array',            ['foo'] ],
             [ 'ip',               '127.0.0.1' ],
             [ 'url',              'http://domain.com' ],
-            [ 'json',             '{"foo": "bar"}' ]
+            [ 'json',             '{"foo": "bar"}' ],
+            [ 'namespace',        'foo\\bar\\zar' ]
         ];
     }
 
@@ -66,7 +67,8 @@ class AssertTest extends \PHPUnit\Framework\TestCase
             [ 'array',            'foo' ],
             [ 'ip',               'localhost' ],
             [ 'url',              'vvvom' ],
-            [ 'json',             "{'foo': 'bar'}" ]
+            [ 'json',             "{'foo': 'bar'}" ],
+            [ 'namespace',        'foobar' ]
         ];
     }
 

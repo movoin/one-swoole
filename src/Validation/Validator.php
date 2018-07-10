@@ -13,16 +13,17 @@
 namespace One\Validation;
 
 use One\Support\Helpers\Assert;
+use One\Support\Helpers\Reflection;
 use One\Validation\Exceptions\ValidationException;
 
 class Validator
 {
     /**
-     * 内建约束条件
+     * 内建校验器
      *
      * @var array
      */
-    protected $constraints = [];
+    protected $validators = [];
     /**
      * 校验规则
      *
@@ -131,39 +132,104 @@ class Validator
     }
 
     /**
-     * 添加限定规则
+     * 创建校验器实例
      *
-     * @param string        $name
-     * @param string|array  $constraint
+     * @param  string|array $validator
      *
-     * @throws \One\Validation\Exceptions\ValidationException
+     * @return \One\Validation\Validator
      */
-    public function addConstraint(string $name, $constraint)
+    public function ensureValidator($validator): Validator
     {
-        if (isset($this->constraints[$name])) {
-            throw new ValidationException("Constraint `{$name}` already exists");
-        } elseif (! Assert::stringNotEmpty($constraint) || ! Assert::array($constraint)) {
-            throw new ValidationException("`Validator::addConstraint()` expects parameter 2 to be 'array' or 'string'");
-        } elseif (Assert::array($constraint) && ! $this->isCustomConstraint($constraint)) {
-            throw new ValidationException("`Validator::addConstraint()` expects parameter 2 to be 'callable array'");
+        if ($this->isValidator($validator)) {
+            if ($this->isCustomValidator($validator)) {
+                return function ($attributes, $name, $parameters) use ($validator) {
+                    if (! call_user_func_array($validator, [
+                        $attributes,
+                        $name,
+                        $parameters
+                    ])) {
+                        if (isset($parameters['message'])) {
+                            $this->addError($parameters['message']);
+                        } else {
+                            $this->addError($validator[1] . ' verify failure');
+                        }
+                    }
+                };
+            }
+
+            if (Assert::stringNotEmpty($this->validators[$validator])) {
+                $this->validators[$validator] = Reflection::newInstance(
+                    '\\One\\Valication\\Validators\\' . $this->validators[$validator],
+                    $this
+                );
+            }
         }
 
-        $this->constraints[$name] = $constraint;
+        throw new ValidationException(((string) $validator) . ' not exists');
     }
 
     /**
-     * 判断是否为自定义约束规则
+     * 添加校验器
      *
-     * @param  array $constraint
+     * ```
+     * // 自定义校验器 1
+     * $validator->addValidator('unique', [
+     *     [$this, 'unique'],
+     *     'on' => [ 'create', 'update' ]
+     * ]);
+     *
+     * // 自定义校验器 2
+     * $validator->addValidator('unique', [
+     *     '\\App\\Validators\\Unique',
+     *     'except' => [ 'delete' ]
+     * ]);
+     * ```
+     *
+     * @param string        $name
+     * @param string|array  $validator
+     *
+     * @throws \One\Validation\Exceptions\ValidationException
+     */
+    public function addValidator(string $name, $validator)
+    {
+        if (isset($this->validators[$name])) {
+            throw new ValidationException("Validator `{$name}` already exists");
+        } elseif (! $this->isValidator($validator)) {
+            throw new ValidationException(
+                "`Validator::addValidator()` expects parameter 2 to be 'callable array' or 'string'"
+            );
+        }
+
+        $this->validators[$name] = $validator;
+    }
+
+    /**
+     * 判断是否校验器
+     *
+     * @param  string|array $validator
      *
      * @return bool
      */
-    protected function isCustomConstraint(array $constraint): bool
+    protected function isValidator($validator): bool
     {
-        if (count($constraint) !== 2) {
+        return Assert::namespace($validator) || $this->isCustomValidator($validator);
+    }
+
+    /**
+     * 判断是否为自定义校验器
+     *
+     * @param  array $validator
+     *
+     * @return bool
+     */
+    protected function isCustomValidator(array $validator): bool
+    {
+        if (count($validator) !== 2) {
+            return false;
+        } elseif (! Assert::object($validator[0])) {
             return false;
         }
 
-        return method_exists($constraint[0], $constraint[1]);
+        return method_exists($validator[0], $validator[1]);
     }
 }

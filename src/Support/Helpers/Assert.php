@@ -212,6 +212,18 @@ final class Assert
     }
 
     /**
+     * 判断是否命名空间
+     *
+     * @param  string $value
+     *
+     * @return bool
+     */
+    public static function namespace($value): bool
+    {
+        return static::stringNotEmpty($value) && strpos(trim($value), '\\') !== false;
+    }
+
+    /**
      * 判断数值是否在范围内
      *
      * @param  mixed $value

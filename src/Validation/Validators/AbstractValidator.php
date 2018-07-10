@@ -5,17 +5,17 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  *
- * @package     One\Validation
+ * @package     One\Validation\Validators
  * @author      Allen Luo <movoin@gmail.com>
  * @since       0.1
  */
 
-namespace One\Validation;
+namespace One\Validation\Validators;
 
 use One\Validation\Validator;
 use One\Support\Helpers\Assert;
 
-abstract class Constraint
+abstract class AbstractValidator
 {
     /**
      * 校验器
