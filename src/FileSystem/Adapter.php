@@ -13,7 +13,7 @@
 namespace One\FileSystem;
 
 use One\Support\Helpers\Assert;
-use One\FileSystem\Contracts\Adapter as AdapterInterface
+use One\FileSystem\Contracts\Adapter as AdapterInterface;
 
 abstract class Adapter implements AdapterInterface
 {

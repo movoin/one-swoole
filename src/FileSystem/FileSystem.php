@@ -13,7 +13,7 @@
 namespace One\FileSystem;
 
 use InvalidArgumentException;
-use One\FileSystem\Contracts\Adapter as AdapterInterface
+use One\FileSystem\Contracts\Adapter as AdapterInterface;
 use One\FileSystem\Exceptions\FileSystemException;
 use One\Support\Helpers\Assert;
 
