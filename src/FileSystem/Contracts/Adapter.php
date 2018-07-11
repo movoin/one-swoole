@@ -38,7 +38,7 @@ interface Adapter
      * @param  string $path
      *
      * @return string
-     * @throws \One\FileSystem\Exceptions\PathNotExistsException
+     * @throws \One\FileSystem\Exceptions\FileNotExistsException
      */
     public function read(string $path): string;
 
@@ -48,70 +48,19 @@ interface Adapter
      * @param  string $path
      *
      * @return resource
-     * @throws \One\FileSystem\Exceptions\PathNotExistsException
+     * @throws \One\FileSystem\Exceptions\FileNotExistsException
      */
-    public function readStream(string $path): resource;
+    public function readStream(string $path);
 
     /**
-     * 获得文件的源数据
+     * 返回目录中的内容
      *
-     * @param  string $path
+     * @param  string  $directory
+     * @param  bool    $recursive
      *
      * @return array
-     * @throws \One\FileSystem\Exceptions\PathNotExistsException
      */
-    public function getMetaData(string $path): array;
-
-    /**
-     * 获得文件大小
-     *
-     * @param  string $path
-     *
-     * @return int
-     * @throws \One\FileSystem\Exceptions\PathNotExistsException
-     */
-    public function getSize(string $path): int;
-
-    /**
-     * 获得文件的时间戳
-     *
-     * @param  string $path
-     *
-     * @return int
-     * @throws \One\FileSystem\Exceptions\PathNotExistsException
-     */
-    public function getTimestamp(string $path): int;
-
-    /**
-     * 获得文件的类型
-     *
-     * @param  string $path
-     *
-     * @return string
-     * @throws \One\FileSystem\Exceptions\PathNotExistsException
-     */
-    public function getMimeType(string $path): string;
-
-    /**
-     * 返回文件可见性
-     *
-     * @param  string $path
-     *
-     * @return string
-     * @throws \One\FileSystem\Exceptions\PathNotExistsException
-     */
-    public function getVisibility(string $path): string;
-
-    /**
-     * 设置文件可见性
-     *
-     * @param string $path
-     * @param string $visibility
-     *
-     * @return bool
-     * @throws \One\FileSystem\Exceptions\PathNotExistsException
-     */
-    public function setVisibility(string $path, string $visibility): bool;
+    public function listContents(string $directory = '', bool $recursive = false): array;
 
     /**
      * 写入文件内容
@@ -121,8 +70,8 @@ interface Adapter
      * @param  array  $config
      *
      * @return bool
-     * @throws \One\FileSystem\Exceptions\PathExistsException
      * @throws \One\FileSystem\Exceptions\FileSystemException
+     * @throws \One\FileSystem\Exceptions\FileExistsException
      */
     public function write(string $path, string $contents, array $config = []): bool;
 
@@ -134,10 +83,10 @@ interface Adapter
      * @param  array    $config
      *
      * @return bool
-     * @throws \One\FileSystem\Exceptions\PathExistsException
      * @throws \One\FileSystem\Exceptions\FileSystemException
+     * @throws \One\FileSystem\Exceptions\FileExistsException
      */
-    public function writeStream(string $path, resource $resource, array $config = []): bool;
+    public function writeStream(string $path, $resource, array $config = []): bool;
 
     /**
      * 更新文件内容
@@ -147,8 +96,8 @@ interface Adapter
      * @param  array  $config
      *
      * @return bool
-     * @throws \One\FileSystem\Exceptions\PathNotExistsException
      * @throws \One\FileSystem\Exceptions\FileSystemException
+     * @throws \One\FileSystem\Exceptions\FileNotExistsException
      */
     public function update(string $path, string $contents, array $config = []): bool;
 
@@ -160,10 +109,51 @@ interface Adapter
      * @param  array    $config
      *
      * @return bool
-     * @throws \One\FileSystem\Exceptions\PathNotExistsException
      * @throws \One\FileSystem\Exceptions\FileSystemException
+     * @throws \One\FileSystem\Exceptions\FileNotExistsException
      */
-    public function updateStream(string $path, resource $resource, array $config = []): bool;
+    public function updateStream(string $path, $resource, array $config = []): bool;
+
+    /**
+     * 获得文件的源数据
+     *
+     * @param  string $path
+     *
+     * @return array
+     * @throws \One\FileSystem\Exceptions\FileNotExistsException
+     */
+    public function getMetaData(string $path): array;
+
+    /**
+     * 获得文件的类型
+     *
+     * @param  string $path
+     *
+     * @return string
+     * @throws \One\FileSystem\Exceptions\FileNotExistsException
+     */
+    public function getMimeType(string $path): string;
+
+    /**
+     * 返回文件可见性
+     *
+     * @param  string $path
+     *
+     * @return string
+     * @throws \One\FileSystem\Exceptions\FileNotExistsException
+     */
+    public function getVisibility(string $path): string;
+
+    /**
+     * 设置文件可见性
+     *
+     * @param string $path
+     * @param string $visibility
+     *
+     * @return bool
+     * @throws \One\FileSystem\Exceptions\FileNotExistsException
+     */
+    public function setVisibility(string $path, string $visibility): bool;
 
     /**
      * 重命名文件
@@ -172,24 +162,11 @@ interface Adapter
      * @param  string $newpath
      *
      * @return bool
-     * @throws \One\FileSystem\Exceptions\PathNotExistsException
-     * @throws \One\FileSystem\Exceptions\PathExistsException
      * @throws \One\FileSystem\Exceptions\FileSystemException
+     * @throws \One\FileSystem\Exceptions\FileExistsException
+     * @throws \One\FileSystem\Exceptions\FileNotExistsException
      */
     public function rename(string $path, string $newpath): bool;
-
-    /**
-     * 复制文件
-     *
-     * @param  string $path
-     * @param  string $newpath
-     *
-     * @return bool
-     * @throws \One\FileSystem\Exceptions\PathNotExistsException
-     * @throws \One\FileSystem\Exceptions\PathExistsException
-     * @throws \One\FileSystem\Exceptions\FileSystemException
-     */
-    public function copy(string $path, string $newpath): bool;
 
     /**
      * 删除文件
@@ -197,7 +174,7 @@ interface Adapter
      * @param  string $path
      *
      * @return bool
-     * @throws \One\FileSystem\Exceptions\PathNotExistsException
+     * @throws \One\FileSystem\Exceptions\FileNotExistsException
      */
     public function delete(string $path): bool;
 
@@ -208,7 +185,7 @@ interface Adapter
      * @param  array  $config
      *
      * @return bool
-     * @throws \One\FileSystem\Exceptions\PathExistsException
+     * @throws \One\FileSystem\Exceptions\DirectoryExistsException
      */
     public function createDir(string $dirname, array $config = []): bool;
 
@@ -218,7 +195,7 @@ interface Adapter
      * @param  string $dirname
      *
      * @return bool
-     * @throws \One\FileSystem\Exceptions\PathNotExistsException
+     * @throws \One\FileSystem\Exceptions\DirectoryNotExistsException
      */
     public function deleteDir(string $dirname): bool;
 }

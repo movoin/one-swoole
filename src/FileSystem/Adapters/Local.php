@@ -20,8 +20,10 @@ use RecursiveDirectoryIterator;
 use One\FileSystem\Adapter;
 use One\FileSystem\MimeType;
 use One\FileSystem\Exceptions\FileSystemException;
-use One\FileSystem\Exceptions\PathExistsException;
-use One\FileSystem\Exceptions\PathNotExistsException;
+use One\FileSystem\Exceptions\FileExistsException;
+use One\FileSystem\Exceptions\FileNotExistsException;
+use One\FileSystem\Exceptions\DirectoryExistsException;
+use One\FileSystem\Exceptions\DirectoryNotExistsException;
 use One\Support\Helpers\Arr;
 
 class Local extends Adapter
@@ -91,18 +93,13 @@ class Local extends Adapter
      * @param  string $path
      *
      * @return string
-     * @throws \One\FileSystem\Exceptions\PathNotExistsException
      */
     public function read(string $path): string
     {
-        $location = $this->ensureFile($path);
+        $location = $this->applyBasePath($path);
         $content  = file_get_contents($location);
 
         unset($location);
-
-        if ($content === false) {
-            throw new PathNotExistsException($path);
-        }
 
         return $content;
     }
@@ -113,11 +110,10 @@ class Local extends Adapter
      * @param  string $path
      *
      * @return resource
-     * @throws \One\FileSystem\Exceptions\PathNotExistsException
      */
-    public function readStream(string $path): resource
+    public function readStream(string $path)
     {
-        $location = $this->ensureFile($path);
+        $location = $this->applyBasePath($path);
         $stream   = fopen($location, 'rb');
 
         unset($location);
@@ -126,106 +122,15 @@ class Local extends Adapter
     }
 
     /**
-     * 获得文件的源数据
+     * 返回目录中的内容
      *
-     * @param  string $path
+     * @param  string  $directory
+     * @param  bool    $recursive
      *
-     * @return array|null
-     * @throws \One\FileSystem\Exceptions\PathNotExistsException
+     * @return array
      */
-    public function getMetaData(string $path): array
+    public function listContents(string $directory = '', bool $recursive = false): array
     {
-        $location = $this->ensureFile($path);
-        $info     = new SplFileInfo($location);
-
-        unset($location);
-
-        return $this->normalizeFileInfo($info);
-    }
-
-    /**
-     * 获得文件大小
-     *
-     * @param  string $path
-     *
-     * @return int
-     * @throws \One\FileSystem\Exceptions\PathNotExistsException
-     */
-    public function getSize(string $path): int
-    {
-        $metadata = $this->getMetaData($path);
-
-        return (int) $metadata['size'];
-    }
-
-    /**
-     * 获得文件的时间戳
-     *
-     * @param  string $path
-     *
-     * @return int
-     * @throws \One\FileSystem\Exceptions\PathNotExistsException
-     */
-    public function getTimestamp(string $path): int
-    {
-        $metadata = $this->getMetaData($path);
-
-        return (int) $metadata['timestamp'];
-    }
-
-    /**
-     * 获得文件的类型
-     *
-     * @param  string $path
-     *
-     * @return string
-     * @throws \One\FileSystem\Exceptions\PathNotExistsException
-     */
-    public function getMimeType(string $path): string
-    {
-        $location = $this->ensureFile($path);
-        $finfo    = new Finfo(FILEINFO_MIME_TYPE);
-        $mimetype = $finfo->file($location);
-
-        if (in_array($mimetype, ['application/octet-stream', 'inode/x-empty'])) {
-            $mimetype = MimeType::detectByFilePath($location);
-        }
-
-        return $mimetype;
-    }
-
-    /**
-     * 返回文件可见性
-     *
-     * @param  string $path
-     *
-     * @return string
-     * @throws \One\FileSystem\Exceptions\PathNotExistsException
-     */
-    public function getVisibility(string $path): string
-    {
-        $location = $this->ensureFile($path);
-        clearstatcache(false, $location);
-        $permission = octdec(substr(sprintf('%o', fileperms($location)), -4));
-
-        return $permission & 0044 ? self::VIS_PUB : self::VIS_PRI;
-    }
-
-    /**
-     * 设置文件可见性
-     *
-     * @param string $path
-     * @param string $visibility
-     *
-     * @return bool
-     * @throws \One\FileSystem\Exceptions\PathNotExistsException
-     */
-    public function setVisibility(string $path, string $visibility): bool
-    {
-        $location = $this->ensureFile($path);
-        $type     = is_dir($location) ? 'dir' : 'file';
-
-        return chmod($location, $this->permissions[$type][$visibility]);
     }
 
     /**
@@ -236,12 +141,11 @@ class Local extends Adapter
      * @param  array  $config
      *
      * @return bool
-     * @throws \One\FileSystem\Exceptions\PathExistsException
      * @throws \One\FileSystem\Exceptions\FileSystemException
      */
     public function write(string $path, string $contents, array $config = []): bool
     {
-        $location = $this->ensureNotFile($path);
+        $location = $this->applyBasePath($path);
         $this->ensureDirectory(dirname($location));
 
         if (file_put_contents($location, $contents, $this->writeFlags) === false) {
@@ -265,12 +169,11 @@ class Local extends Adapter
      * @param  array    $config
      *
      * @return bool
-     * @throws \One\FileSystem\Exceptions\PathExistsException
      * @throws \One\FileSystem\Exceptions\FileSystemException
      */
-    public function writeStream(string $path, resource $resource, array $config = []): bool
+    public function writeStream(string $path, $resource, array $config = []): bool
     {
-        $location = $this->ensureNotFile($path);
+        $location = $this->applyBasePath($path);
         $this->ensureDirectory(dirname($location));
         $stream = fopen($location, 'w+b');
 
@@ -301,12 +204,11 @@ class Local extends Adapter
      * @param  array  $config
      *
      * @return bool
-     * @throws \One\FileSystem\Exceptions\PathNotExistsException
      * @throws \One\FileSystem\Exceptions\FileSystemException
      */
     public function update(string $path, string $contents, array $config = []): bool
     {
-        $location = $this->ensureFile($path);
+        $location = $this->applyBasePath($path);
         $this->ensureDirectory(dirname($location));
 
         if (file_put_contents($location, $contents, $this->writeFlags) === false) {
@@ -329,13 +231,12 @@ class Local extends Adapter
      * @param  resource $resource
      * @param  array    $config
      *
-     * @return array
-     * @throws \One\FileSystem\Exceptions\PathNotExistsException
+     * @return bool
      * @throws \One\FileSystem\Exceptions\FileSystemException
      */
-    public function updateStream(string $path, resource $resource, array $config = []): array
+    public function updateStream(string $path, $resource, array $config = []): bool
     {
-        $location = $this->ensureFile($path);
+        $location = $this->applyBasePath($path);
         $this->ensureDirectory(dirname($location));
         $stream = fopen($location, 'w+b');
 
@@ -359,45 +260,91 @@ class Local extends Adapter
     }
 
     /**
+     * 获得文件的源数据
+     *
+     * @param  string $path
+     *
+     * @return array|null
+     */
+    public function getMetaData(string $path): array
+    {
+        $location = $this->applyBasePath($path);
+        $info     = new SplFileInfo($location);
+
+        unset($location);
+
+        return $this->normalizeFileInfo($info);
+    }
+
+    /**
+     * 获得文件的类型
+     *
+     * @param  string $path
+     *
+     * @return string
+     */
+    public function getMimeType(string $path): string
+    {
+        $location = $this->applyBasePath($path);
+        $finfo    = new Finfo(FILEINFO_MIME_TYPE);
+        $mimetype = $finfo->file($location);
+
+        if (in_array($mimetype, ['application/octet-stream', 'inode/x-empty'])) {
+            $mimetype = MimeType::detectByFilePath($location);
+        }
+
+        return $mimetype;
+    }
+
+    /**
+     * 返回文件可见性
+     *
+     * @param  string $path
+     *
+     * @return string
+     */
+    public function getVisibility(string $path): string
+    {
+        $location = $this->applyBasePath($path);
+        clearstatcache(false, $location);
+        $permission = octdec(substr(sprintf('%o', fileperms($location)), -4));
+
+        return $permission & 0044 ? self::VIS_PUB : self::VIS_PRI;
+    }
+
+    /**
+     * 设置文件可见性
+     *
+     * @param string $path
+     * @param string $visibility
+     *
+     * @return bool
+     */
+    public function setVisibility(string $path, string $visibility): bool
+    {
+        $location = $this->applyBasePath($path);
+        $type     = is_dir($location) ? 'dir' : 'file';
+
+        return chmod($location, $this->permissions[$type][$visibility]);
+    }
+
+    /**
      * 重命名文件
      *
      * @param  string $path
      * @param  string $newpath
      *
      * @return bool
-     * @throws \One\FileSystem\Exceptions\PathNotExistsException
-     * @throws \One\FileSystem\Exceptions\PathExistsException
      * @throws \One\FileSystem\Exceptions\FileSystemException
      */
     public function rename(string $path, string $newpath): bool
     {
-        $location       = $this->ensureFile($path);
-        $destination    = $this->ensureNotFile($newpath);
+        $location       = $this->applyBasePath($path);
+        $destination    = $this->applyBasePath($newpath);
 
         $this->ensureDirectory(dirname($destination));
 
         return rename($location, $destination);
-    }
-
-    /**
-     * 复制文件
-     *
-     * @param  string $path
-     * @param  string $newpath
-     *
-     * @return bool
-     * @throws \One\FileSystem\Exceptions\PathNotExistsException
-     * @throws \One\FileSystem\Exceptions\PathExistsException
-     * @throws \One\FileSystem\Exceptions\FileSystemException
-     */
-    public function copy(string $path, string $newpath): bool
-    {
-        $location       = $this->ensureFile($path);
-        $destination    = $this->ensureNotFile($newpath);
-
-        $this->ensureDirectory(dirname($destination));
-
-        return copy($location, $destination);
     }
 
     /**
@@ -406,11 +353,10 @@ class Local extends Adapter
      * @param  string $path
      *
      * @return bool
-     * @throws \One\FileSystem\Exceptions\PathNotExistsException
      */
     public function delete(string $path): bool
     {
-        return unlink($this->ensureFile($path));
+        return unlink($this->applyBasePath($path));
     }
 
     /**
@@ -420,14 +366,14 @@ class Local extends Adapter
      * @param  array  $config
      *
      * @return bool
-     * @throws \One\FileSystem\Exceptions\PathExistsException
+     * @throws \One\FileSystem\Exceptions\DirectoryExistsException
      */
     public function createDir(string $dirname, array $config = []): bool
     {
         $location = $this->applyBasePath($dirname);
 
         if (is_dir($location)) {
-            throw new PathExistsException($dirname);
+            throw new DirectoryExistsException($dirname);
         }
 
         $umask = umask(0);
@@ -448,14 +394,14 @@ class Local extends Adapter
      * @param  string $dirname
      *
      * @return bool
-     * @throws \One\FileSystem\Exceptions\PathNotExistsException
+     * @throws \One\FileSystem\Exceptions\DirectoryNotExistsException
      */
     public function deleteDir(string $dirname): bool
     {
         $location = $this->applyBasePath($dirname);
 
         if (! is_dir($location)) {
-            throw new PathNotExistsException($dirname);
+            throw new DirectoryNotExistsException($dirname);
         }
 
         $contents = new RecursiveIteratorIterator(
@@ -482,40 +428,6 @@ class Local extends Adapter
         unset($contents);
 
         return rmdir($location);
-    }
-
-    /**
-     * 确认文件存在
-     *
-     * @param  string $path
-     *
-     * @return string
-     * @throws \One\FileSystem\Exceptions\PathNotExistsException
-     */
-    protected function ensureFile(string $path): string
-    {
-        if (! $this->exists($path)) {
-            throw new PathNotExistsException($path);
-        }
-
-        return $this->applyBasePath($path);
-    }
-
-    /**
-     * 确认文件不存在
-     *
-     * @param  string $path
-     *
-     * @return string
-     * @throws \One\FileSystem\Exceptions\PathExistsException
-     */
-    protected function ensureNotFile(string $path): string
-    {
-        if ($this->exists($path)) {
-            throw new PathExistsException($path);
-        }
-
-        return $this->applyBasePath($path);
     }
 
     /**

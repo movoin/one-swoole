@@ -12,7 +12,7 @@
 
 namespace One\FileSystem\Exceptions;
 
-class PathExistsException extends FileSystemException
+class DirectoryNotExistsException extends FileSystemException
 {
     /**
      * 构造
@@ -25,6 +25,6 @@ class PathExistsException extends FileSystemException
     {
         $this->setPath($path);
 
-        parent::__construct(sprintf('Path "%s" already exist', $path), $code, $previous);
+        parent::__construct(sprintf('Directory "%s" does not exist', $path), $code, $previous);
     }
 }

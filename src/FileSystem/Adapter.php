@@ -47,7 +47,7 @@ abstract class Adapter implements AdapterInterface
      */
     public function setBasePath(string $path)
     {
-        if (! Assert::stringNotEmpty($path)) {
+        if (Assert::stringNotEmpty($path)) {
             $this->basePath = rtrim($path, '\\/') . $this->separator;
         }
     }
