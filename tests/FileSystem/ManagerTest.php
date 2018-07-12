@@ -31,4 +31,41 @@ class ManagerTest extends ManagerTestCase
         $this->getManager()->write('local://test.txt', 'test');
         $this->assertTrue($this->getManager()->exists('local://test.txt'));
     }
+
+    public function testCopy()
+    {
+        $this->assertTrue($this->getManager()->copy('local://word.docx', 'local://test.docx'));
+        $this->assertFileExists(RUNTIME_PATH . '/test.docx');
+        $this->getManager()->delete('local://test.docx');
+    }
+
+    public function testMove()
+    {
+        $this->assertTrue($this->getManager()->copy('local://word.docx', 'local://test.docx'));
+        $this->assertTrue($this->getManager()->move(
+            'local://test.docx',
+            'local://test2.docx',
+            ['visibility' => 'private']
+        ));
+        $this->assertFileExists(RUNTIME_PATH . '/test2.docx');
+        $this->getManager()->delete('local://test2.docx');
+    }
+
+    public function testMoveTo()
+    {
+        $this->getManager()->mountFileSystem('test', new FileSystem(
+            new Local(RUNTIME_PATH)
+        ));
+
+        $this->assertTrue($this->getManager()->copy('local://word.docx', 'local://test.docx'));
+        $this->assertTrue($this->getManager()->move(
+            'local://test.docx',
+            'test://test2.docx',
+            ['visibility' => 'private']
+        ));
+
+
+        $this->assertFileExists(RUNTIME_PATH . '/test2.docx');
+        $this->getManager()->delete('test://test2.docx');
+    }
 }

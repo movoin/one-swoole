@@ -12,7 +12,6 @@
 
 namespace One\Tests\FileSystem;
 
-
 use One\FileSystem\Manager;
 use One\FileSystem\FileSystem;
 use One\FileSystem\Adapters\Local;

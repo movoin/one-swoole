@@ -20,8 +20,6 @@ use RecursiveDirectoryIterator;
 use One\FileSystem\Adapter;
 use One\FileSystem\MimeType;
 use One\FileSystem\Exceptions\FileSystemException;
-use One\FileSystem\Exceptions\FileExistsException;
-use One\FileSystem\Exceptions\FileNotExistsException;
 use One\FileSystem\Exceptions\DirectoryExistsException;
 use One\FileSystem\Exceptions\DirectoryNotExistsException;
 use One\Support\Helpers\Arr;
@@ -264,16 +262,17 @@ class Local extends Adapter
      *
      * @param  string $path
      *
-     * @return array|null
+     * @return array
      */
     public function getMetaData(string $path): array
     {
         $location = $this->applyBasePath($path);
         $info     = new SplFileInfo($location);
+        $metadata = $this->normalizeFileInfo($info);
 
-        unset($location);
+        unset($location, $info);
 
-        return $this->normalizeFileInfo($info);
+        return $metadata === null ? [] : $metadata;
     }
 
     /**
