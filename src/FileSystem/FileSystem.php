@@ -13,6 +13,7 @@
 namespace One\FileSystem;
 
 use InvalidArgumentException;
+use One\FileSystem\ContentListingFormatter;
 use One\FileSystem\Contracts\Adapter;
 use One\FileSystem\Exceptions\FileSystemException;
 use One\FileSystem\Exceptions\FileExistsException;
@@ -136,6 +137,10 @@ class FileSystem
      */
     public function listContents(string $directory = '', bool $recursive = false): array
     {
+        $directory = $this->normalizePath($directory);
+        $list = $this->getAdapter()->listContents($directory, $recursive);
+
+        return (new ContentListingFormatter($directory, $recursive))->formatListing($list);
     }
 
     /**

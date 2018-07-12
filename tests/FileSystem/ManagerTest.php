@@ -68,4 +68,11 @@ class ManagerTest extends ManagerTestCase
         $this->assertFileExists(RUNTIME_PATH . '/test2.docx');
         $this->getManager()->delete('test://test2.docx');
     }
+
+    public function testListContents()
+    {
+        $list = $this->getManager()->listContents('local://folder', true);
+
+        $this->assertEquals(count($list), 3);
+    }
 }

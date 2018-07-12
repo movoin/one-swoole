@@ -104,6 +104,18 @@ class Manager
      */
     public function listContents(string $directory = '', bool $recursive = false): array
     {
+        list($prefix, $directory) = $this->getPrefixAndPath($directory);
+
+        $fs     = $this->getFileSystem($prefix);
+        $list   = $fs->listContents($directory, $recursive);
+
+        foreach ($list as &$file) {
+            $file['filesystem'] = $prefix;
+        }
+
+        unset($prefix, $directory, $fs);
+
+        return $list;
     }
 
     /**

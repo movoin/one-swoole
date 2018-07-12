@@ -14,6 +14,7 @@ namespace One\FileSystem\Adapters;
 
 use Finfo;
 use SplFileInfo;
+use DirectoryIterator;
 use FilesystemIterator;
 use RecursiveIteratorIterator;
 use RecursiveDirectoryIterator;
@@ -129,6 +130,32 @@ class Local extends Adapter
      */
     public function listContents(string $directory = '', bool $recursive = false): array
     {
+        $list = [];
+        $location = $this->applyBasePath($directory);
+
+        if (! is_dir($location)) {
+            return $list;
+        }
+
+        $iterator = $recursive ?
+                    $this->getRecursiveDirectoryIterator($location) :
+                    $this->getDirectoryIterator($location);
+
+        foreach ($iterator as $file) {
+            $path = $this->getFilePath($file);
+
+            if (preg_match('#(^|/|\\\\)\.{1,2}$#', $path)) {
+                continue;
+            }
+
+            $list[] = $this->normalizeFileInfo($file);
+
+            unset($path);
+        }
+
+        unset($location, $iterator);
+
+        return array_filter($list);
     }
 
     /**
@@ -492,5 +519,35 @@ class Local extends Adapter
         unset($location);
 
         return trim(str_replace('\\', '/', $path), '/');
+    }
+
+    /**
+     * 获得递归目录迭代器
+     *
+     * @param string $path
+     * @param int    $mode
+     *
+     * @return \RecursiveIteratorIterator
+     */
+    protected function getRecursiveDirectoryIterator(
+        string $path,
+        int $mode = RecursiveIteratorIterator::SELF_FIRST
+    ) {
+        return new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($path, FilesystemIterator::SKIP_DOTS),
+            $mode
+        );
+    }
+
+    /**
+     * 返回目录迭代对象
+     *
+     * @param string $path
+     *
+     * @return \DirectoryIterator
+     */
+    protected function getDirectoryIterator(string $path)
+    {
+        return new DirectoryIterator($path);
     }
 }
