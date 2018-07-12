@@ -14,6 +14,7 @@ namespace One\Validation;
 
 use One\Support\Helpers\Assert;
 use One\Support\Helpers\Reflection;
+use One\Validation\Contracts\Validator as ValidatorInterface;
 use One\Validation\Exceptions\ValidationException;
 
 class Validator
@@ -132,14 +133,106 @@ class Validator
     }
 
     /**
+     * 获得当前场景校验规则
+     *
+     * @return array
+     */
+    public function getScenarios(): array
+    {
+        if ($this->scenario === null) {
+            return $this->rules;
+        }
+
+        $rules = [];
+
+        foreach ($this->rules as $rule) {
+            if (! isset($rule['on']) && ! isset($rule['except'])) {
+                $rules[] = $rule;
+            } elseif (isset($rule['on']) && $this->matchScenario($rule['on'])) {
+                unset($rule['on']);
+                $rules[] = $rule;
+            } elseif (isset($rule['except']) && $this->matchScenario($rule['except'])) {
+                unset($rule['except']);
+                $rules[] = $rule;
+            }
+        }
+
+        return $rules;
+    }
+
+    /**
+     * 校验数据
+     *
+     * @param  array  $attributes
+     *
+     * @return bool
+     */
+    public function validate(array $attributes): bool
+    {
+        $rules = $this->getScenarios();
+
+        foreach ($rules as $rule) {
+            $names = array_map('trim', explode(',', $rule[0]));
+            array_walk($names, function ($name) use ($attributes, $rule) {
+                $this->validateValue($attributes, $name, $rule);
+            });
+            unset($names);
+        }
+
+        unset($rules);
+
+        return count($this->errors) === 0;
+    }
+
+    /**
+     * 校验值（此方法忽略场景）
+     *
+     * @param  array  $attributes
+     * @param  string $name
+     * @param  array  $rule
+     *
+     * @return bool
+     */
+    public function validateValue(array $attributes, string $name, array $rule): bool
+    {
+        // 删除开始的字段名
+        array_shift($rule);
+        // 取出校验器识别
+        $validatorName = array_shift($rule);
+        // 创建校验器
+        $validator = $this->createValidator($validatorName);
+
+        return $validator($attributes, $name, $rule);
+    }
+
+    /**
      * 创建校验器实例
      *
      * @param  string|array $validator
      *
-     * @return \One\Validation\Validator
+     * @return \One\Validation\Contracts\Validator
      */
-    public function ensureValidator($validator): Validator
+    public function createValidator($validator): ValidatorInterface
     {
+        if ($this->isValidator($validator)) {
+            // 自定义校验器 -> 数组方式
+            if ($this->isCustomValidator($validator)) {
+                return function ($attributes, $name, $parameters) use ($validator) {
+                    if (! call_user_func_array($validator, [
+                        $attributes,
+                        $name,
+                        $parameters
+                    ])) {
+                        if (isset($parameters['message'])) {
+                            $this->addError($parameters['message']);
+                        } else {
+                            $this->addError('validation fails');
+                        }
+                    }
+                };
+            }
+        }
+
         if ($this->isValidator($validator)) {
             if ($this->isCustomValidator($validator)) {
                 return function ($attributes, $name, $parameters) use ($validator) {
@@ -165,7 +258,7 @@ class Validator
             }
         }
 
-        throw new ValidationException(((string) $validator) . ' not exists');
+        throw new ValidationException(sprintf('Validator "%s" not found', $validator));
     }
 
     /**
@@ -181,6 +274,12 @@ class Validator
      * // 自定义校验器 2
      * $validator->addValidator('unique', [
      *     '\\App\\Validators\\Unique',
+     *     'except' => [ 'delete' ]
+     * ]);
+     *
+     * // 自定义校验器 3
+     * $validator->addValidator('unique', [
+     *     Unique::class,
      *     'except' => [ 'delete' ]
      * ]);
      * ```
@@ -212,24 +311,52 @@ class Validator
      */
     protected function isValidator($validator): bool
     {
-        return Assert::namespace($validator) || $this->isCustomValidator($validator);
+        if (Assert::stringNotEmpty($validator) && ! Assert::namespace($validator)) {
+            return isset($this->validators[$validator]);
+        }
+
+        return $this->isCustomValidator($validator);
     }
 
     /**
      * 判断是否为自定义校验器
      *
-     * @param  array $validator
+     * @param  array|string $validator
      *
      * @return bool
      */
-    protected function isCustomValidator(array $validator): bool
+    protected function isCustomValidator($validator): bool
     {
-        if (count($validator) !== 2) {
-            return false;
-        } elseif (! Assert::object($validator[0])) {
-            return false;
+        if (is_array($validator)) {
+            if (count($validator) !== 2) {
+                return false;
+            } elseif (! Assert::object($validator[0])) {
+                return false;
+            }
+
+            return method_exists($validator[0], $validator[1]);
+        } elseif (Assert::namespace($validator)) {
+            return true;
         }
 
-        return method_exists($validator[0], $validator[1]);
+        return false;
+    }
+
+    /**
+     * 匹配场景
+     *
+     * @param  string|array $scenarios
+     *
+     * @return bool
+     */
+    private function matchScenario($scenarios): bool
+    {
+        if (Assert::stringNotEmpty($scenarios)) {
+            $scenarios = explode(',', $scenarios);
+        }
+
+        $scenarios = array_map('trim', $scenarios);
+
+        return Assert::oneOf($this->scenario, $scenarios);
     }
 }

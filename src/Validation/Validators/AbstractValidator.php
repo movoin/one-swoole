@@ -13,9 +13,10 @@
 namespace One\Validation\Validators;
 
 use One\Validation\Validator;
+use One\Validation\Contracts\Validator as ValidatorInterface;
 use One\Support\Helpers\Assert;
 
-abstract class AbstractValidator
+abstract class AbstractValidator implements ValidatorInterface
 {
     /**
      * 校验器
