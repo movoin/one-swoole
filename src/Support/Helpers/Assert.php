@@ -115,6 +115,24 @@ final class Assert
     }
 
     /**
+     * 判断是否日期类型
+     *
+     * @param  mixed $value
+     *
+     * @return bool
+     */
+    public static function datetime($value): bool
+    {
+        if ($datetime instanceof \DateTime) {
+            return true;
+        } elseif (strtotime($datetime) !== false) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * 判断是否资源类型
      *
      * @param  mixed  $value
@@ -141,6 +159,28 @@ final class Assert
     public static function callable($value): bool
     {
         return is_callable($value);
+    }
+
+    /**
+     * 判断是否为数组回调
+     *
+     * @param  mixed $value
+     *
+     * @return bool
+     */
+    public static function callableArray($value): bool
+    {
+        if (is_array($value)) {
+            if (count($value) !== 2) {
+                return false;
+            } elseif (! static::object($value[0])) {
+                return false;
+            }
+
+            return method_exists($value[0], $value[1]);
+        }
+
+        return false;
     }
 
     /**
@@ -318,6 +358,34 @@ final class Assert
         }
 
         return $isEmail;
+    }
+
+    /**
+     * 判断是否手机号
+     *
+     * @param  mixed $value
+     *
+     * @return bool
+     */
+    public static function mobile($value): bool
+    {
+        if (! is_integer($value)) {
+            return false;
+        }
+
+        return !! preg_match('/(13\d|14[57]|15[^4,\D]|17[678]|18\d)\d{8}|170[059]\d{7}/i', $value);
+    }
+
+    /**
+     * 判断是否电话号码
+     *
+     * @param  mixed $value
+     *
+     * @return bool
+     */
+    public static function phone($value): bool
+    {
+        return !! preg_match('/^(\d{4}-|\d{3}-)?(\d{8}|\d{7})$/', $value);
     }
 
     /**

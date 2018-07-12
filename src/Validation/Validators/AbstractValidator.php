@@ -19,6 +19,12 @@ use One\Support\Helpers\Assert;
 abstract class AbstractValidator implements ValidatorInterface
 {
     /**
+     * 未定义字段则放行，默认为 true，当规则校验健名未设置时，自动返回 true 通过校验
+     *
+     * @var bool
+     */
+    protected $ignoreUndefined = true;
+    /**
      * 校验器
      *
      * @var \One\Validation\Validator
@@ -46,7 +52,12 @@ abstract class AbstractValidator implements ValidatorInterface
      */
     public function __invoke(array $attributes, string $name, array $parameters = []): bool
     {
-        return (bool) $this->validate($attributes, $name, $parameters);
+        // 自动通过未定义的校验规则
+        if ($this->ignoreUndefined === true && ! isset($attributes[$name])) {
+            return true;
+        }
+
+        return $this->validate($attributes, $name, $parameters);
     }
 
     /**
@@ -56,7 +67,7 @@ abstract class AbstractValidator implements ValidatorInterface
      * @param  array  $parameters
      * @param  string $message
      */
-    protected function addError(string $name, array $parameters, string $message)
+    protected function addError(string $name, array $parameters, string $message = '')
     {
         if (Assert::stringNotEmpty($parameters['message'])) {
             $message = trim($parameters['message']);

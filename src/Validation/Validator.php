@@ -24,6 +24,18 @@ class Validator
      *
      * @var array
      */
+    protected $builtinValidators = [];
+    /**
+     * 自定义校验器
+     *
+     * @var array
+     */
+    protected $customValidators = [];
+    /**
+     * 校验器实例
+     *
+     * @var array
+     */
     protected $validators = [];
     /**
      * 校验规则
@@ -67,16 +79,6 @@ class Validator
     }
 
     /**
-     * 添加校验规则
-     *
-     * @param array $rule
-     */
-    public function addRule(array $rule)
-    {
-        $this->rules[] = $rule;
-    }
-
-    /**
      * 批量添加校验规则
      *
      * @param array $rules
@@ -86,6 +88,16 @@ class Validator
         foreach ($rules as $rule) {
             $this->addRule($rule);
         }
+    }
+
+    /**
+     * 添加校验规则
+     *
+     * @param array $rule
+     */
+    public function addRule(array $rule)
+    {
+        $this->rules[] = $rule;
     }
 
     /**
@@ -166,6 +178,7 @@ class Validator
      * @param  array  $attributes
      *
      * @return bool
+     * @throws \One\Validation\Exceptions\ValidationException
      */
     public function validate(array $attributes): bool
     {
@@ -192,6 +205,7 @@ class Validator
      * @param  array  $rule
      *
      * @return bool
+     * @throws \One\Validation\Exceptions\ValidationException
      */
     public function validateValue(array $attributes, string $name, array $rule): bool
     {
@@ -206,59 +220,17 @@ class Validator
     }
 
     /**
-     * 创建校验器实例
+     * 判断是否校验器
      *
-     * @param  string|array $validator
+     * @param  string $name
      *
-     * @return \One\Validation\Contracts\Validator
+     * @return bool
      */
-    public function createValidator($validator): ValidatorInterface
+    public function hasValidator(string $name): bool
     {
-        if ($this->isValidator($validator)) {
-            // 自定义校验器 -> 数组方式
-            if ($this->isCustomValidator($validator)) {
-                return function ($attributes, $name, $parameters) use ($validator) {
-                    if (! call_user_func_array($validator, [
-                        $attributes,
-                        $name,
-                        $parameters
-                    ])) {
-                        if (isset($parameters['message'])) {
-                            $this->addError($parameters['message']);
-                        } else {
-                            $this->addError('validation fails');
-                        }
-                    }
-                };
-            }
-        }
-
-        if ($this->isValidator($validator)) {
-            if ($this->isCustomValidator($validator)) {
-                return function ($attributes, $name, $parameters) use ($validator) {
-                    if (! call_user_func_array($validator, [
-                        $attributes,
-                        $name,
-                        $parameters
-                    ])) {
-                        if (isset($parameters['message'])) {
-                            $this->addError($parameters['message']);
-                        } else {
-                            $this->addError($validator[1] . ' verify failure');
-                        }
-                    }
-                };
-            }
-
-            if (Assert::stringNotEmpty($this->validators[$validator])) {
-                $this->validators[$validator] = Reflection::newInstance(
-                    '\\One\\Valication\\Validators\\' . $this->validators[$validator],
-                    $this
-                );
-            }
-        }
-
-        throw new ValidationException(sprintf('Validator "%s" not found', $validator));
+        return isset($this->builtinValidators[$name]) ||
+               isset($this->customValidators[$name]) ||
+               isset($this->validators[$name]);
     }
 
     /**
@@ -284,6 +256,16 @@ class Validator
      * ]);
      * ```
      *
+     * // 自定义校验器 4
+     * $validator->addValidator('unique', [
+     *     function ($attributes, $name, $parameters) {
+     *         // do something
+     *         return true;
+     *     },
+     *     'except' => [ 'delete' ]
+     * ]);
+     * ```
+     *
      * @param string        $name
      * @param string|array  $validator
      *
@@ -291,55 +273,81 @@ class Validator
      */
     public function addValidator(string $name, $validator)
     {
-        if (isset($this->validators[$name])) {
+        if ($this->hasValidator($name)) {
             throw new ValidationException("Validator `{$name}` already exists");
-        } elseif (! $this->isValidator($validator)) {
+        } elseif (! $this->isCustomValidator($validator)) {
             throw new ValidationException(
-                "`Validator::addValidator()` expects parameter 2 to be 'callable array' or 'string'"
+                "`Validator` expects to be 'callable', 'callable array' or 'namespace string'"
             );
         }
 
-        $this->validators[$name] = $validator;
+        $this->customValidators[$name] = $validator;
     }
 
     /**
-     * 判断是否校验器
+     * 创建校验器实例
      *
-     * @param  string|array $validator
+     * @param  string $name
      *
-     * @return bool
+     * @return \One\Validation\Contracts\Validator
+     * @throws \One\Validation\Exceptions\ValidationException
      */
-    protected function isValidator($validator): bool
+    public function createValidator(string $name): ValidatorInterface
     {
-        if (Assert::stringNotEmpty($validator) && ! Assert::namespace($validator)) {
-            return isset($this->validators[$validator]);
+        if (isset($this->validators[$name])) {
+            return $this->validators[$name];
         }
 
-        return $this->isCustomValidator($validator);
+        if (($validator = $this->getValidatorDefine($name)) !== false) {
+            if (Assert::string($validator)) {
+                $this->validators[$name] = Reflection::newInstance(
+                    '\\One\\Valication\\Validators\\' . $validator,
+                    $this
+                );
+            } elseif (Assert::array($validator)) {
+                $this->validators[$name] = CustomValidator::createFromArray($this, $validator);
+            } else {
+                $this->validators[$name] = CustomValidator::createFromCallback($this, $validator);
+            }
+
+            return $this->validators[$name];
+        }
+
+        throw new ValidationException(sprintf('Validator "%s" not found', $name));
     }
 
     /**
-     * 判断是否为自定义校验器
+     * 获得校验器定义
      *
-     * @param  array|string $validator
+     * @param  string $name
+     *
+     * @return array|string|callable|false
+     */
+    public function getValidatorDefine(string $name)
+    {
+        if (isset($this->builtinValidators[$name])) {
+            return $this->builtinValidators[$name];
+        }
+
+        if (isset($this->customValidators[$name])) {
+            return $this->customValidators[$name];
+        }
+
+        return false;
+    }
+
+    /**
+     * 判断是否自定义校验器
+     *
+     * @param  callable|string|array $validator
      *
      * @return bool
      */
     protected function isCustomValidator($validator): bool
     {
-        if (is_array($validator)) {
-            if (count($validator) !== 2) {
-                return false;
-            } elseif (! Assert::object($validator[0])) {
-                return false;
-            }
-
-            return method_exists($validator[0], $validator[1]);
-        } elseif (Assert::namespace($validator)) {
-            return true;
-        }
-
-        return false;
+        return Assert::callable($validator) ||
+               Assert::callableArray($validator) ||
+               Assert::namespace($validator);
     }
 
     /**
