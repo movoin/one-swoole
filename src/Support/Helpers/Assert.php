@@ -39,7 +39,7 @@ final class Assert
      */
     public static function stringNotEmpty($value): bool
     {
-        return is_string(trim($value)) && trim($value) != '';
+        return is_string($value) && trim($value) != '';
     }
 
     /**
@@ -123,9 +123,9 @@ final class Assert
      */
     public static function datetime($value): bool
     {
-        if ($datetime instanceof \DateTime) {
+        if ($value instanceof \DateTime) {
             return true;
-        } elseif (strtotime($datetime) !== false) {
+        } elseif (strtotime($value) !== false) {
             return true;
         }
 
@@ -369,11 +369,7 @@ final class Assert
      */
     public static function mobile($value): bool
     {
-        if (! is_integer($value)) {
-            return false;
-        }
-
-        return !! preg_match('/(13\d|14[57]|15[^4,\D]|17[678]|18\d)\d{8}|170[059]\d{7}/i', $value);
+        return !! preg_match('/^((13[0-9])|(14[5|7])|(15([0-3]|[5-9]))|(18[0,5-9]))\\d{8}$/i', $value);
     }
 
     /**

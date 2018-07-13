@@ -13,8 +13,9 @@
 namespace One\Validation\Validators;
 
 use One\Support\Helpers\Assert;
+use One\Validation\Exceptions\ValidationException;
 
-class MobileValidator extends AbstractValidator
+class InstanceOfValidator extends AbstractValidator
 {
     /**
      * 校验规则
@@ -24,14 +25,19 @@ class MobileValidator extends AbstractValidator
      * @param  array  $parameters
      *
      * @return bool
+     * @throws \One\Validation\Exceptions\ValidationException
      */
     protected function validate(array $attributes, string $name, array $parameters): bool
     {
-        if (Assert::mobile($attributes[$name])) {
+        if (! isset($parameters['of'])) {
+            throw new ValidationException('实现接口必须设置');
+        }
+
+        if (Assert::instanceOfAny($attributes[$name], (array) $parameters['of'])) {
             return true;
         }
 
-        $this->addError($name, $parameters, '%s 必须为手机号码');
+        $this->addError($name, $parameters, '%s 未实现特定接口');
 
         return false;
     }

@@ -15,6 +15,7 @@ namespace One\Validation;
 use One\Support\Helpers\Assert;
 use One\Support\Helpers\Reflection;
 use One\Validation\Contracts\Validator as ValidatorInterface;
+use One\Validation\Validators\CustomValidator;
 use One\Validation\Exceptions\ValidationException;
 
 class Validator
@@ -24,7 +25,42 @@ class Validator
      *
      * @var array
      */
-    protected $builtinValidators = [];
+    protected $builtinValidators = [
+        'required'      => 'RequiredValidator',
+        'str'           => 'StringValidator',
+        'string'        => 'StringValidator',
+        'num'           => 'NumericValidator',
+        'numeric'       => 'NumericValidator',
+        'number'        => 'NumericValidator',
+        'int'           => 'IntegerValidator',
+        'integer'       => 'IntegerValidator',
+        'alphanumeric'  => 'AlphaNumericValidator',
+        'float'         => 'FloatValidator',
+        'array'         => 'ArrayValidator',
+        'json'          => 'JsonValidator',
+        'null'          => 'NullValidator',
+        'notNull'       => 'NotNullValidator',
+        'bool'          => 'BooleanValidator',
+        'boolean'       => 'BooleanValidator',
+        'date'          => 'DateValidator',
+        'datetime'      => 'DateValidator',
+        'email'         => 'EmailValidator',
+        'url'           => 'UrlValidator',
+        'ip'            => 'IpValidator',
+        'mobile'        => 'MobileValidator',
+        'phone'         => 'PhoneValidator',
+        'between'       => 'BetweenValidator',
+        'in'            => 'InValidator',
+        'notIn'         => 'NotInValidator',
+        'len'           => 'LengthValidator',
+        'length'        => 'LengthValidator',
+        'greater'       => 'GreaterValidator',
+        'less'          => 'LessValidator',
+        'equals'        => 'EqualsValidator',
+        'notEquals'     => 'NotEqualsValidator',
+        'regex'         => 'RegexValidator',
+        'instance'      => 'InstanceOfValidator'
+    ];
     /**
      * 自定义校验器
      *
@@ -238,32 +274,19 @@ class Validator
      *
      * ```
      * // 自定义校验器 1
-     * $validator->addValidator('unique', [
-     *     [$this, 'unique'],
-     *     'on' => [ 'create', 'update' ]
-     * ]);
+     * $validator->addValidator('unique', [$this, 'unique']);
      *
      * // 自定义校验器 2
-     * $validator->addValidator('unique', [
-     *     '\\App\\Validators\\Unique',
-     *     'except' => [ 'delete' ]
-     * ]);
+     * $validator->addValidator('unique', '\\App\\Validators\\Unique');
      *
      * // 自定义校验器 3
-     * $validator->addValidator('unique', [
-     *     Unique::class,
-     *     'except' => [ 'delete' ]
-     * ]);
-     * ```
+     * $validator->addValidator('unique', Unique::class);
      *
      * // 自定义校验器 4
-     * $validator->addValidator('unique', [
-     *     function ($attributes, $name, $parameters) {
-     *         // do something
-     *         return true;
-     *     },
-     *     'except' => [ 'delete' ]
-     * ]);
+     * $validator->addValidator('unique', function ($attributes, $name, $parameters) {
+     *     // do something
+     *     return true;
+     * });
      * ```
      *
      * @param string        $name
@@ -301,8 +324,8 @@ class Validator
         if (($validator = $this->getValidatorDefine($name)) !== false) {
             if (Assert::string($validator)) {
                 $this->validators[$name] = Reflection::newInstance(
-                    '\\One\\Valication\\Validators\\' . $validator,
-                    $this
+                    '\\One\\Validation\\Validators\\' . $validator,
+                    [ $this ]
                 );
             } elseif (Assert::array($validator)) {
                 $this->validators[$name] = CustomValidator::createFromArray($this, $validator);
@@ -323,7 +346,7 @@ class Validator
      *
      * @return array|string|callable|false
      */
-    public function getValidatorDefine(string $name)
+    protected function getValidatorDefine(string $name)
     {
         if (isset($this->builtinValidators[$name])) {
             return $this->builtinValidators[$name];

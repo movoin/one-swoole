@@ -14,7 +14,7 @@ namespace One\Validation\Validators;
 
 use One\Validation\Validator;
 
-class CustomValidator extends AbstractValicator
+class CustomValidator extends AbstractValidator
 {
     /**
      * 自定义回调
@@ -63,6 +63,16 @@ class CustomValidator extends AbstractValicator
         });
 
         return $self;
+    }
+
+    /**
+     * 设置自定义回调
+     *
+     * @param callable $callback
+     */
+    protected function setCallback(callable $callback)
+    {
+        $this->callback = $callback;
     }
 
     /**

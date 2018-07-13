@@ -12,9 +12,9 @@
 
 namespace One\Validation\Validators;
 
+use One\Support\Helpers\Assert;
 use One\Validation\Validator;
 use One\Validation\Contracts\Validator as ValidatorInterface;
-use One\Support\Helpers\Assert;
 
 abstract class AbstractValidator implements ValidatorInterface
 {
@@ -53,7 +53,7 @@ abstract class AbstractValidator implements ValidatorInterface
     public function __invoke(array $attributes, string $name, array $parameters = []): bool
     {
         // 自动通过未定义的校验规则
-        if ($this->ignoreUndefined === true && ! isset($attributes[$name])) {
+        if ($this->ignoreUndefined === true && ! array_key_exists($name, $attributes)) {
             return true;
         }
 
@@ -69,7 +69,9 @@ abstract class AbstractValidator implements ValidatorInterface
      */
     protected function addError(string $name, array $parameters, string $message = '')
     {
-        if (Assert::stringNotEmpty($parameters['message'])) {
+        if (array_key_exists('message', $parameters) &&
+            Assert::stringNotEmpty($parameters['message'])
+        ) {
             $message = trim($parameters['message']);
         }
 
@@ -85,5 +87,5 @@ abstract class AbstractValidator implements ValidatorInterface
      *
      * @return bool
      */
-    abstract protected function validate(array $attributes, string $name, array $parameters = []): bool;
+    abstract protected function validate(array $attributes, string $name, array $parameters): bool;
 }

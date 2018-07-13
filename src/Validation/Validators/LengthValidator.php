@@ -37,20 +37,24 @@ class LengthValidator extends AbstractValidator
 
         $len = mb_strlen($attributes[$name]);
 
-        if (isset($parameters['is']) && $len === (int) $parameters['is']) {
-            return true;
+        if (isset($parameters['is'])) {
+            if ($len === (int) $parameters['is']) {
+                return true;
+            }
         }
 
-        if (isset($parameters['min']) &&
-            isset($parameters['max']) &&
-            $len >= (int) $parameters['min'] &&
-            $len <= (int) $parameters['max']
-        ) {
-            return true;
-        } elseif (isset($parameters['min']) && $len >= (int) $parameters['min']) {
-            return true;
-        } elseif (isset($parameters['max']) && $len <= (int) $parameters['max']) {
-            return true;
+        if (isset($parameters['min']) && isset($parameters['max'])) {
+            if ($len >= (int) $parameters['min'] && $len <= (int) $parameters['max']) {
+                return true;
+            }
+        } elseif (isset($parameters['min'])) {
+            if ($len >= (int) $parameters['min']) {
+                return true;
+            }
+        } elseif (isset($parameters['max'])) {
+            if ($len <= (int) $parameters['max']) {
+                return true;
+            }
         }
 
         $this->addError($name, $parameters, '%s 长度不符合');
