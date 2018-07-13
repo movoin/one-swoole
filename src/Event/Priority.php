@@ -17,13 +17,13 @@ abstract class Priority
     /**
      * 低优先级
      */
-    const LOW       = 0;
+    const LOW = 0;
     /**
      * 中优先级
      */
-    const NORMAL    = 10;
+    const NORMAL = 10;
     /**
      * 高优先级
      */
-    const HIGH      = 100;
+    const HIGH = 100;
 }
