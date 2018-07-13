@@ -54,7 +54,7 @@ class CustomValidator extends AbstractValidator
      *
      * @return self
      */
-    public static function createFromCallback(Validator $validator, callable $callback): self
+    public static function createFromClosure(Validator $validator, callable $callback): self
     {
         $self = new static($validator);
 

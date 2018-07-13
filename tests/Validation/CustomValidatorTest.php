@@ -57,6 +57,16 @@ class CustomValidatorTest extends \PHPUnit\Framework\TestCase
             [
                 [$this, 'returnFalse'],
                 false
+            ],
+            [
+                \One\Tests\Validation\Custom::class,
+                true
+            ],
+            [
+                function ($attributes, $name, $parameters) {
+                    return true;
+                },
+                true
             ]
         ];
     }

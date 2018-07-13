@@ -165,11 +165,13 @@ class Manager
             $fs = $this->getFileSystem($prefixFrom);
             $renamed = $fs->rename($pathFrom, $pathTo);
 
+            unset($prefixFrom, $pathFrom, $prefixTo);
+
             if ($renamed && isset($config['visibility'])) {
                 return $fs->setVisibility($pathTo, $config['visibility']);
             }
 
-            unset($fs, $prefixFrom, $pathFrom, $prefixTo, $pathTo);
+            unset($fs, $pathTo);
 
             return $renamed;
         }

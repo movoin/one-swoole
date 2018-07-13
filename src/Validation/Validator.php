@@ -323,14 +323,22 @@ class Validator
 
         if (($validator = $this->getValidatorDefine($name)) !== false) {
             if (Assert::string($validator)) {
+                if (Assert::namespace($validator)) {
+                    $namespace = $validator;
+                } else {
+                    $namespace = '\\One\\Validation\\Validators\\' . $validator;
+                }
+
                 $this->validators[$name] = Reflection::newInstance(
-                    '\\One\\Validation\\Validators\\' . $validator,
+                    $namespace,
                     [ $this ]
                 );
+
+                unset($namespace);
             } elseif (Assert::array($validator)) {
                 $this->validators[$name] = CustomValidator::createFromArray($this, $validator);
             } else {
-                $this->validators[$name] = CustomValidator::createFromCallback($this, $validator);
+                $this->validators[$name] = CustomValidator::createFromClosure($this, $validator);
             }
 
             return $this->validators[$name];
@@ -369,7 +377,6 @@ class Validator
     protected function isCustomValidator($validator): bool
     {
         return Assert::callable($validator) ||
-               Assert::callableArray($validator) ||
                Assert::namespace($validator);
     }
 

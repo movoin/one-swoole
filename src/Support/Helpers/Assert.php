@@ -162,28 +162,6 @@ final class Assert
     }
 
     /**
-     * 判断是否为数组回调
-     *
-     * @param  mixed $value
-     *
-     * @return bool
-     */
-    public static function callableArray($value): bool
-    {
-        if (is_array($value)) {
-            if (count($value) !== 2) {
-                return false;
-            } elseif (! static::object($value[0])) {
-                return false;
-            }
-
-            return method_exists($value[0], $value[1]);
-        }
-
-        return false;
-    }
-
-    /**
      * 判断是否数组
      *
      * @param  mixed $value

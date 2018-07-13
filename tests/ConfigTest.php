@@ -44,6 +44,16 @@ class ConfigTest extends \PHPUnit\Framework\TestCase
         unlink(CONFIG_PATH . '/test.yml');
     }
 
+    public function testUndefinedRuntimePath()
+    {
+        Config::clear();
+        Config::setRootPath(CONFIG_PATH . '2');
+        Config::addPlaceHolder('{ROOT_PATH}', ROOT_PATH);
+
+        Config::load(true);
+        $this->assertEquals('/tmp', Config::get('protocol.http.runtimePath'));
+    }
+
     /**
      * @expectedException InvalidArgumentException
      */

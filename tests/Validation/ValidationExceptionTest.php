@@ -88,4 +88,31 @@ class ValidationExceptionTest extends \PHPUnit\Framework\TestCase
             ],
         ];
     }
+
+    /**
+     * @dataProvider provideFailsValidators
+     * @expectedException One\Validation\Exceptions\ValidationException
+     */
+    public function testAddValidatorException($name, $validator)
+    {
+        $this->validator->reset();
+        $this->validator->addValidator($name, $validator);
+    }
+
+    public function provideFailsValidators()
+    {
+        return [
+            [ 'int', false ],
+            [ 'bad', false ],
+        ];
+    }
+
+    /**
+     * @expectedException One\Validation\Exceptions\ValidationException
+     */
+    public function testCreateValidatorException()
+    {
+        $this->validator->reset();
+        $this->validator->createValidator('bad');
+    }
 }

@@ -64,15 +64,22 @@ class ManagerTest extends ManagerTestCase
             ['visibility' => 'private']
         ));
 
-
         $this->assertFileExists(RUNTIME_PATH . '/test2.docx');
-        $this->getManager()->delete('test://test2.docx');
+
+        $this->assertTrue($this->getManager()->move(
+            'test://test2.docx',
+            'test://test.docx'
+        ));
+
+        $this->getManager()->delete('test://test.docx');
     }
 
     public function testListContents()
     {
         $list = $this->getManager()->listContents('local://folder', true);
-
         $this->assertEquals(count($list), 3);
+
+        $list = $this->getManager()->listContents('local://folder');
+        $this->assertEquals(count($list), 2);
     }
 }
