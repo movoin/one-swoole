@@ -14,6 +14,7 @@ namespace One\Tests\FileSystem\Exceptions;
 
 use One\FileSystem\FileSystem;
 use One\FileSystem\Adapters\Local;
+use One\FileSystem\Exceptions\FileSystemException;
 
 class FileSystemExceptionTest extends \PHPUnit\Framework\TestCase
 {
@@ -72,5 +73,14 @@ class FileSystemExceptionTest extends \PHPUnit\Framework\TestCase
     public function testStreamException()
     {
         $this->fs->writeStream('test2.txt', '');
+    }
+
+    public function testStreamException2()
+    {
+        try {
+            $this->fs->read('../test.txt');
+        } catch (FileSystemException $e) {
+            $this->assertEquals('../test.txt', $e->getPath());
+        }
     }
 }

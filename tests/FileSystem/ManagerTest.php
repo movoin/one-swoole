@@ -81,5 +81,11 @@ class ManagerTest extends ManagerTestCase
 
         $list = $this->getManager()->listContents('local://folder');
         $this->assertEquals(count($list), 2);
+
+        $list = $this->getManager()->listContents('local://', true);
+        $this->assertEquals(count($list), 7);
+
+        $list = $this->getManager()->listContents('local://word.docx');
+        $this->assertEquals(count($list), 0);
     }
 }

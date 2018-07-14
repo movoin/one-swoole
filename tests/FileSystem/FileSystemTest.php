@@ -71,6 +71,15 @@ class FileSystemTest extends \PHPUnit\Framework\TestCase
         $this->fs->delete('test_stream.txt');
     }
 
+    public function testWriteStreamRewind()
+    {
+        $file = fopen(RUNTIME_PATH . '/test.txt', 'r+');
+        fwrite($file, 'T');
+        $this->assertTrue($this->fs->writeStream('test_stream.txt', $file));
+        $this->assertTrue($this->fs->exists('test_stream.txt'));
+        $this->assertEquals('Test', $this->fs->readAndDelete('test_stream.txt'));
+    }
+
     public function testUpdate()
     {
         $this->assertTrue($this->fs->update('test.txt', 'update'));

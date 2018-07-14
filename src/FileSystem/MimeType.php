@@ -12,9 +12,6 @@
 
 namespace One\FileSystem;
 
-use Finfo;
-use ErrorException;
-
 class MimeType
 {
     /**

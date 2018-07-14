@@ -113,7 +113,7 @@ class Local extends Adapter
     public function readStream(string $path)
     {
         $location = $this->applyBasePath($path);
-        $stream   = fopen($location, 'rb');
+        $stream   = @fopen($location, 'rb');
 
         unset($location);
 
@@ -200,7 +200,7 @@ class Local extends Adapter
     {
         $location = $this->applyBasePath($path);
         $this->ensureDirectory(dirname($location));
-        $stream = fopen($location, 'w+b');
+        $stream = @fopen($location, 'w+b');
 
         if (! $stream) {
             return false;
@@ -263,7 +263,7 @@ class Local extends Adapter
     {
         $location = $this->applyBasePath($path);
         $this->ensureDirectory(dirname($location));
-        $stream = fopen($location, 'w+b');
+        $stream = @fopen($location, 'w+b');
 
         if (! $stream) {
             return false;
@@ -471,12 +471,12 @@ class Local extends Adapter
             umask($umask);
 
             if (! is_dir($path)) {
-                throw new FileSystemException(sprintf('Unable to create "%s" directory', $path));
+                throw new FileSystemException($path, 'Unable to create "%s" directory');
             }
         }
 
         if (! is_readable($path)) {
-            throw new FileSystemException(sprintf('Unable to access "%s" directory', $path));
+            throw new FileSystemException($path, 'Unable to access "%s" directory');
         }
     }
 

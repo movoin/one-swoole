@@ -77,7 +77,7 @@ class ContentListingFormatter
      */
     private function isEntryOutOfScope(array $entry): bool
     {
-        if (empty($entry['path']) && $entry['path'] !== '0') {
+        if (empty($entry['path'])) {
             return false;
         }
 

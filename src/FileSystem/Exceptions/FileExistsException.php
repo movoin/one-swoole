@@ -23,8 +23,11 @@ class FileExistsException extends FileSystemException
      */
     public function __construct(string $path, int $code = 0, \Exception $previous = null)
     {
-        $this->setPath($path);
-
-        parent::__construct(sprintf('File "%s" already exist', $path), $code, $previous);
+        parent::__construct(
+            $path,
+            'File "%s" already exist',
+            $code,
+            $previous
+        );
     }
 }

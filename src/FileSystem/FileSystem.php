@@ -471,10 +471,7 @@ class FileSystem
 
                 case '..':
                     if (empty($parts)) {
-                        throw new FileSystemException(sprintf(
-                            'The path is outside the root directory: "%s"',
-                            $path
-                        ));
+                        throw new FileSystemException($path, 'The path is outside the root directory: "%s"');
                     }
                     array_pop($parts);
                     break;
@@ -537,16 +534,6 @@ class FileSystem
      */
     protected function isSeekableStream($resource): bool
     {
-        if (! Assert::resource($resource)) {
-            throw new InvalidArgumentException(
-                sprintf(
-                    '%s::%s() parameter 1 must be "resource"',
-                    __CLASS__,
-                    __METHOD__
-                )
-            );
-        }
-
         $metadata = stream_get_meta_data($resource);
 
         return $metadata['seekable'];

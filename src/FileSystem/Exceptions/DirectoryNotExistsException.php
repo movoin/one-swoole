@@ -23,8 +23,11 @@ class DirectoryNotExistsException extends FileSystemException
      */
     public function __construct(string $path, int $code = 0, \Exception $previous = null)
     {
-        $this->setPath($path);
-
-        parent::__construct(sprintf('Directory "%s" does not exist', $path), $code, $previous);
+        parent::__construct(
+            $path,
+            'Directory "%s" does not exist',
+            $code,
+            $previous
+        );
     }
 }
