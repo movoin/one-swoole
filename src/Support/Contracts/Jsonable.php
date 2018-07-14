@@ -17,7 +17,7 @@ interface Jsonable
     /**
      * 获得 JSON 字符串
      *
-     * @return JSON
+     * @return string
      */
-    public function toJson();
+    public function toJson(): string;
 }

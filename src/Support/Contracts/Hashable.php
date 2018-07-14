@@ -19,5 +19,5 @@ interface Hashable
      *
      * @return string
      */
-    public function toHash();
+    public function toHash(): string;
 }

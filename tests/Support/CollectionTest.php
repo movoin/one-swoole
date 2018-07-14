@@ -155,6 +155,12 @@ class CollectionTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals('raz', $this->collect->pop());
     }
 
+    public function testRemove()
+    {
+        $this->collect->remove('bar');
+        $this->assertFalse($this->collect->has('bar'));
+    }
+
     public function testArrayAccess()
     {
         $this->collect['bar'] = true;

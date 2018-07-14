@@ -12,15 +12,12 @@
 
 namespace One\Support;
 
-use ArrayAccess;
 use ArrayIterator;
-use Countable;
-use IteratorAggregate;
-use One\Support\Contracts\Arrayable;
+use One\Support\Contracts\Collectable;
 use One\Support\Contracts\Jsonable;
 use One\Support\Helpers\Json;
 
-class Collection implements ArrayAccess, Countable, IteratorAggregate, Arrayable, Jsonable
+class Collection implements Collectable, Jsonable
 {
     /**
      * 数据集合
@@ -137,7 +134,7 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, Arrayable
      *
      * @return bool
      */
-    public function has($key): bool
+    public function has(string $key): bool
     {
         return isset($this->items[$key]);
     }
@@ -145,12 +142,12 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, Arrayable
     /**
      * 返回指定数据项
      *
-     * @param  mixed $key
-     * @param  mixed $default
+     * @param  string   $key
+     * @param  mixed    $default
      *
      * @return mixed
      */
-    public function get($key, $default = null)
+    public function get(string $key, $default = null)
     {
         return ($value = $this->offsetGet($key)) === null ? $default : $value;
     }
@@ -158,12 +155,12 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, Arrayable
     /**
      * 返回与指定键名的值相符的数据
      *
-     * @param  mixed $key
-     * @param  mixed $value
+     * @param  string   $key
+     * @param  mixed    $value
      *
      * @return mixed
      */
-    public function getByValue($key, $value)
+    public function getByValue(string $key, $value)
     {
         return array_filter($this->items, function ($val) use ($key, $value) {
             return $val[$key] === $value;
@@ -176,7 +173,7 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, Arrayable
      * @param string $key
      * @param mixed  $value
      */
-    public function set($key, $value)
+    public function set(string $key, $value)
     {
         $this->offsetSet($key, $value);
     }
@@ -196,11 +193,21 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, Arrayable
      *
      * @param  array $items
      */
-    public function pushMany($items = [])
+    public function pushMany(array $items = [])
     {
         foreach ($items as $item) {
             $this->push($item);
         }
+    }
+
+    /**
+     * 删除指定数据项
+     *
+     * @param  string $key
+     */
+    public function remove(string $key)
+    {
+        $this->offsetUnset($key);
     }
 
     /**
