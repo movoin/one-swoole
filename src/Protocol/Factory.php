@@ -15,9 +15,11 @@ namespace One\Protocol;
 use One\Protocol\Contracts\Protocol;
 use One\Protocol\Exceptions\ProtocolException;
 use One\Protocol\Message\Stream;
+use One\Protocol\Message\UploadedFile;
 use One\Support\Helpers\Assert;
 use One\Support\Helpers\Reflection;
 use Psr\Http\Message\StreamInterface;
+use Psr\Http\Message\UploadedFileInterface;
 
 final class Factory
 {
@@ -58,6 +60,7 @@ final class Factory
      * @param  \Psr\Http\Message\StreamInterface|string|resource|null $body
      *
      * @return \Psr\Http\Message\StreamInterface
+     * @throws \InvalidArgumentException
      */
     public static function newStream($body = null): StreamInterface
     {
@@ -66,5 +69,24 @@ final class Factory
         }
 
         return new Stream($body === null ? '' : $body);
+    }
+
+    /**
+     * 创建上传文件对象
+     *
+     * @param  array  $file
+     *
+     * @return \Psr\Http\Message\UploadedFileInterface
+     * @throws \InvalidArgumentException
+     */
+    public static function newUploadedFile(array $file): UploadedFileInterface
+    {
+        return new UploadedFile(
+            $file['tmp_name'],
+            $file['size'],
+            $file['error'],
+            $file['name'],
+            $file['type']
+        );
     }
 }

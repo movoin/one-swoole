@@ -65,15 +65,15 @@ class UploadedFile implements UploadedFileInterface
      * @param \Psr\Http\Message\StreamInterface|string|resource $streamOrFile
      * @param int                                               $size
      * @param int                                               $errorStatus
-     * @param string                                            $clientFilename
-     * @param string                                            $clientMediaType
+     * @param string|null                                       $clientFilename
+     * @param string|null                                       $clientMediaType
      */
     public function __construct(
         $streamOrFile,
         int $size,
         int $error,
-        string $clientFilename,
-        string $clientMediaType
+        $clientFilename,
+        $clientMediaType
     ) {
         $this->setSize($size);
         $this->setError($error);
@@ -95,7 +95,7 @@ class UploadedFile implements UploadedFileInterface
     {
         $this->validateActive();
 
-        if (Assert::instaonceOf($this->stream, StreamInterface::class)) {
+        if (Assert::instanceOf($this->stream, StreamInterface::class)) {
             return $this->stream;
         }
 
@@ -246,7 +246,7 @@ class UploadedFile implements UploadedFileInterface
      */
     private function setClientFilename($filename)
     {
-        if (! Assert::stringNotEmpty($filename) || ! is_null($filename)) {
+        if (! Assert::oneOf(gettype($filename), ['string', 'NULL'])) {
             throw new InvalidArgumentException('Parameter 1 must be the `null` or `string`');
         }
 
@@ -260,7 +260,7 @@ class UploadedFile implements UploadedFileInterface
      */
     private function setClientMediaType($mediaType)
     {
-        if (! Assert::stringNotEmpty($mediaType) || ! is_null($mediaType)) {
+        if (! Assert::oneOf(gettype($mediaType), ['string', 'NULL'])) {
             throw new InvalidArgumentException('Parameter 1 must be the `null` or `string`');
         }
 

@@ -107,6 +107,8 @@ class StreamTest extends \PHPUnit\Framework\TestCase
         $stream = Factory::newStream('test');
 
         $this->assertEquals("test", (string) $stream);
+        $stream->detach();
+        $this->assertEquals("", (string) $stream);
         $stream->close();
     }
 
