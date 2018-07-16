@@ -35,6 +35,13 @@ class UploadedFileTest extends \PHPUnit\Framework\TestCase
     public function tearDown()
     {
         $this->file = null;
+
+        if (file_exists(RUNTIME_PATH . '/test.txt')) {
+            unlink(RUNTIME_PATH . '/test.txt');
+        }
+        if (file_exists(RUNTIME_PATH . '/test2.txt')) {
+            unlink(RUNTIME_PATH . '/test2.txt');
+        }
     }
 
     public function testGetStream()
