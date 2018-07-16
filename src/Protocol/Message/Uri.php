@@ -107,7 +107,7 @@ class Uri implements UriInterface
      * @return self
      * @throws \InvalidArgumentException
      */
-    public function withScheme(string $scheme): self
+    public function withScheme($scheme): self
     {
         $scheme = $this->filterScheme($scheme);
 
@@ -165,7 +165,7 @@ class Uri implements UriInterface
      *
      * @return self
      */
-    public function withUserInfo(string $user, string $password = null): self
+    public function withUserInfo($user, $password = null): self
     {
         $info = $user;
 
@@ -203,7 +203,7 @@ class Uri implements UriInterface
      * @return self
      * @throws \InvalidArgumentException
      */
-    public function withHost(string $host): self
+    public function withHost($host): self
     {
         $host = $this->filterHost($host);
 
@@ -237,7 +237,7 @@ class Uri implements UriInterface
      * @return self
      * @throws \InvalidArgumentException
      */
-    public function withPort(int $port): self
+    public function withPort($port): self
     {
         $port = $this->filterPort($port);
 
@@ -379,12 +379,7 @@ class Uri implements UriInterface
                 if ($authority !== '') {
                     $this->path = '/' . $this->path;
                 }
-            } elseif (isset($this->path[1]) && $this->path[1] === '/') {
-                if ($authority === '') {
-                    $this->path = '/' . ltrim($this->path, '/');
-                }
             }
-
             $uri .= $this->path;
         }
 
@@ -407,8 +402,12 @@ class Uri implements UriInterface
      * @return string
      * @throws \InvalidArgumentException
      */
-    private function filterScheme(string $scheme): string
+    private function filterScheme($scheme): string
     {
+        if (! Assert::stringNotEmpty($scheme)) {
+            throw new InvalidArgumentException('scheme must be string');
+        }
+
         if (! Assert::oneOf($scheme, ['http', 'https', 'tcp', 'upd', 'ws', 'wss', 'one'])) {
             throw new InvalidArgumentException(sprintf('"%s" is unsupported scheme', $scheme));
         }
@@ -424,13 +423,17 @@ class Uri implements UriInterface
      * @return int
      * @throws \InvalidArgumentException
      */
-    private function filterPort(int $port): int
+    private function filterPort($port): int
     {
-        if (! Assert::range($port, 1, 0xfff)) {
+        if (! Assert::integer($port)) {
+            throw new InvalidArgumentException('port must be integer');
+        }
+
+        if (! Assert::range($port, 1, 0xffff)) {
             throw new InvalidArgumentException(sprintf('"%d" is invalid port', $port));
         }
 
-        return $port;
+        return (int) $port;
     }
 
     /**
@@ -441,10 +444,10 @@ class Uri implements UriInterface
      * @return string
      * @throws \InvalidArgumentException
      */
-    private function filterHost(string $host): string
+    private function filterHost($host): string
     {
         if (! Assert::stringNotEmpty($host)) {
-            throw new InvalidArgumentException(sprintf('"%d" is invalid hostname', $host));
+            throw new InvalidArgumentException(sprintf('"%s" is invalid hostname', $host));
         }
 
         return strtolower($host);
@@ -460,8 +463,8 @@ class Uri implements UriInterface
      */
     private function filterPath($path): string
     {
-        if (! is_string($path)) {
-            throw new InvalidArgumentException(sprintf('"%d" is invalid path', $path));
+        if (! Assert::string($path)) {
+            throw new InvalidArgumentException(sprintf('"%s" is invalid path', $path));
         }
 
         $charUnreserved = 'a-zA-Z0-9_\-\.~';
@@ -484,8 +487,8 @@ class Uri implements UriInterface
      */
     private function filterQueryAndFragment($string)
     {
-        if (! is_string($string)) {
-            throw new InvalidArgumentException(sprintf('"%d" is invalid', $string));
+        if (! Assert::string($string)) {
+            throw new InvalidArgumentException(sprintf('"%s" is invalid', $string));
         }
 
         $charUnreserved = 'a-zA-Z0-9_\-\.~';

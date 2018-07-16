@@ -14,7 +14,10 @@ namespace One\Protocol;
 
 use One\Protocol\Contracts\Protocol;
 use One\Protocol\Exceptions\ProtocolException;
+use One\Protocol\Message\Stream;
 use One\Support\Helpers\Assert;
+use One\Support\Helpers\Reflection;
+use Psr\Http\Message\StreamInterface;
 
 final class Factory
 {
@@ -23,7 +26,12 @@ final class Factory
      *
      * @var array
      */
-    private static $protocols = [];
+    private static $protocols = [
+        Protocol::HTTP      => 'HttpProtocol',
+        Protocol::TCP       => 'TcpProtocol',
+        Protocol::UDP       => 'UdpProtocol',
+        Protocol::WEBSOCKET => 'WebSocketProtocol',
+    ];
 
     /**
      * 创建协议
@@ -38,41 +46,25 @@ final class Factory
         if (! Assert::oneOf($protocol, static::$protocols)) {
             throw ProtocolException::notSupport($ptotocol);
         }
+
+        return Reflection::newInstance(
+            '\\One\\Protocol\\Protocols\\' . static::$protocols[$ptotocol]
+        );
     }
 
     /**
-     * 创建 HTTP 协议
+     * 创建文件流对象
      *
-     * @return \One\Protocol\Contracts\Protocol
+     * @param  \Psr\Http\Message\StreamInterface|string|resource|null $body
+     *
+     * @return \Psr\Http\Message\StreamInterface
      */
-    public static function newHttpProtocol()
+    public static function newStream($body = null): StreamInterface
     {
-    }
+        if (Assert::instanceOf($body, StreamInterface::class)) {
+            return $body;
+        }
 
-    /**
-     * 创建 TCP 协议
-     *
-     * @return \One\Protocol\Contracts\Protocol
-     */
-    public static function newTcpProtocol()
-    {
-    }
-
-    /**
-     * 创建 UDP 协议
-     *
-     * @return \One\Protocol\Contracts\Protocol
-     */
-    public static function newUdpProtocol()
-    {
-    }
-
-    /**
-     * 创建 WebSocket 协议
-     *
-     * @return \One\Protocol\Contracts\Protocol
-     */
-    public static function newWebSocketProtocol()
-    {
+        return new Stream($body === null ? '' : $body);
     }
 }
