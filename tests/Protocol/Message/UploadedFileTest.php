@@ -181,13 +181,6 @@ class UploadedFileTest extends \PHPUnit\Framework\TestCase
      */
     public function testMovedException()
     {
-        if (file_exists(RUNTIME_PATH . '/test.txt')) {
-            unlink(RUNTIME_PATH . '/test.txt');
-        }
-        if (file_exists(RUNTIME_PATH . '/test2.txt')) {
-            unlink(RUNTIME_PATH . '/test2.txt');
-        }
-
         file_put_contents(RUNTIME_PATH . '/test.txt', 'test');
 
         $file = Factory::newUploadedFile([
