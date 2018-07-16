@@ -134,7 +134,7 @@ class StreamTest extends \PHPUnit\Framework\TestCase
      */
     public function testReadException()
     {
-        $stream = new Stream(fopen(RUNTIME_PATH . '/folder/test.txt', 'w'));
+        $stream = new Stream(fopen(RUNTIME_PATH . '/folder/test.txt', 'rw'));
         $stream->read(filesize(RUNTIME_PATH . '/folder/test.txt'));
     }
 
