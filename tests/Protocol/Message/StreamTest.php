@@ -12,27 +12,28 @@
 
 namespace One\Tests\Protocol\Message;
 
-use One\Protocol\Message\Stream;
+use One\Protocol\Factory;
+use Psr\Http\Message\StreamInterface;
 
 class StreamTest extends \PHPUnit\Framework\TestCase
 {
     public function testCreateStreamFromString()
     {
-        $stream = new Stream('test');
-        $this->assertInstanceOf(Stream::class, $stream);
+        $stream = Factory::newStream('test');
+        $this->assertInstanceOf(StreamInterface::class, $stream);
         $stream->close();
     }
 
     public function testCreateStreamFromResource()
     {
-        $stream = new Stream(fopen(RUNTIME_PATH . '/folder/test.txt', 'rw+'));
-        $this->assertInstanceOf(Stream::class, $stream);
+        $stream = Factory::newStream(fopen(RUNTIME_PATH . '/folder/test.txt', 'rw+'));
+        $this->assertInstanceOf(StreamInterface::class, $stream);
         $stream->close();
     }
 
     public function testDetach()
     {
-        $stream = new Stream(fopen(RUNTIME_PATH . '/folder/test.txt', 'rw+'));
+        $stream = Factory::newStream(fopen(RUNTIME_PATH . '/folder/test.txt', 'rw+'));
         $this->assertTrue(is_resource($stream->detach()));
         $this->assertTrue(is_null($stream->detach()));
         $stream->close();
@@ -40,7 +41,7 @@ class StreamTest extends \PHPUnit\Framework\TestCase
 
     public function testGetSize()
     {
-        $stream = new Stream('test');
+        $stream = Factory::newStream('test');
 
         $this->assertEquals(4, $stream->getSize());
         $this->assertEquals(4, $stream->getSize());
@@ -53,7 +54,7 @@ class StreamTest extends \PHPUnit\Framework\TestCase
 
     public function testTell()
     {
-        $stream = new Stream('test');
+        $stream = Factory::newStream('test');
 
         $this->assertEquals(4, $stream->tell());
         $stream->close();
@@ -61,7 +62,7 @@ class StreamTest extends \PHPUnit\Framework\TestCase
 
     public function testEof()
     {
-        $stream = new Stream('test');
+        $stream = Factory::newStream('test');
 
         $this->assertFalse($stream->eof());
         $stream->close();
@@ -69,7 +70,7 @@ class StreamTest extends \PHPUnit\Framework\TestCase
 
     public function testIsSeekable()
     {
-        $stream = new Stream('test');
+        $stream = Factory::newStream('test');
 
         $this->assertTrue($stream->isSeekable());
         $stream->close();
@@ -77,7 +78,7 @@ class StreamTest extends \PHPUnit\Framework\TestCase
 
     public function testRewind()
     {
-        $stream = new Stream('test');
+        $stream = Factory::newStream('test');
 
         $this->assertNull($stream->rewind());
         $stream->close();
@@ -85,7 +86,7 @@ class StreamTest extends \PHPUnit\Framework\TestCase
 
     public function testIsWritable()
     {
-        $stream = new Stream('test');
+        $stream = Factory::newStream('test');
 
         $this->assertTrue($stream->isWritable());
         $stream->close();
@@ -93,7 +94,7 @@ class StreamTest extends \PHPUnit\Framework\TestCase
 
     public function testIsReadable()
     {
-        $stream = new Stream('test');
+        $stream = Factory::newStream('test');
 
         $this->assertTrue($stream->isReadable());
         $stream->rewind();
@@ -103,7 +104,7 @@ class StreamTest extends \PHPUnit\Framework\TestCase
 
     public function testToString()
     {
-        $stream = new Stream('test');
+        $stream = Factory::newStream('test');
 
         $this->assertEquals("test", (string) $stream);
         $stream->close();
@@ -111,7 +112,7 @@ class StreamTest extends \PHPUnit\Framework\TestCase
 
     public function testGetMetadata()
     {
-        $stream = new Stream('test');
+        $stream = Factory::newStream('test');
         $meta = $stream->getMetadata();
 
         $this->assertEquals("php://temp", $meta['uri']);
@@ -126,7 +127,7 @@ class StreamTest extends \PHPUnit\Framework\TestCase
      */
     public function testConstructException()
     {
-        new Stream('');
+        Factory::newStream();
     }
 
     /**
@@ -134,7 +135,7 @@ class StreamTest extends \PHPUnit\Framework\TestCase
      */
     public function testReadException()
     {
-        $stream = new Stream(fopen(RUNTIME_PATH . '/folder/test.txt', 'rw'));
+        $stream = Factory::newStream(fopen(RUNTIME_PATH . '/folder/test.txt', 'rw'));
         $stream->read(filesize(RUNTIME_PATH . '/folder/test.txt'));
     }
 
@@ -143,7 +144,7 @@ class StreamTest extends \PHPUnit\Framework\TestCase
      */
     public function testWriteException()
     {
-        $stream = new Stream(fopen(RUNTIME_PATH . '/folder/test.txt', 'r'));
+        $stream = Factory::newStream(fopen(RUNTIME_PATH . '/folder/test.txt', 'r'));
         $stream->write('test');
     }
 
@@ -152,7 +153,7 @@ class StreamTest extends \PHPUnit\Framework\TestCase
      */
     public function testSeekException()
     {
-        $stream = new Stream('test');
+        $stream = Factory::newStream('test');
         $stream->seek(-10);
     }
 
@@ -161,7 +162,7 @@ class StreamTest extends \PHPUnit\Framework\TestCase
      */
     public function testGetContentsException()
     {
-        $stream = new Stream('test');
+        $stream = Factory::newStream('test');
         $stream->detach();
         $stream->getContents();
     }
