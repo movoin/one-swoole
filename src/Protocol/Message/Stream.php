@@ -24,52 +24,37 @@ class Stream implements StreamInterface
      *
      * @var array
      */
-    private static $readWriteHash = [
-        'read' => [
-            'r'     => 1, 'w+'  => 1, 'r+'  => 1, 'x+'  => 1, 'c+' => 1,
-            'rb'    => 1, 'w+b' => 1, 'r+b' => 1, 'x+b' => 1,
-            'c+b'   => 1, 'rt'  => 1, 'w+t' => 1, 'r+t' => 1,
-            'x+t'   => 1, 'c+t' => 1, 'a+'  => 1,
-        ],
-        'write' => [
-            'w'     => 1, 'w+'  => 1, 'rw'  => 1, 'r+'  => 1, 'x+' => 1,
-            'c+'    => 1, 'wb'  => 1, 'w+b' => 1, 'r+b' => 1,
-            'x+b'   => 1, 'c+b' => 1, 'w+t' => 1, 'r+t' => 1,
-            'x+t'   => 1, 'c+t' => 1, 'a'   => 1, 'a+'  => 1,
-        ],
+    private static $modes = [
+        'readable' => ['r', 'r+', 'w+', 'a+', 'x+', 'c+'],
+        'writable' => ['r+', 'w', 'w+', 'a', 'a+', 'x', 'x+', 'c', 'c+'],
     ];
+
     /**
-     * 流对象
+     * 文件流对象
      *
      * @var resource
      */
     private $stream;
     /**
-     * 可定位
+     * 是否可定位
      *
      * @var bool
      */
     private $seekable;
     /**
-     * 可读取
+     * 是否可读取
      *
      * @var bool
      */
     private $readable;
     /**
-     * 可写入
+     * 是否可写入
      *
      * @var bool
      */
     private $writable;
     /**
-     * URI
-     *
-     * @var mixed
-     */
-    private $uri;
-    /**
-     * 数据大小
+     * 文件流大小
      *
      * @var int
      */
@@ -78,33 +63,13 @@ class Stream implements StreamInterface
     /**
      * 构造
      *
-     * @param resource|string $content
+     * @param resource $resource
      *
      * @throws \InvalidArgumentException
      */
-    public function __construct($content)
+    public function __construct($resource)
     {
-        if (Assert::stringNotEmpty($content)) {
-            $resource = fopen('php://temp', 'rw+');
-        } elseif (Assert::resource($content)) {
-            $resource = $content;
-        } else {
-            throw new InvalidArgumentException('Parameter 1 must be the `resource` or `string`');
-        }
-
-        $meta = stream_get_meta_data($resource);
-
-        $this->stream   = $resource;
-        $this->seekable = $meta['seekable'];
-        $this->readable = isset(self::$readWriteHash['read'][$meta['mode']]);
-        $this->writable = isset(self::$readWriteHash['write'][$meta['mode']]);
-        $this->uri      = $this->getMetadata('uri');
-
-        if (Assert::stringNotEmpty($content)) {
-            $this->write($content);
-        }
-
-        unset($meta, $content, $resource);
+        $this->attach($resource);
     }
 
     /**
@@ -120,33 +85,29 @@ class Stream implements StreamInterface
      */
     public function close()
     {
-        if (isset($this->stream)) {
-            if (Assert::resource($this->stream)) {
-                fclose($this->stream);
-            }
-
-            $this->detach();
+        if ($this->isAttached() === true) {
+            fclose($this->stream);
         }
+
+        $this->detach();
     }
 
     /**
-     * 分离流中的资源
+     * 分离资源
      *
      * @return resource|null
      */
     public function detach()
     {
-        if (! isset($this->stream)) {
-            return;
-        }
+        $stream = $this->stream;
 
-        $resource = $this->stream;
+        $this->stream = null;
+        $this->readable = null;
+        $this->writable = null;
+        $this->seekable = null;
+        $this->size = null;
 
-        unset($this->stream);
-        $this->size = $this->uri = null;
-        $this->readable = $this->writable = $this->seekable = false;
-
-        return $resource;
+        return $stream;
     }
 
     /**
@@ -156,24 +117,12 @@ class Stream implements StreamInterface
      */
     public function getSize()
     {
-        if ($this->size !== null) {
-            return $this->size;
+        if (! $this->size && $this->isAttached() === true) {
+            $stats = fstat($this->stream);
+            $this->size = isset($stats['size']) ? $stats['size'] : null;
         }
 
-        if (! isset($this->stream)) {
-            return;
-        }
-
-        // 清除文件状态缓存
-        if ($this->uri) {
-            clearstatcache(true, $this->uri);
-        }
-
-        $stats = fstat($this->stream);
-
-        if (isset($stats['size'])) {
-            return $this->size = $stats['size'];
-        }
+        return $this->size;
     }
 
     /**
@@ -184,13 +133,11 @@ class Stream implements StreamInterface
      */
     public function tell(): int
     {
-        $pointer = ftell($this->stream);
-
-        if ($pointer === false) {
-            throw new RuntimeException('Unable to get file pointer');
+        if ($this->isAttached() === false || ($position = ftell($this->stream)) === false) {
+            throw new RuntimeException('Could not get the position of the pointer in stream');
         }
 
-        return $pointer;
+        return $position;
     }
 
     /**
@@ -200,7 +147,53 @@ class Stream implements StreamInterface
      */
     public function eof(): bool
     {
-        return ! $this->stream || feof($this->stream);
+        return $this->isAttached() === true ? feof($this->stream) : true;
+    }
+
+    /**
+     * 判断文件流是否可读
+     *
+     * @return bool
+     */
+    public function isReadable(): bool
+    {
+        if ($this->readable === null) {
+            $this->readable = false;
+            if ($this->isAttached() === true) {
+                $meta = $this->getMetadata();
+                foreach (self::$modes['readable'] as $mode) {
+                    if (strpos($meta['mode'], $mode) === 0) {
+                        $this->readable = true;
+                        break;
+                    }
+                }
+            }
+        }
+
+        return $this->readable;
+    }
+
+    /**
+     * 判断文件流是否可写
+     *
+     * @return bool
+     */
+    public function isWritable(): bool
+    {
+        if ($this->writable === null) {
+            $this->writable = false;
+            if ($this->isAttached() === true) {
+                $meta = $this->getMetadata();
+                foreach (self::$modes['writable'] as $mode) {
+                    if (strpos($meta['mode'], $mode) === 0) {
+                        $this->writable = true;
+                        break;
+                    }
+                }
+            }
+        }
+
+        return $this->writable;
     }
 
     /**
@@ -210,6 +203,14 @@ class Stream implements StreamInterface
      */
     public function isSeekable(): bool
     {
+        if ($this->seekable === null) {
+            $this->seekable = false;
+            if ($this->isAttached() === true) {
+                $meta = $this->getMetadata();
+                $this->seekable = $meta['seekable'];
+            }
+        }
+
         return $this->seekable;
     }
 
@@ -223,16 +224,8 @@ class Stream implements StreamInterface
      */
     public function seek($offset, $whence = SEEK_SET)
     {
-        if (! $this->seekable) {
-            throw new RuntimeException('Stream not seekable');
-        } elseif (fseek($this->stream, $offset, $whence) === -1) {
-            throw new RuntimeException(
-                sprintf(
-                    'Unable seeks on a file pointer %d whence %s',
-                    $offset,
-                    var_export($whence, true)
-                )
-            );
+        if ($this->isSeekable() === false || fseek($this->stream, $offset, $whence) === -1) {
+            throw new RuntimeException('Could not seek in stream');
         }
     }
 
@@ -243,52 +236,9 @@ class Stream implements StreamInterface
      */
     public function rewind()
     {
-        $this->seek(0);
-    }
-
-    /**
-     * 判断文件流是否可写
-     *
-     * @return bool
-     */
-    public function isWritable()
-    {
-        return $this->writable;
-    }
-
-    /**
-     * 写入内容
-     *
-     * @param  string $content
-     *
-     * @return int
-     * @throws \RuntimeException
-     */
-    public function write($content): int
-    {
-        if (! $this->writable) {
-            throw new RuntimeException('Stream not writable');
+        if ($this->isSeekable() === false || rewind($this->stream) === false) {
+            throw new RuntimeException('Could not rewind stream');
         }
-
-        $this->size = null;
-
-        $length = fwrite($this->stream, utf8_encode($content));
-
-        if ($length === false) {
-            throw new RuntimeException('writing file failed');
-        }
-
-        return $length;
-    }
-
-    /**
-     * 判断文件流是否可读
-     *
-     * @return bool
-     */
-    public function isReadable()
-    {
-        return $this->readable;
     }
 
     /**
@@ -301,11 +251,30 @@ class Stream implements StreamInterface
      */
     public function read($length): string
     {
-        if (! $this->readable) {
-            throw new RuntimeException('Stream not readable');
+        if ($this->isReadable() === false || ($data = fread($this->stream, $length)) === false) {
+            throw new RuntimeException('Could not read from stream');
         }
 
-        return fread($this->stream, $length);
+        return $data;
+    }
+
+    /**
+     * 写入内容
+     *
+     * @param  string $string
+     *
+     * @return int
+     * @throws \RuntimeException
+     */
+    public function write($string): int
+    {
+        if ($this->isWritable() === false || ($written = fwrite($this->stream, $string)) === false) {
+            throw new RuntimeException('Could not write to stream');
+        }
+
+        $this->size = null;
+
+        return $written;
     }
 
     /**
@@ -316,12 +285,8 @@ class Stream implements StreamInterface
      */
     public function getContents(): string
     {
-        if (! isset($this->stream)) {
-            throw new RuntimeException('reading stream failed');
-        }
-
-        if (($contents = stream_get_contents($this->stream)) === false) {
-            throw new RuntimeException('reading stream failed');
+        if ($this->isReadable() === false || ($contents = stream_get_contents($this->stream)) === false) {
+            throw new RuntimeException('Could not get contents of stream');
         }
 
         return $contents;
@@ -336,13 +301,11 @@ class Stream implements StreamInterface
      */
     public function getMetadata($key = null)
     {
-        if (! isset($this->stream)) {
-            return $key ? null : [];
-        } elseif ($key === null) {
-            return stream_get_meta_data($this->stream);
-        }
-
         $meta = stream_get_meta_data($this->stream);
+
+        if (is_null($key) === true) {
+            return $meta;
+        }
 
         return isset($meta[$key]) ? $meta[$key] : null;
     }
@@ -354,14 +317,45 @@ class Stream implements StreamInterface
      */
     public function __toString(): string
     {
-        try {
-            if ($this->isSeekable()) {
-                $this->seek(0);
-            }
+        if ($this->isAttached() === false) {
+            return '';
+        }
 
+        try {
+            $this->rewind();
             return $this->getContents();
         } catch (RuntimeException $e) {
             return '';
         }
+    }
+
+    /**
+     * 判断是否已附加资源
+     *
+     * @return bool
+     */
+    protected function isAttached(): bool
+    {
+        return is_resource($this->stream);
+    }
+
+    /**
+     * 附加资源
+     *
+     * @param resource
+     *
+     * @throws \InvalidArgumentException
+     */
+    protected function attach($stream)
+    {
+        if (is_resource($stream) === false) {
+            throw new InvalidArgumentException(__METHOD__ . ' argument must be a valid PHP resource');
+        }
+
+        if ($this->isAttached() === true) {
+            $this->detach();
+        }
+
+        $this->stream = $stream;
     }
 }
