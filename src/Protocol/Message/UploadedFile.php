@@ -121,24 +121,28 @@ class UploadedFile implements UploadedFileInterface
         }
 
         if (null !== $this->file) {
-            $this->moved = rename($this->file, $targetPath);
+            $this->moved = @rename($this->file, $targetPath);
         } else {
-            $stream = $this->getStream();
+            $source = $this->getStream();
             $dest   = new Stream(fopen($targetPath, 'w'));
 
-            if ($stream ->isSeekable()) {
-                $stream->rewind();
+            if ($source ->isSeekable()) {
+                $source->rewind();
             }
 
-            while (! $stream->eof()) {
-                if (! $dest->write($stream->read(1048576))) {
+            while (! $source->eof()) {
+                if (! $dest->write($source->read(1048576))) {
                     break;
                 }
             }
 
+            if ($uri = $source->getMetadata('uri')) {
+                @unlink($uri);
+            }
+
             $this->moved = true;
 
-            unset($stream, $dest);
+            unset($source, $dest);
         }
 
         if (false === $this->moved) {

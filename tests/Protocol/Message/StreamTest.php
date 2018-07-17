@@ -31,6 +31,15 @@ class StreamTest extends \PHPUnit\Framework\TestCase
         $stream->close();
     }
 
+    public function testCreateStreamFromStream()
+    {
+        $stream = Factory::newStream(fopen(RUNTIME_PATH . '/folder/test.txt', 'rw+'));
+        $stream_ = Factory::newStream($stream);
+        $this->assertInstanceOf(StreamInterface::class, $stream_);
+        $stream->close();
+        $stream_->close();
+    }
+
     public function testDetach()
     {
         $stream = Factory::newStream(fopen(RUNTIME_PATH . '/folder/test.txt', 'rw+'));

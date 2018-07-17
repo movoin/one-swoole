@@ -22,19 +22,19 @@ class Payload implements PayloadInterface
      *
      * @var int
      */
-    protected $code;
+    protected $code = 200;
     /**
      * 状态消息
      *
      * @var string
      */
-    protected $message;
+    protected $message = '';
     /**
      * 错误信息
      *
      * @var string
      */
-    protected $error;
+    protected $error = '';
     /**
      * 数据
      *
@@ -46,16 +46,16 @@ class Payload implements PayloadInterface
      *
      * @var array
      */
-    protected $options;
+    protected $options = [];
 
     /**
      * 根据指定状态码克隆一个新的基本数据
      *
      * @param  int $code
      *
-     * @return self
+     * @return \One\Context\Contracts\Payload
      */
-    public function withCode(int $code): self
+    public function withCode(int $code): PayloadInterface
     {
         if ($this->code === $code) {
             return $this;
@@ -74,7 +74,7 @@ class Payload implements PayloadInterface
      */
     public function getCode(): int
     {
-        return $this->code ?? 200;
+        return $this->code;
     }
 
     /**
@@ -82,9 +82,9 @@ class Payload implements PayloadInterface
      *
      * @param  string $message
      *
-     * @return self
+     * @return \One\Context\Contracts\Payload
      */
-    public function withMessage(string $message): self
+    public function withMessage(string $message): PayloadInterface
     {
         if ($this->message === $message) {
             return $this;
@@ -111,9 +111,9 @@ class Payload implements PayloadInterface
      *
      * @param  mixed $data
      *
-     * @return self
+     * @return \One\Context\Contracts\Payload
      */
-    public function withData($data): self
+    public function withData($data): PayloadInterface
     {
         if ($this->data === $data) {
             return $this;
@@ -140,9 +140,9 @@ class Payload implements PayloadInterface
      *
      * @param  string $error
      *
-     * @return self
+     * @return \One\Context\Contracts\Payload
      */
-    public function withError(string $error): self
+    public function withError(string $error): PayloadInterface
     {
         if ($this->error === $error) {
             return $this;
@@ -169,9 +169,9 @@ class Payload implements PayloadInterface
      *
      * @param  array $options
      *
-     * @return self
+     * @return \One\Context\Contracts\Payload
      */
-    public function withOptions(array $options): self
+    public function withOptions(array $options): PayloadInterface
     {
         if ($this->options === $options) {
             return $this;
@@ -204,19 +204,19 @@ class Payload implements PayloadInterface
             'code' => $this->getCode()
         ];
 
-        if ($this->getMessage() !== null) {
+        if (! empty($this->getMessage())) {
             $payload['message'] = $this->getMessage();
         }
 
-        if ($this->getError() !== null) {
+        if (! empty($this->getError())) {
             $payload['error'] = $this->getError();
         }
 
-        if ($this->getData() !== null) {
+        if (! empty($this->getData())) {
             $payload['data'] = $this->getData();
         }
 
-        if ($this->getOptions() !== null) {
+        if (! empty($this->getOptions())) {
             $payload += $this->getOptions();
         }
 
@@ -230,6 +230,6 @@ class Payload implements PayloadInterface
      */
     public function toJson(): string
     {
-        return Json::decode($this->toArray());
+        return Json::encode($this->toArray());
     }
 }
