@@ -3,7 +3,7 @@ image: movoin/devops-swoole:2
 
 # Init
 init:
-  before_script:
+  script:
     - composer install
     - pecl install xdebug
     - echo 'zend_extension=xdebug.so' > /etc/php/conf.d/xdebug.ini
