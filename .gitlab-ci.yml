@@ -1,16 +1,18 @@
 # Select image from https://hub.docker.com/r/movoin/devops-swoole/
 image: movoin/devops-swoole:2
 
+cache:
+  paths:
+  - vendor/
 
 before_script:
 - composer install
 - pecl install xdebug
 - echo 'zend_extension=xdebug.so' > /etc/php/conf.d/xdebug.ini
-- chown -R app:app /builds/onelab/one.swoole
 
 # Run PHPUnit
 phpunit:
   script:
-  - su - app "/usr/local/bin/php /builds/onelab/one.swoole/vendor/bin/phpcs -p --standard=PSR2 --runtime-set ignore_errors_on_exit 1 --runtime-set ignore_warnings_on_exit 1 /builds/onelab/one.swoole/src"
-  - su - app "/usr/local/bin/php /builds/onelab/one.swoole/vendor/bin/parallel-lint . --exclude /builds/onelab/one.swoole/vendor"
-  - su - app "/usr/local/bin/php /builds/onelab/one.swoole/vendor/bin/phpunit -c /builds/onelab/one.swoole/phpunit-ci.xml"
+  - vendor/bin/phpcs -p --standard=PSR2 --runtime-set ignore_errors_on_exit 1 --runtime-set ignore_warnings_on_exit 1 src
+  - vendor/bin/parallel-lint . --exclude vendor
+  - vendor/bin/phpunit -c phpunit-ci.xml
