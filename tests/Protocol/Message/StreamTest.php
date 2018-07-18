@@ -12,169 +12,123 @@
 
 namespace One\Tests\Protocol\Message;
 
-use One\Protocol\Factory;
-use Psr\Http\Message\StreamInterface;
+use One\Protocol\Message\Stream;
 
 class StreamTest extends \PHPUnit\Framework\TestCase
 {
-    public function testCreateStreamFromString()
+    protected $stream;
+
+    public function setUp()
     {
-        $stream = Factory::newStream('test');
-        $this->assertInstanceOf(StreamInterface::class, $stream);
-        $stream->close();
+        file_put_contents(RUNTIME_PATH . '/stream.txt', 'stream', LOCK_EX);
+        $this->stream = new Stream(fopen(RUNTIME_PATH . '/stream.txt', 'r+'));
     }
 
-    public function testCreateStreamFromResource()
+    public function tearDown()
     {
-        $stream = Factory::newStream(fopen(RUNTIME_PATH . '/folder/test.txt', 'rw+'));
-        $this->assertInstanceOf(StreamInterface::class, $stream);
-        $stream->close();
-    }
+        if (file_exists(RUNTIME_PATH . '/stream.txt')) {
+            unlink(RUNTIME_PATH . '/stream.txt');
+        }
 
-    public function testCreateStreamFromStream()
-    {
-        $stream = Factory::newStream(fopen(RUNTIME_PATH . '/folder/test.txt', 'rw+'));
-        $stream_ = Factory::newStream($stream);
-        $this->assertInstanceOf(StreamInterface::class, $stream_);
-        $stream->close();
-        $stream_->close();
-    }
-
-    public function testDetach()
-    {
-        $stream = Factory::newStream(fopen(RUNTIME_PATH . '/folder/test.txt', 'rw+'));
-        $this->assertTrue(is_resource($stream->detach()));
-        $this->assertTrue(is_null($stream->detach()));
-        $stream->close();
+        $this->stream->close();
+        $this->stream = null;
     }
 
     public function testGetSize()
     {
-        $stream = Factory::newStream('test');
-
-        $this->assertEquals(4, $stream->getSize());
-        $this->assertEquals(4, $stream->getSize());
-
-        $stream->detach();
-
-        $this->assertEquals(null, $stream->getSize());
-        $stream->close();
+        $this->assertEquals(6, $this->stream->getSize());
     }
 
     public function testTell()
     {
-        $stream = Factory::newStream('test');
-
-        $this->assertEquals(4, $stream->tell());
-        $stream->close();
+        $this->assertEquals(0, $this->stream->tell());
     }
 
     public function testEof()
     {
-        $stream = Factory::newStream('test');
-
-        $this->assertFalse($stream->eof());
-        $stream->close();
-    }
-
-    public function testIsSeekable()
-    {
-        $stream = Factory::newStream('test');
-
-        $this->assertTrue($stream->isSeekable());
-        $stream->close();
-    }
-
-    public function testRewind()
-    {
-        $stream = Factory::newStream('test');
-
-        $this->assertNull($stream->rewind());
-        $stream->close();
-    }
-
-    public function testIsWritable()
-    {
-        $stream = Factory::newStream('test');
-
-        $this->assertTrue($stream->isWritable());
-        $stream->close();
+        $this->assertFalse($this->stream->eof());
     }
 
     public function testIsReadable()
     {
-        $stream = Factory::newStream('test');
-
-        $this->assertTrue($stream->isReadable());
-        $stream->rewind();
-        $this->assertEquals('te', $stream->read(2));
-        $stream->close();
+        $this->assertTrue($this->stream->isReadable());
     }
 
-    public function testToString()
+    public function testIsWritable()
     {
-        $stream = Factory::newStream('test');
+        $this->assertTrue($this->stream->isWritable());
+    }
 
-        $this->assertEquals("test", (string) $stream);
-        $stream->detach();
-        $this->assertEquals("", (string) $stream);
-        $stream->close();
+    public function testIsSeekable()
+    {
+        $this->assertTrue($this->stream->isSeekable());
+    }
+
+    public function testSeekAndRewind()
+    {
+        $this->stream->seek(3);
+        $this->assertEquals(3, $this->stream->tell(), 'Seek');
+        $this->stream->rewind();
+        $this->assertEquals(0, $this->stream->tell(), 'Rewind');
+    }
+
+    public function testRead()
+    {
+        $this->assertEquals('str', $this->stream->read(3));
+    }
+
+    public function testWrite()
+    {
+        $this->stream->write('streamstream');
+        $this->stream->rewind();
+        $this->assertEquals('streamstr', $this->stream->read(9));
     }
 
     public function testGetMetadata()
     {
-        $stream = Factory::newStream('test');
-        $meta = $stream->getMetadata();
+        $this->assertEquals(
+            RUNTIME_PATH . '/stream.txt',
+            $this->stream->getMetadata('uri')
+        );
+        $this->assertNull($this->stream->getMetadata('foo'));
+    }
 
-        $this->assertEquals("php://temp", $meta['uri']);
+    public function testToString()
+    {
+        $this->assertEquals('stream', (string) $this->stream);
+        $this->stream->close();
+        $this->assertEquals('', (string) $this->stream);
 
-        $stream->detach();
-        $this->assertEquals([], $stream->getMetadata());
-        $stream->close();
+        $stream = new Stream(fopen(RUNTIME_PATH . '/stream.txt', 'w'));
+        $this->assertEquals('', (string) $stream);
+    }
+
+    /**
+     * @dataProvider provideRuntimeExceptions
+     * @expectedException \RuntimeException
+     */
+    public function testRuntimeExceptions($method, $params)
+    {
+        $this->stream->detach();
+        call_user_func_array([$this->stream, $method], $params);
+    }
+
+    public function provideRuntimeExceptions()
+    {
+        return [
+            [ 'tell', [] ],
+            [ 'seek', [ 0 ] ],
+            [ 'rewind', [] ],
+            [ 'read', [ 1 ] ],
+            [ 'write', [ 1 ] ],
+        ];
     }
 
     /**
      * @expectedException \InvalidArgumentException
      */
-    public function testConstructException()
+    public function testAttachException()
     {
-        Factory::newStream();
-    }
-
-    /**
-     * @expectedException \RuntimeException
-     */
-    public function testReadException()
-    {
-        $stream = Factory::newStream(fopen(RUNTIME_PATH . '/folder/test.txt', 'rw'));
-        $stream->read(filesize(RUNTIME_PATH . '/folder/test.txt'));
-    }
-
-    /**
-     * @expectedException \RuntimeException
-     */
-    public function testWriteException()
-    {
-        $stream = Factory::newStream(fopen(RUNTIME_PATH . '/folder/test.txt', 'r'));
-        $stream->write('test');
-    }
-
-    /**
-     * @expectedException \RuntimeException
-     */
-    public function testSeekException()
-    {
-        $stream = Factory::newStream('test');
-        $stream->seek(-10);
-    }
-
-    /**
-     * @expectedException \RuntimeException
-     */
-    public function testGetContentsException()
-    {
-        $stream = Factory::newStream('test');
-        $stream->detach();
-        $stream->getContents();
+        new Stream('hello');
     }
 }

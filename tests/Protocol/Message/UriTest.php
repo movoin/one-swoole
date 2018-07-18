@@ -20,7 +20,7 @@ class UriTest extends \PHPUnit\Framework\TestCase
 
     public function setUp()
     {
-        $this->uri = new Uri('http://user:pass@domain.com:9051/path/to/file?filter=on#end');
+        $this->uri = new Uri('http', 'domain.com', 9051, '/path/to/file', 'filter=on', 'end', 'user', 'pass');
     }
 
     public function tearDown()
@@ -100,37 +100,23 @@ class UriTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
-    public function testGetAuthority()
-    {
-        $uri = new Uri('/path/to/file');
-
-        $this->assertEquals('', $uri->getAuthority());
-    }
-
     /**
+     * @dataProvider provideWithExceptions
      * @expectedException \InvalidArgumentException
      */
-    public function testConstructException()
-    {
-        $uri = new Uri('http:///bad');
-    }
-
-    /**
-     * @dataProvider provideFilterExceptions
-     * @expectedException \InvalidArgumentException
-     */
-    public function testFilterExceptions($method, $attributes)
+    public function testWithExceptions($method, $attributes)
     {
         $withMethod = 'with' . ucfirst($method);
         call_user_func_array([$this->uri, $withMethod], $attributes);
     }
 
-    public function provideFilterExceptions()
+    public function provideWithExceptions()
     {
         return [
             [ 'scheme',     [ 1024 ] ],
-            [ 'scheme',     [ 'bad' ] ],
-            [ 'host',       [ '' ] ],
+            [ 'scheme',     [ '1024' ] ],
+            [ 'userInfo',   [ null ] ],
+            [ 'host',       [ null ] ],
             [ 'port',       [ 'foo' ] ],
             [ 'port',       [ 100000 ] ],
             [ 'path',       [ 1024 ] ],
@@ -139,15 +125,27 @@ class UriTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
+    public function testWithUserInfo()
+    {
+        $uri = $this->uri->withUserInfo('', 'pass');
+        $this->assertEquals('', $uri->getUserInfo());
+    }
+
+    public function testFilterUser()
+    {
+        $uri = $this->uri->withUserInfo('foo ');
+        $this->assertEquals('foo%20', $uri->getUserInfo());
+    }
+
+    public function testFilterPath()
+    {
+        $uri = $this->uri->withPath('/path @+%/');
+        $this->assertEquals('/path%20@+%25/', $uri->getPath());
+    }
+
     public function testFilterQuery()
     {
         $uri = $this->uri->withQuery('foo=bar @+%/');
         $this->assertEquals('foo=bar%20@+%25/', $uri->getQuery());
-    }
-
-    public function testFilterFragment()
-    {
-        $uri = $this->uri->withFragment('bar @+%/');
-        $this->assertEquals('bar%20@+%25/', $uri->getFragment());
     }
 }

@@ -12,10 +12,7 @@
 
 namespace One\Tests\Protocol\Message;
 
-use One\Protocol\Factory;
 use One\Protocol\Message\UploadedFile;
-use Psr\Http\Message\StreamInterface;
-use Psr\Http\Message\UploadedFileInterface;
 
 class UploadedFileTest extends \PHPUnit\Framework\TestCase
 {
@@ -23,277 +20,93 @@ class UploadedFileTest extends \PHPUnit\Framework\TestCase
 
     public function setUp()
     {
-        $this->file = Factory::newUploadedFile([
-            'tmp_name'  => RUNTIME_PATH . '/word.docx',
-            'size'      => filesize(RUNTIME_PATH . '/word.docx'),
-            'error'     => UPLOAD_ERR_OK,
-            'name'      => 'word.docx',
-            'type'      => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-        ]);
+        file_put_contents(RUNTIME_PATH . '/file.txt', 'file', LOCK_EX);
+
+        $this->file = new UploadedFile(
+            RUNTIME_PATH . '/file.txt',
+            'file.txt',
+            'plan/text',
+            4,
+            UPLOAD_ERR_OK
+        );
     }
 
     public function tearDown()
     {
-        $this->file = null;
+        if (file_exists(RUNTIME_PATH . '/file.txt')) {
+            unlink(RUNTIME_PATH . '/file.txt');
+        }
 
-        if (file_exists(RUNTIME_PATH . '/test.txt')) {
-            unlink(RUNTIME_PATH . '/test.txt');
+        if (file_exists(RUNTIME_PATH . '/moved.txt')) {
+            unlink(RUNTIME_PATH . '/moved.txt');
         }
-        if (file_exists(RUNTIME_PATH . '/test2.txt')) {
-            unlink(RUNTIME_PATH . '/test2.txt');
-        }
+
+        $this->file = null;
     }
 
     public function testGetStream()
     {
-        $this->assertInstanceOf(StreamInterface::class, $this->file->getStream());
-    }
-
-    public function testGetSize()
-    {
-        $this->assertEquals(
-            filesize(RUNTIME_PATH . '/word.docx'),
-            $this->file->getSize()
+        $this->assertInstanceOf(
+            'Psr\\Http\\Message\\StreamInterface',
+            $this->file->getStream()
         );
     }
 
-    public function testGetError()
+    public function testMoveTo()
     {
-        $this->assertEquals(
-            UPLOAD_ERR_OK,
-            $this->file->getError()
-        );
+        $this->file->moveTo(RUNTIME_PATH . '/moved.txt');
+        $this->assertFileExists(RUNTIME_PATH . '/moved.txt');
     }
 
-    public function testGerClientFilename()
+    /**
+     * @dataProvider provideGetMethods
+     */
+    public function testGetMethods($method, $result)
     {
-        $this->assertEquals('word.docx', $this->file->getClientFilename());
+        $this->assertEquals($result, $this->file->$method());
     }
 
-    public function testGerClientMediaType()
+    public function provideGetMethods()
     {
-        $this->assertEquals(
-            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-            $this->file->getClientMediaType()
-        );
-    }
-
-    public function testFromResource()
-    {
-        $file = Factory::newUploadedFile([
-            'tmp_name'  => fopen(RUNTIME_PATH . '/word.docx', 'r+w'),
-            'size'      => filesize(RUNTIME_PATH . '/word.docx'),
-            'error'     => UPLOAD_ERR_OK,
-            'name'      => 'word.docx',
-            'type'      => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-        ]);
-
-        $this->assertInstanceOf(StreamInterface::class, $file->getStream());
-    }
-
-    public function testFromStream()
-    {
-        $file = Factory::newUploadedFile([
-            'tmp_name'  => Factory::newStream(fopen(RUNTIME_PATH . '/word.docx', 'r+w')),
-            'size'      => filesize(RUNTIME_PATH . '/word.docx'),
-            'error'     => UPLOAD_ERR_OK,
-            'name'      => 'word.docx',
-            'type'      => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-        ]);
-
-        $this->assertInstanceOf(StreamInterface::class, $file->getStream());
-    }
-
-    public function testResourceMoveTo()
-    {
-        $filepath = RUNTIME_PATH . '/test.txt';
-
-        file_put_contents($filepath, 'test');
-
-        $file = Factory::newUploadedFile([
-            'tmp_name'  => Factory::newStream(fopen($filepath, 'w+b')),
-            'size'      => filesize($filepath),
-            'error'     => UPLOAD_ERR_OK,
-            'name'      => 'test.txt',
-            'type'      => 'plan/text'
-        ]);
-
-        $file->moveTo(RUNTIME_PATH . '/test2.txt');
-
-        $this->assertFileExists(RUNTIME_PATH . '/test2.txt');
-        $this->assertFileNotExists($filepath);
-    }
-
-    public function testFileMoveTo()
-    {
-        $filepath = RUNTIME_PATH . '/test.txt';
-
-        file_put_contents($filepath, 'test');
-
-        $file = Factory::newUploadedFile([
-            'tmp_name'  => $filepath,
-            'size'      => filesize($filepath),
-            'error'     => UPLOAD_ERR_OK,
-            'name'      => 'test.txt',
-            'type'      => 'plan/text'
-        ]);
-
-        $file->moveTo(RUNTIME_PATH . '/test2.txt');
-
-        $this->assertFileExists(RUNTIME_PATH . '/test2.txt');
-        $this->assertFileNotExists($filepath);
+        return [
+            [ 'getError',           UPLOAD_ERR_OK ],
+            [ 'getClientFilename',  'file.txt' ],
+            [ 'getClientMediaType', 'plan/text' ],
+            [ 'getSize',            4 ],
+        ];
     }
 
     /**
      * @expectedException \RuntimeException
      */
-    public function testMoveToMovedException()
+    public function testAlreadyMovedException()
     {
-        $filepath = RUNTIME_PATH . '/test.txt';
-
-        file_put_contents($filepath, 'test');
-
-        $file = Factory::newUploadedFile([
-            'tmp_name'  => $filepath,
-            'size'      => filesize($filepath),
-            'error'     => UPLOAD_ERR_OK,
-            'name'      => 'test.txt',
-            'type'      => 'plan/text'
-        ]);
-
-        $file->moveTo(RUNTIME_PATH . '/test2.txt');
-        $file->moveTo(RUNTIME_PATH . '/test2.txt');
+        $this->file->moveTo(RUNTIME_PATH . '/moved.txt');
+        $this->file->getStream();
     }
 
     /**
      * @expectedException \RuntimeException
      */
-    public function testMoveToRenameFalseException()
+    public function testAlreadyMovedException2()
     {
-        $filepath = RUNTIME_PATH . '/test.txt';
-
-        file_put_contents($filepath, 'test');
-        file_put_contents(RUNTIME_PATH . '/test2.txt', 'test');
-
-        $file = Factory::newUploadedFile([
-            'tmp_name'  => $filepath,
-            'size'      => filesize($filepath),
-            'error'     => UPLOAD_ERR_OK,
-            'name'      => 'test.txt',
-            'type'      => 'plan/text'
-        ]);
-
-        $file->moveTo('foo/bar/test2.txt');
-    }
-
-    /**
-     * @expectedException \InvalidArgumentException
-     */
-    public function testMoveToEmptyPathException()
-    {
-        $filepath = RUNTIME_PATH . '/test.txt';
-
-        file_put_contents($filepath, 'test');
-
-        $file = Factory::newUploadedFile([
-            'tmp_name'  => $filepath,
-            'size'      => filesize($filepath),
-            'error'     => UPLOAD_ERR_OK,
-            'name'      => 'test.txt',
-            'type'      => 'plan/text'
-        ]);
-
-        $file->moveTo('');
-    }
-
-    /**
-     * @expectedException \InvalidArgumentException
-     */
-    public function testSetStreamOrFileException()
-    {
-        Factory::newUploadedFile([
-            'tmp_name'  => false,
-            'size'      => filesize(RUNTIME_PATH . '/word.docx'),
-            'error'     => UPLOAD_ERR_OK,
-            'name'      => 'word.docx',
-            'type'      => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-        ]);
-    }
-
-    /**
-     * @expectedException \InvalidArgumentException
-     */
-    public function testSetErrorException()
-    {
-        Factory::newUploadedFile([
-            'tmp_name'  => Factory::newStream(fopen(RUNTIME_PATH . '/word.docx', 'r+w')),
-            'size'      => filesize(RUNTIME_PATH . '/word.docx'),
-            'error'     => UPLOAD_ERR_OK + 100,
-            'name'      => 'word.docx',
-            'type'      => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-        ]);
-    }
-
-    /**
-     * @expectedException \InvalidArgumentException
-     */
-    public function testSetClientFilenameException()
-    {
-        Factory::newUploadedFile([
-            'tmp_name'  => Factory::newStream(fopen(RUNTIME_PATH . '/word.docx', 'r+w')),
-            'size'      => filesize(RUNTIME_PATH . '/word.docx'),
-            'error'     => UPLOAD_ERR_OK,
-            'name'      => false,
-            'type'      => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-        ]);
-    }
-
-    /**
-     * @expectedException \InvalidArgumentException
-     */
-    public function testSetClientMediaTypeException()
-    {
-        Factory::newUploadedFile([
-            'tmp_name'  => Factory::newStream(fopen(RUNTIME_PATH . '/word.docx', 'r+w')),
-            'size'      => filesize(RUNTIME_PATH . '/word.docx'),
-            'error'     => UPLOAD_ERR_OK,
-            'name'      => 'word.docx',
-            'type'      => false
-        ]);
+        $this->file->moveTo(RUNTIME_PATH . '/moved.txt');
+        $this->file->moveTo(RUNTIME_PATH . '/moved.txt');
     }
 
     /**
      * @expectedException \RuntimeException
      */
-    public function testNotOkException()
+    public function testErrorMoveingException()
     {
-        $file = Factory::newUploadedFile([
-            'tmp_name'  => Factory::newStream(fopen(RUNTIME_PATH . '/word.docx', 'r+w')),
-            'size'      => filesize(RUNTIME_PATH . '/word.docx'),
-            'error'     => UPLOAD_ERR_INI_SIZE,
-            'name'      => 'word.docx',
-            'type'      => 'word.docx'
-        ]);
-
-        $file->getStream();
+        $this->file->moveTo(RUNTIME_PATH . '/folder/');
     }
 
-    // /**
-    //  * @expectedException \RuntimeException
-    //  */
-    // public function testMovedException()
-    // {
-    //     file_put_contents(RUNTIME_PATH . '/test.txt', 'test');
-
-    //     $file = Factory::newUploadedFile([
-    //         'tmp_name'  => Factory::newStream(fopen(RUNTIME_PATH . '/test.txt', 'r+w')),
-    //         'size'      => filesize(RUNTIME_PATH . '/test.txt'),
-    //         'error'     => UPLOAD_ERR_OK,
-    //         'name'      => 'test.txt',
-    //         'type'      => 'plan/text'
-    //     ]);
-
-    //     $file->moveTo(RUNTIME_PATH . '/test2.txt');
-    //     $file->moveTo(RUNTIME_PATH . '/test3.txt');
-    // }
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testPathNotWritableException()
+    {
+        $this->file->moveTo('/foo.txt');
+    }
 }

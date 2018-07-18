@@ -352,10 +352,6 @@ class Stream implements StreamInterface
             throw new InvalidArgumentException(__METHOD__ . ' argument must be a valid PHP resource');
         }
 
-        if ($this->isAttached() === true) {
-            $this->detach();
-        }
-
         $this->stream = $stream;
     }
 }

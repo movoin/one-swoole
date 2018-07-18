@@ -147,7 +147,7 @@ class Uri implements UriInterface
      *
      * @return string
      */
-    public function getUserInfo()
+    public function getUserInfo(): string
     {
         return $this->user . ($this->password ? ':' . $this->password : '');
     }
@@ -244,7 +244,7 @@ class Uri implements UriInterface
      */
     public function getPath(): string
     {
-        return $this->path;
+        return '/' . ltrim($this->path, '/');
     }
 
     /**
@@ -332,6 +332,26 @@ class Uri implements UriInterface
     }
 
     /**
+     * 获得 Uri 字符串
+     *
+     * @return string
+     */
+    public function __toString()
+    {
+        $scheme = $this->getScheme();
+        $authority = $this->getAuthority();
+        $path = $this->getPath();
+        $query = $this->getQuery();
+        $fragment = $this->getFragment();
+
+        return ($scheme ? $scheme . ':' : '')
+            . ($authority ? '//' . $authority : '')
+            . $path
+            . ($query ? '?' . $query : '')
+            . ($fragment ? '#' . $fragment : '');
+    }
+
+    /**
      * 过滤 Uri 协议部分
      *
      * @param  string $scheme
@@ -358,26 +378,6 @@ class Uri implements UriInterface
         }
 
         return $scheme;
-    }
-
-    /**
-     * 获得 Uri 字符串
-     *
-     * @return string
-     */
-    public function __toString()
-    {
-        $scheme = $this->getScheme();
-        $authority = $this->getAuthority();
-        $path = $this->getPath();
-        $query = $this->getQuery();
-        $fragment = $this->getFragment();
-
-        return ($scheme ? $scheme . ':' : '')
-            . ($authority ? '//' . $authority : '')
-            . $path
-            . ($query ? '?' . $query : '')
-            . ($fragment ? '#' . $fragment : '');
     }
 
     /**

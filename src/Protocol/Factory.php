@@ -16,7 +16,6 @@ use One\Protocol\Contracts\Protocol;
 use One\Protocol\Exceptions\ProtocolException;
 use One\Protocol\Message\Stream;
 use One\Protocol\Message\UploadedFile;
-use One\Support\Helpers\Assert;
 use One\Support\Helpers\Reflection;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UploadedFileInterface;
@@ -45,7 +44,7 @@ final class Factory
      */
     public static function newProtocol(string $protocol): Protocol
     {
-        if (! Assert::oneOf($protocol, static::$protocols)) {
+        if (! in_array($protocol, static::$protocols)) {
             throw ProtocolException::notSupport($ptotocol);
         }
 
@@ -57,18 +56,25 @@ final class Factory
     /**
      * 创建文件流对象
      *
-     * @param  \Psr\Http\Message\StreamInterface|string|resource|null $body
+     * @param  \Psr\Http\Message\StreamInterface|resource|string|null $body
      *
      * @return \Psr\Http\Message\StreamInterface
      * @throws \InvalidArgumentException
      */
     public static function newStream($body = null): StreamInterface
     {
-        if (Assert::instanceOf($body, StreamInterface::class)) {
+        if ($body instanceof StreamInterface) {
             return $body;
         }
 
-        return new Stream($body === null ? '' : $body);
+        if (is_resource($body)) {
+            return new Stream($body);
+        }
+
+        $stream = new Stream(fopen('php://temp', 'w+'));
+        ! empty($body) && $stream->write($body);
+
+        return $stream;
     }
 
     /**
@@ -83,10 +89,10 @@ final class Factory
     {
         return new UploadedFile(
             $file['tmp_name'],
-            $file['size'],
-            $file['error'],
             $file['name'],
-            $file['type']
+            $file['type'],
+            $file['size'],
+            $file['error']
         );
     }
 }
