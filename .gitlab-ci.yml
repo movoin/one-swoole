@@ -2,15 +2,15 @@
 image: movoin/devops-swoole:2
 
 before_script:
-- composer install
-- pecl install xdebug
-- echo 'zend_extension=xdebug.so' > /etc/php/conf.d/xdebug.ini
+  - composer install
+  - pecl install xdebug
+  - echo 'zend_extension=xdebug.so' > /etc/php/conf.d/xdebug.ini
 
 # Run PHPUnit
 phpunit:
   before_script:
     - chown -R app:app /app
   script:
-    - su - app /usr/local/bin/php /app/vendor/bin/phpcs -p --standard=PSR2 --runtime-set ignore_errors_on_exit 1 --runtime-set ignore_warnings_on_exit 1 src
-    - su - app /usr/local/bin/php /app/vendor/bin/parallel-lint . --exclude vendor
-    - su - app /usr/local/bin/php /app/vendor/bin/phpunit -c phpunit-ci.xml
+    - su - app "/usr/local/bin/php /app/vendor/bin/phpcs -p --standard=PSR2 --runtime-set ignore_errors_on_exit 1 --runtime-set ignore_warnings_on_exit 1 src"
+    - su - app "/usr/local/bin/php /app/vendor/bin/parallel-lint . --exclude vendor"
+    - su - app "/usr/local/bin/php /app/vendor/bin/phpunit -c phpunit-ci.xml"
