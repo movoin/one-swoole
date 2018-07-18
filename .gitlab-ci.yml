@@ -1,16 +1,12 @@
 # Select image from https://hub.docker.com/r/movoin/devops-swoole/
 image: movoin/devops-swoole:2
 
-# Init
-init:
-  script:
-    - composer install
-    - pecl install xdebug
-    - echo 'zend_extension=xdebug.so' > /etc/php/conf.d/xdebug.ini
-
 # Run PHPUnit
 phpunit:
   before_script:
+    - composer install
+    - pecl install xdebug
+    - echo 'zend_extension=xdebug.so' > /etc/php/conf.d/xdebug.ini
     - chown -R app:app /builds/onelab/one.swoole
   script:
     - su - app "/usr/local/bin/php /builds/onelab/one.swoole/vendor/bin/phpcs -p --standard=PSR2 --runtime-set ignore_errors_on_exit 1 --runtime-set ignore_warnings_on_exit 1 src"
