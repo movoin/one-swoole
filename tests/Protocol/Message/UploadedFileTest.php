@@ -107,6 +107,6 @@ class UploadedFileTest extends \PHPUnit\Framework\TestCase
      */
     public function testPathNotWritableException()
     {
-        $this->file->moveTo('/foo.txt');
+        $this->file->moveTo('/foo/bar.txt');
     }
 }
