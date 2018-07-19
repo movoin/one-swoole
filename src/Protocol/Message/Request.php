@@ -146,9 +146,10 @@ class Request implements RequestInterface
      */
     public function __clone()
     {
-        $this->headers = clone $this->headers;
         $this->attributes = clone $this->attributes;
         $this->body = clone $this->body;
+        $this->cookies = clone $this->cookies;
+        $this->headers = clone $this->headers;
     }
 
     /**
@@ -461,7 +462,7 @@ class Request implements RequestInterface
      */
     public function getAttribute($name, $default = null)
     {
-        return $this->attributes($name, $default);
+        return $this->attributes->get($name, $default);
     }
 
     /**
@@ -645,6 +646,102 @@ class Request implements RequestInterface
 
         return $result;
     }
+
+    /**
+     * 返回 Attributes\GET\POST 参数
+     *
+     * @param string $name
+     * @param mixed  $default
+     *
+     * @return mixed
+     */
+    public function param(string $name, $default = null)
+    {
+        return $this->getParam($name, $default);
+    }
+
+    /**
+     * 返回 GET 参数
+     *
+     * @param string $name
+     * @param mixed  $default
+     *
+     * @return mixed
+     */
+    public function get(string $name, $default = null)
+    {
+        return $this->getQueryParam($name, $default);
+    }
+
+    /**
+     * 返回 POST 参数
+     *
+     * @param string $name
+     * @param mixed  $default
+     *
+     * @return mixed
+     */
+    public function post(string $name, $default = null)
+    {
+        return $this->getParsedBodyParam($name, $default);
+    }
+
+    /**
+     * 返回 POST 参数
+     *
+     * @param string $name
+     * @param mixed  $default
+     *
+     * @return mixed
+     */
+    public function header(string $name, $default = null)
+    {
+        if ($this->hasHeader($name)) {
+            return $this->getHeaderLine($name);
+        }
+
+        return $default;
+    }
+
+    /**
+     * 返回 POST 参数
+     *
+     * @param string $name
+     * @param mixed  $default
+     *
+     * @return mixed
+     */
+    public function server(string $name, $default = null)
+    {
+        return $this->getServerParam($name, $default);
+    }
+
+    /**
+     * 返回 POST 参数
+     *
+     * @param string $name
+     * @param mixed  $default
+     *
+     * @return mixed
+     */
+    public function cookie(string $name, $default = null)
+    {
+        return $this->getCookieParam($name, $default);
+    }
+
+    /**
+     * 返回 Attribute 参数
+     *
+     * @param string $name
+     * @param mixed  $default
+     *
+     * @return mixed
+     */
+    public function attribute(string $name, $default = null)
+    {
+        return $this->getAttribute($name, $default);
+    }
+
 
     /**
      * 获得请求 IP 地址
