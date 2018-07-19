@@ -71,10 +71,12 @@ final class Factory
      */
     public static function newRequest(SwooleRequest $swoole): RequestInterface
     {
+
         // {{ Headers
         $headers = new Headers;
+        $swHeaders = $swoole->header ?? [];
 
-        foreach ($swoole->header as $key => $value) {
+        foreach ($swHeaders as $key => $value) {
             $headers->add(
                 implode('-', array_map('ucfirst', explode('-', $key))),
                 $value
@@ -83,13 +85,14 @@ final class Factory
         // }}
 
         // {{ Server Parameters
-        $server = $swoole->server
-                    ? array_change_key_case($swoole->server, CASE_UPPER)
-                    : [];
+        $swServer = $swoole->server ?? [];
+        $server = $swServer ? array_change_key_case($swServer, CASE_UPPER) : [];
 
-        foreach ($swoole->header as $key => $value) {
+        foreach ($swHeaders as $key => $value) {
             $server[sprintf('HTTP_%s', strtoupper(str_replace('-', '_', $key)))] = $value;
         }
+
+        unset($swHeaders, $swServer);
         // }}
 
         // {{ Request Method
@@ -107,7 +110,7 @@ final class Factory
         // }}
 
         // {{ Request Cookies
-        $cookies = new Cookies($swoole->cookie);
+        $cookies = new Cookies($swoole->cookie ?? []);
         // }}
 
         // {{ Uploaded Files
@@ -119,7 +122,7 @@ final class Factory
                 $file['size'],
                 $file['error']
             );
-        }, $swoole->files);
+        }, $swoole->files ?? []);
         // }}
 
         return new Request(

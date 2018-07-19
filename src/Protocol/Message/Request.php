@@ -17,6 +17,7 @@ use One\Protocol\Factory;
 use One\Protocol\Contracts\Request as RequestInterface;
 use One\Protocol\Traits\HasMessage;
 use One\Protocol\Traits\HasProtocol;
+use One\Protocol\Message\Cookies;
 use One\Support\Collection;
 use Psr\Http\Message\UriInterface;
 use Psr\Http\Message\StreamInterface;
@@ -60,7 +61,7 @@ class Request implements RequestInterface
     /**
      * 请求 Cookies
      *
-     * @var array
+     * @var \One\Protocol\Message\Cookies
      */
     protected $cookies;
     /**
@@ -94,7 +95,7 @@ class Request implements RequestInterface
      * @param string                            $method
      * @param \Psr\Http\Message\UriInterface    $uri
      * @param Headers                           $headers
-     * @param array                             $cookies
+     * @param \One\Protocol\Message\Cookies     $cookies
      * @param array                             $serverParams
      * @param \Psr\Http\Message\StreamInterface $body
      * @param array                             $uploadedFiles
@@ -106,7 +107,7 @@ class Request implements RequestInterface
         $method,
         UriInterface $uri,
         Headers $headers,
-        array $cookies,
+        Cookies $cookies,
         array $serverParams,
         StreamInterface $body,
         array $uploadedFiles = []
@@ -212,90 +213,6 @@ class Request implements RequestInterface
     public function isMethod(string $method): bool
     {
         return $this->getMethod() === $method;
-    }
-
-    /**
-     * 判断是否 GET 请求
-     *
-     * @return bool
-     * @throws \InvalidArgumentException
-     * @throws \InvalidMethodException
-     */
-    public function isGet(): bool
-    {
-        return $this->isMethod('GET');
-    }
-
-    /**
-     * 判断是否 POST 请求
-     *
-     * @return bool
-     * @throws \InvalidArgumentException
-     * @throws \InvalidMethodException
-     */
-    public function isPost(): bool
-    {
-        return $this->isMethod('POST');
-    }
-
-    /**
-     * 判断是否 PUT 请求
-     *
-     * @return bool
-     * @throws \InvalidArgumentException
-     * @throws \InvalidMethodException
-     */
-    public function isPut(): bool
-    {
-        return $this->isMethod('PUT');
-    }
-
-    /**
-     * 判断是否 PATCH 请求
-     *
-     * @return bool
-     * @throws \InvalidArgumentException
-     * @throws \InvalidMethodException
-     */
-    public function isPatch(): bool
-    {
-        return $this->isMethod('PATCH');
-    }
-
-    /**
-     * 判断是否 DELETE 请求
-     *
-     * @return bool
-     * @throws \InvalidArgumentException
-     * @throws \InvalidMethodException
-     */
-    public function isDelete(): bool
-    {
-        return $this->isMethod('DELETE');
-    }
-
-    /**
-     * 判断是否 HEAD 请求
-     *
-     * @return bool
-     * @throws \InvalidArgumentException
-     * @throws \InvalidMethodException
-     */
-    public function isHead(): bool
-    {
-        return $this->isMethod('HEAD');
-    }
-
-    /**
-     * 判断是否 OPTIONS 请求
-     *
-     * @return bool
-     * @throws \InvalidArgumentException
-     * @throws \InvalidMethodException
-     */
-    public function isOptions(): bool
-    {
-        return $this->isMethod('OPTIONS');
     }
 
     /**
@@ -535,7 +452,7 @@ class Request implements RequestInterface
      *
      * @return mixed
      */
-    public function getAttribute(string $name, $default = null)
+    public function getAttribute($name, $default = null)
     {
         return $this->attributes($name, $default);
     }
@@ -548,7 +465,7 @@ class Request implements RequestInterface
      *
      * @return \One\Protocol\Contracts\Request
      */
-    public function withAttribute(string $name, $value): RequestInterface
+    public function withAttribute($name, $value): RequestInterface
     {
         $clone = clone $this;
         $clone->attributes->set($name, $value);
@@ -578,7 +495,7 @@ class Request implements RequestInterface
      *
      * @return \One\Protocol\Contracts\Request
      */
-    public function withoutAttribute(string $name): RequestInterface
+    public function withoutAttribute($name): RequestInterface
     {
         $clone = clone $this;
         $clone->attributes->remove($name);

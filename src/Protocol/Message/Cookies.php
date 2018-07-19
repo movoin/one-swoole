@@ -12,7 +12,9 @@
 
 namespace One\Protocol\Message;
 
-class Cookies
+use One\Support\Contracts\Arrayable;
+
+class Cookies implements Arrayable
 {
     /**
      * HTTP 请求 Cookies
@@ -32,14 +34,12 @@ class Cookies
      * @var array
      */
     protected $defaults = [
-        'value' => '',
-        'domain' => null,
-        'hostonly' => null,
-        'path' => null,
-        'expires' => null,
-        'secure' => false,
-        'httponly' => false,
-        'samesite' => null
+        'value'     => '',
+        'expires'   => 0,
+        'domain'    => '',
+        'path'      => '/',
+        'secure'    => false,
+        'httponly'  => false
     ];
 
     /**
@@ -91,71 +91,22 @@ class Cookies
     }
 
     /**
-     * 转换为 `Set-Cookie` 的头信息
+     * 获得 Cookies 数组
      *
      * @return array
      */
-    public function toHeaders(): array
+    public function toArray(): array
     {
-        $headers = [];
+        $cookies = [];
 
-        foreach ($this->responseCookies as $name => $props) {
-            $headers[] = $this->toHeader($name, $props);
+        foreach ($this->responseCookies as $key => $cookie) {
+            $cookie['expires'] = is_string($cookie['expires']) ?
+                        strtotime($cookie['expires']) :
+                        (int) $cookie['expires'];
+
+            $cookies[] = ['key' => $key] + $cookie;
         }
 
-        return $headers;
-    }
-
-    /**
-     * 转换为 Cookie 字符串
-     *
-     * @param  string $name
-     * @param  array  $properties
-     *
-     * @return string
-     */
-    protected function toHeader(string $name, array $properties): string
-    {
-        $cookie = urlencode($name) . '=' . urlencode($properties['value']);
-
-        if (isset($properties['domain'])) {
-            $cookie .= '; domain=' . $properties['domain'];
-        }
-
-        if (isset($properties['path'])) {
-            $cookie .= '; path=' . $properties['path'];
-        }
-
-        if (isset($properties['expires'])) {
-            $timestamp = is_string($properties['expires']) ?
-                        strtotime($properties['expires']) :
-                        (int) $properties['expires'];
-
-            if ($timestamp !== 0) {
-                $cookie .= '; expires=' . gmdate('D, d-M-Y H:i:s e', $timestamp);
-            }
-
-            unset($timestamp);
-        }
-
-        if (isset($properties['secure']) && $properties['secure']) {
-            $cookie .= '; secure';
-        }
-
-        if (isset($properties['hostonly']) && $properties['hostonly']) {
-            $cookie .= '; Hostonly';
-        }
-
-        if (isset($properties['httponly']) && $properties['httponly']) {
-            $cookie .= '; Httponly';
-        }
-
-        if (isset($properties['samesite']) &&
-            in_array(strtolower($properties['samesite']), ['lax', 'strict'], true)
-        ) {
-            $cookie .= '; SameSite=' . $properties['samesite'];
-        }
-
-        return $cookie;
+        return $cookies;
     }
 }

@@ -30,5 +30,5 @@ interface Response extends ResponseInterface
      *
      * @return self
      */
-    public function withProtocol(string $protocol): self;
+    public function withProtocol(string $protocol);
 }

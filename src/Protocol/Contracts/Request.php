@@ -30,5 +30,5 @@ interface Request extends ServerRequestInterface
      *
      * @return self
      */
-    public function withProtocol(string $protocol): self;
+    public function withProtocol(string $protocol);
 }
