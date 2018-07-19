@@ -34,16 +34,4 @@ class FactoryTest extends \PHPUnit\Framework\TestCase
         $stream = Factory::newStream(Factory::newStream('test'));
         $this->assertInstanceOf('Psr\\Http\\Message\\StreamInterface', $stream);
     }
-
-    public function testNewUploadedFile()
-    {
-        $file = Factory::newUploadedFile([
-            'tmp_name'  => 'name',
-            'name'      => 'name',
-            'type'      => 'type',
-            'size'      => 4,
-            'error'     => 1,
-        ]);
-        $this->assertInstanceOf('Psr\\Http\\Message\\UploadedFileInterface', $file);
-    }
 }

@@ -13,12 +13,21 @@
 namespace One\Protocol;
 
 use One\Protocol\Contracts\Protocol;
+use One\Protocol\Contracts\Request as RequestInterface;
+use One\Protocol\Contracts\Response as ResponseInterface;
 use One\Protocol\Exceptions\ProtocolException;
+use One\Protocol\Message\Cookies;
+use One\Protocol\Message\Headers;
+use One\Protocol\Message\Request;
+use One\Protocol\Message\Response;
 use One\Protocol\Message\Stream;
 use One\Protocol\Message\UploadedFile;
+use One\Protocol\Message\Uri;
+use One\Support\Helpers\Arr;
 use One\Support\Helpers\Reflection;
 use Psr\Http\Message\StreamInterface;
-use Psr\Http\Message\UploadedFileInterface;
+use Swoole\Http\Request as SwooleRequest;
+use Swoole\Http\Response as SwooleResponse;
 
 final class Factory
 {
@@ -54,6 +63,88 @@ final class Factory
     }
 
     /**
+     * 创建请求对象
+     *
+     * @param  Swoole\Http\Request $swoole
+     *
+     * @return \One\Protocol\Contracts\Request
+     */
+    public static function newRequest(SwooleRequest $swoole): RequestInterface
+    {
+        // {{ Headers
+        $headers = new Headers;
+
+        foreach ($swoole->header as $key => $value) {
+            $headers->add(
+                implode('-', array_map('ucfirst', explode('-', $key))),
+                $value
+            );
+        }
+        // }}
+
+        // {{ Server Parameters
+        $server = $swoole->server
+                    ? array_change_key_case($swoole->server, CASE_UPPER)
+                    : [];
+
+        foreach ($swoole->header as $key => $value) {
+            $server[sprintf('HTTP_%s', strtoupper(str_replace('-', '_', $key)))] = $value;
+        }
+        // }}
+
+        // {{ Request Method
+        $method = Arr::get($server, 'REQUEST_METHOD', 'GET');
+        // }}
+
+        // {{ Request Uri
+        $uri = new Uri(
+            '',
+            Arr::get($server, 'HTTP_HOST', ''),
+            Arr::get($server, 'SERVER_PORT', ''),
+            Arr::get($server, 'REQUEST_URI', '/'),
+            Arr::get($server, 'QUERY_STRING', '')
+        );
+        // }}
+
+        // {{ Request Cookies
+        $cookies = new Cookies($swoole->cookie);
+        // }}
+
+        // {{ Uploaded Files
+        $uploadedFiles = array_map(function ($file) {
+            return new UploadedFile(
+                $file['tmp_name'],
+                $file['name'],
+                $file['type'],
+                $file['size'],
+                $file['error']
+            );
+        }, $swoole->files);
+        // }}
+
+        return new Request(
+            $method,
+            $uri,
+            $headers,
+            $cookies,
+            $server,
+            static::newStream($swoole->rawContent()),
+            $uploadedFiles
+        );
+    }
+
+    /**
+     * 创建响应对象
+     *
+     * @param  Swoole\Http\Response $swoole
+     *
+     * @return \One\Protocol\Contracts\Response
+     */
+    public static function newResponse(SwooleResponse $swoole): ResponseInterface
+    {
+    }
+
+    /**
      * 创建文件流对象
      *
      * @param  \Psr\Http\Message\StreamInterface|resource|string|null $body
@@ -75,24 +166,5 @@ final class Factory
         ! empty($body) && $stream->write($body);
 
         return $stream;
-    }
-
-    /**
-     * 创建上传文件对象
-     *
-     * @param  array  $file
-     *
-     * @return \Psr\Http\Message\UploadedFileInterface
-     * @throws \InvalidArgumentException
-     */
-    public static function newUploadedFile(array $file): UploadedFileInterface
-    {
-        return new UploadedFile(
-            $file['tmp_name'],
-            $file['name'],
-            $file['type'],
-            $file['size'],
-            $file['error']
-        );
     }
 }
