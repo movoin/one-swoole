@@ -138,6 +138,8 @@ final class Factory
             $request = $request->withParsedBody($swoole->post);
         }
 
+        unset($method, $uri, $headers, $cookies, $server, $uploadedFiles);
+
         return $request;
     }
 
