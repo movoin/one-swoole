@@ -71,7 +71,6 @@ final class Factory
      */
     public static function newRequest(SwooleRequest $swoole): RequestInterface
     {
-
         // {{ Headers
         $headers = new Headers;
         $swHeaders = $swoole->header ?? [];
@@ -125,7 +124,7 @@ final class Factory
         }, $swoole->files ?? []);
         // }}
 
-        return new Request(
+        $request = new Request(
             $method,
             $uri,
             $headers,
@@ -134,6 +133,15 @@ final class Factory
             static::newStream($swoole->rawContent()),
             $uploadedFiles
         );
+
+        if ($method === 'POST' &&
+            in_array($request->getMediaType(), ['application/x-www-form-urlencoded', 'multipart/form-data']) &&
+            $swoole->post
+        ) {
+            $request = $request->withParsedBody($swoole->post);
+        }
+
+        return $request;
     }
 
     /**
