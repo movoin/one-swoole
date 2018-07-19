@@ -134,10 +134,7 @@ final class Factory
             $uploadedFiles
         );
 
-        if ($method === 'POST' &&
-            in_array($request->getMediaType(), ['application/x-www-form-urlencoded', 'multipart/form-data']) &&
-            $swoole->post
-        ) {
+        if ($method === 'POST' && $swoole->post) {
             $request = $request->withParsedBody($swoole->post);
         }
 
