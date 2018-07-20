@@ -132,12 +132,6 @@ class Request implements RequestInterface
             $this->protocolVersion = str_replace('HTTP/', '', $serverParams['SERVER_PROTOCOL']);
         }
 
-        if (! $this->headers->has('Host') && $this->uri->getHost() !== '') {
-            $port = $this->uri->getPort() ? ":{$this->uri->getPort()}" : '';
-            $this->headers->set('Host', $this->uri->getHost() . $port);
-            unset($port);
-        }
-
         $this->registerMediaTypeParsers();
     }
 
@@ -248,10 +242,6 @@ class Request implements RequestInterface
             return $this->requestTarget;
         }
 
-        if ($this->uri === null) {
-            return '/';
-        }
-
         $path = '/' . ltrim($this->uri->getPath(), '/');
 
         if ($query = $this->uri->getQuery()) {
@@ -322,9 +312,9 @@ class Request implements RequestInterface
     /**
      * 获得 Cookies
      *
-     * @return array
+     * @return \One\Protocol\Message\Cookies
      */
-    public function getCookieParams(): array
+    public function getCookieParams(): Cookies
     {
         return $this->cookies;
     }
@@ -366,10 +356,6 @@ class Request implements RequestInterface
     {
         if (is_array($this->queryParams)) {
             return $this->queryParams;
-        }
-
-        if ($this->uri === null) {
-            return [];
         }
 
         parse_str($this->uri->getQuery(), $this->queryParams);

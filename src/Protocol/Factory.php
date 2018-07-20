@@ -99,13 +99,19 @@ final class Factory
         // }}
 
         // {{ Request Uri
+        $queryString = '';
+        $requestUri = Arr::get($server, 'REQUEST_URI', '');
+        if (($pos = strpos($requestUri, '?')) !== false) {
+            $queryString = substr($requestUri, $pos + 1, strlen($requestUri));
+        }
         $uri = new Uri(
             '',
             Arr::get($server, 'HTTP_HOST', ''),
             Arr::get($server, 'SERVER_PORT', ''),
-            Arr::get($server, 'REQUEST_URI', '/'),
-            Arr::get($server, 'QUERY_STRING', '')
+            Arr::get($server, 'PATH_INFO', '/'),
+            $queryString
         );
+        unset($requestUri, $pos, $queryString);
         // }}
 
         // {{ Request Cookies
@@ -152,6 +158,7 @@ final class Factory
      */
     public static function newResponse(SwooleResponse $swoole): ResponseInterface
     {
+        return (new Response)->withSwooleResponse($swoole);
     }
 
     /**
