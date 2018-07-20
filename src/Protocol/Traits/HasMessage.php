@@ -179,7 +179,7 @@ trait HasMessage
         $this->assertHeaderName($name);
 
         $clone = clone $this;
-        $clone->header->remove($name);
+        $clone->headers->remove($name);
 
         return $clone;
     }

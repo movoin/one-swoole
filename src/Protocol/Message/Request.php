@@ -13,8 +13,10 @@
 namespace One\Protocol\Message;
 
 use InvalidArgumentException;
+use RuntimeException;
 use One\Protocol\Factory;
 use One\Protocol\Contracts\Request as RequestInterface;
+use One\Protocol\Exceptions\InvalidMethodException;
 use One\Protocol\Traits\HasMessage;
 use One\Protocol\Traits\HasProtocol;
 use One\Protocol\Message\Cookies;
@@ -108,7 +110,7 @@ class Request implements RequestInterface
      * @param array                             $uploadedFiles
      *
      * @throws \InvalidArgumentException
-     * @throws \InvalidMethodException
+     * @throws \One\Protocol\Exceptions\InvalidMethodException
      */
     public function __construct(
         $method,
@@ -161,7 +163,7 @@ class Request implements RequestInterface
      *
      * @return string
      * @throws \InvalidArgumentException
-     * @throws \InvalidMethodException
+     * @throws \One\Protocol\Exceptions\InvalidMethodException
      */
     public function getMethod(): string
     {
@@ -188,7 +190,7 @@ class Request implements RequestInterface
      *
      * @return \One\Protocol\Contracts\Request
      * @throws \InvalidArgumentException
-     * @throws \InvalidMethodException
+     * @throws \One\Protocol\Exceptions\InvalidMethodException
      */
     public function withMethod($method): RequestInterface
     {
@@ -208,7 +210,7 @@ class Request implements RequestInterface
      *
      * @return bool
      * @throws \InvalidArgumentException
-     * @throws \InvalidMethodException
+     * @throws \One\Protocol\Exceptions\InvalidMethodException
      */
     public function isMethod(string $method): bool
     {
@@ -219,8 +221,6 @@ class Request implements RequestInterface
      * 判断是否 XHR 请求
      *
      * @return bool
-     * @throws \InvalidArgumentException
-     * @throws \InvalidMethodException
      */
     public function isXhr(): bool
     {
@@ -292,14 +292,8 @@ class Request implements RequestInterface
         $clone = clone $this;
         $clone->uri = $uri;
 
-        if (! $preserveHost) {
-            if ($uri->getHost() !== '') {
-                $clone->headers->set('Host', $uri->getHost());
-            }
-        } else {
-            if ($uri->getHost() !== '' && (! $this->hasHeader('Host') || $this->getHeaderLine('Host') === '')) {
-                $clone->headers->set('Host', $uri->getHost());
-            }
+        if ($uri->getHost() !== '') {
+            $clone->headers->set('Host', $uri->getHost());
         }
 
         return $clone;
@@ -502,10 +496,6 @@ class Request implements RequestInterface
     {
         if ($this->parsedBody !== false) {
             return $this->parsedBody;
-        }
-
-        if (! $this->body) {
-            return null;
         }
 
         $mediaType = $this->getMediaType();
@@ -724,7 +714,6 @@ class Request implements RequestInterface
         return $this->getAttribute($name, $default);
     }
 
-
     /**
      * 获得请求 IP 地址
      *
@@ -743,11 +732,11 @@ class Request implements RequestInterface
         }
 
         if ($this->headers->has('X-Real-Ip')) {
-            $ip = $this->headers->getHeaderLine('X-Real-Ip');
+            $ip = $this->getHeaderLine('X-Real-Ip');
         }
 
         if ($this->headers->has('X-Client-Ip')) {
-            $ip = $this->headers->getHeaderLine('X-Client-Ip');
+            $ip = $this->getHeaderLine('X-Client-Ip');
         }
 
         return is_null($ip) ? 'Unknow' : $ip;
@@ -821,18 +810,6 @@ class Request implements RequestInterface
     }
 
     /**
-     * 获得请求内容长度
-     *
-     * @return int|null
-     */
-    public function getContentLength()
-    {
-        $result = $this->headers->get('Content-Length');
-
-        return $result ? (int) $result[0] : null;
-    }
-
-    /**
      * 注册内容解析器
      */
     protected function registerMediaTypeParsers()
@@ -888,7 +865,7 @@ class Request implements RequestInterface
      *
      * @return null|string
      * @throws \InvalidArgumentException
-     * @throws \InvalidMethodException
+     * @throws \One\Protocol\Exceptions\InvalidMethodException
      */
     protected function filterMethod($method)
     {

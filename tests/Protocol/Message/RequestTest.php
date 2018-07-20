@@ -57,6 +57,151 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         $this->assertTrue($request->isXhr());
     }
 
+    public function testGetUri()
+    {
+       $this->assertInstanceOf('Psr\\Http\\Message\\UriInterface', $this->request->getUri());
+    }
+
+    public function testGetCookieParams()
+    {
+       $this->assertInstanceOf('One\\Protocol\\Message\\Cookies', $this->request->getCookieParams());
+    }
+
+    public function testGetCookieParam()
+    {
+        $this->assertEquals('bar', $this->request->getCookieParam('foo'));
+    }
+
+    public function testGetAttribute()
+    {
+        $request = $this->request->withAttribute('foo', 'bar');
+
+        $this->assertEquals('bar', $request->getAttribute('foo'));
+        $this->assertEquals('bar', $request->attribute('foo'));
+    }
+
+    public function testWithoutAttribute()
+    {
+        $request = $this->request->withAttribute('foo', 'bar');
+        $request = $this->request->withoutAttribute('foo');
+
+        $this->assertNull($request->getAttribute('foo'));
+    }
+
+    public function testGetQueryParam()
+    {
+        $this->assertEquals('key', $this->request->get('q'));
+        $this->assertEquals('key', $this->request->param('q'));
+    }
+
+    public function testGetHeader()
+    {
+        $this->assertEquals(1, $this->request->header('Dnt'));
+        $this->assertNull($this->request->header('bad'));
+    }
+
+    public function testWithHeader()
+    {
+        $request = $this->request->withHeader('abc', 'xyz');
+        $this->assertEquals($request->getHeaderLine('abc'), 'xyz');
+    }
+
+    public function testWithoutHeader()
+    {
+        $request = $this->request->withHeader('foo', 'bar');
+        $request = $this->request->withoutHeader('foo');
+
+        $this->assertEquals([], $request->getHeader('foo'));
+    }
+
+    public function testGetHeaders()
+    {
+        $headers = $this->request->getHeaders();
+        $this->assertEquals([1], $headers['Dnt']);
+    }
+
+    public function testGetServer()
+    {
+        $this->assertEquals(1532059493, $this->request->server('MASTER_TIME'));
+    }
+
+    public function testGetCookie()
+    {
+        $this->assertEquals('bar', $this->request->cookie('foo'));
+    }
+
+    public function testClientIP()
+    {
+        $request = $this->request->withAddedHeader('X-Real-Ip', '192.168.0.1');
+        $this->assertEquals('192.168.0.1', $request->getClientIP(), 'X-Real-Ip');
+
+        $request = $this->request->withAddedHeader('X-Client-Ip', '192.168.0.1');
+        $this->assertEquals('192.168.0.1', $request->getClientIP(), 'X-Client-Ip');
+
+        // $request = $this->request->withAddedHeader('X-Forwarded-For', '192.168.0.1');
+        // $this->assertEquals('192.168.0.1', $request->getClientIP(), 'X-Forwarded-For');
+
+        // $request = $this->request->withAddedHeader('Client-Ip', '192.168.0.1');
+        // $this->assertEquals('192.168.0.1', $request->getClientIP(), 'Client-Ip');
+    }
+
+    public function testInvalidMethodException()
+    {
+        try {
+            $this->request->withMethod('PUT, GET');
+        } catch (\One\Protocol\Exceptions\InvalidMethodException $e) {
+            $this->assertEquals($e->getRequest(), $this->request);
+        }
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testWithRequestTargetException()
+    {
+        $this->request->withRequestTarget('foo bar');
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testWithProtocolVersionException()
+    {
+        $this->request->withProtocolVersion('3.0');
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testWithHeaderException()
+    {
+        $this->request->withHeader(null, '');
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testWithParsedBodyException()
+    {
+        $this->request->withParsedBody('foobar');
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testWithMethodException()
+    {
+        $this->request->withMethod(false);
+    }
+
+    /**
+     * @expectedException \One\Protocol\Exceptions\InvalidMethodException
+     */
+    public function testWithMethodException2()
+    {
+        $this->request->withMethod('PUT, GET');
+    }
+
     /**
      * @dataProvider provideSomeGetMethods
      */
@@ -127,7 +272,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             [
                 'withUri',
                 [
-                    new Uri('', '')
+                    new Uri('', 'domain.com')
                 ]
             ],
             [

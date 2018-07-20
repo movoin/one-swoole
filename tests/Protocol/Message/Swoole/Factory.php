@@ -79,6 +79,7 @@ class Factory
             'dotcom_user' => 'foobar',
             'logged_in' => 'yes',
             'tz' => 'Asia/Shanghai',
+            'foo' => 'bar',
             'user_session' => 'nnUyQmJdXZ5Bvescm_AeU8by1kmwE2FAeIrN1EsZHDnLO48T',
         ];
     }
