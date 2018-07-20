@@ -19,6 +19,7 @@ use One\Protocol\Traits\HasMessage;
 use One\Protocol\Traits\HasProtocol;
 use One\Protocol\Message\Cookies;
 use One\Support\Collection;
+use One\Support\Helpers\Json;
 use Psr\Http\Message\UriInterface;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UploadedFileInterface;
@@ -77,11 +78,17 @@ class Request implements RequestInterface
      */
     protected $attributes;
     /**
-     * 标识请求内容是否已经解析
+     * POST 数据
      *
      * @var null|array|object
      */
-    protected $parsedBody;
+    protected $parsedBody = false;
+    /**
+     * Body 数据解析器 (e.g., url-encoded, JSON, XML, multipart)
+     *
+     * @var array
+     */
+    protected $bodyParsers = [];
     /**
      * 上传文件列表
      *
@@ -130,6 +137,8 @@ class Request implements RequestInterface
             $this->headers->set('Host', $this->uri->getHost() . $port);
             unset($port);
         }
+
+        $this->registerMediaTypeParsers();
     }
 
     /**
@@ -137,9 +146,10 @@ class Request implements RequestInterface
      */
     public function __clone()
     {
-        $this->headers = clone $this->headers;
         $this->attributes = clone $this->attributes;
         $this->body = clone $this->body;
+        $this->cookies = clone $this->cookies;
+        $this->headers = clone $this->headers;
     }
 
     /**
@@ -329,9 +339,7 @@ class Request implements RequestInterface
      */
     public function getCookieParam(string $key, $default = null)
     {
-        $cookies = $this->getCookieParams();
-
-        return isset($cookies[$key]) ? $cookies[$key] : $default;
+        return $this->getCookieParams()->get($key, $default);
     }
 
     /**
@@ -344,7 +352,7 @@ class Request implements RequestInterface
     public function withCookieParams(array $cookies): RequestInterface
     {
         $clone = clone $this;
-        $clone->cookies = $cookies;
+        $clone->cookies = new Cookies($cookies);
 
         return $clone;
     }
@@ -454,7 +462,7 @@ class Request implements RequestInterface
      */
     public function getAttribute($name, $default = null)
     {
-        return $this->attributes($name, $default);
+        return $this->attributes->get($name, $default);
     }
 
     /**
@@ -510,7 +518,40 @@ class Request implements RequestInterface
      */
     public function getParsedBody()
     {
-        return $this->parsedBody;
+        if ($this->parsedBody !== false) {
+            return $this->parsedBody;
+        }
+
+        if (! $this->body) {
+            return null;
+        }
+
+        $mediaType = $this->getMediaType();
+
+        $parts = explode('+', $mediaType);
+        if (count($parts) >= 2) {
+            $mediaType = 'application/' . $parts[count($parts) - 1];
+        }
+        unset($parts);
+
+        if (isset($this->bodyParsers[$mediaType])) {
+            $body = (string) $this->getBody();
+            $parsed = $this->bodyParsers[$mediaType]($body);
+
+            if (! is_null($parsed) && ! is_object($parsed) && ! is_array($parsed)) {
+                throw new RuntimeException(
+                    'Request body media type parser return value must be an array, an object, or null'
+                );
+            }
+
+            $this->parsedBody = $parsed;
+
+            unset($parsed, $body, $mediaType);
+
+            return $this->parsedBody;
+        }
+
+        return null;
     }
 
     /**
@@ -607,6 +648,102 @@ class Request implements RequestInterface
     }
 
     /**
+     * 返回 Attributes\GET\POST 参数
+     *
+     * @param string $name
+     * @param mixed  $default
+     *
+     * @return mixed
+     */
+    public function param(string $name, $default = null)
+    {
+        return $this->getParam($name, $default);
+    }
+
+    /**
+     * 返回 GET 参数
+     *
+     * @param string $name
+     * @param mixed  $default
+     *
+     * @return mixed
+     */
+    public function get(string $name, $default = null)
+    {
+        return $this->getQueryParam($name, $default);
+    }
+
+    /**
+     * 返回 POST 参数
+     *
+     * @param string $name
+     * @param mixed  $default
+     *
+     * @return mixed
+     */
+    public function post(string $name, $default = null)
+    {
+        return $this->getParsedBodyParam($name, $default);
+    }
+
+    /**
+     * 返回 POST 参数
+     *
+     * @param string $name
+     * @param mixed  $default
+     *
+     * @return mixed
+     */
+    public function header(string $name, $default = null)
+    {
+        if ($this->hasHeader($name)) {
+            return $this->getHeaderLine($name);
+        }
+
+        return $default;
+    }
+
+    /**
+     * 返回 POST 参数
+     *
+     * @param string $name
+     * @param mixed  $default
+     *
+     * @return mixed
+     */
+    public function server(string $name, $default = null)
+    {
+        return $this->getServerParam($name, $default);
+    }
+
+    /**
+     * 返回 POST 参数
+     *
+     * @param string $name
+     * @param mixed  $default
+     *
+     * @return mixed
+     */
+    public function cookie(string $name, $default = null)
+    {
+        return $this->getCookieParam($name, $default);
+    }
+
+    /**
+     * 返回 Attribute 参数
+     *
+     * @param string $name
+     * @param mixed  $default
+     *
+     * @return mixed
+     */
+    public function attribute(string $name, $default = null)
+    {
+        return $this->getAttribute($name, $default);
+    }
+
+
+    /**
      * 获得请求 IP 地址
      *
      * @return string
@@ -632,6 +769,134 @@ class Request implements RequestInterface
         }
 
         return is_null($ip) ? 'Unknow' : $ip;
+    }
+
+    /**
+     * 获得请求内容类型
+     *
+     * @return string|null
+     */
+    public function getContentType()
+    {
+        $result = $this->getHeader('Content-Type');
+
+        return $result ? $result[0] : null;
+    }
+
+    /**
+     * 获得请求内容媒体类型
+     *
+     * @return string|null
+     */
+    public function getMediaType()
+    {
+        $contentType = $this->getContentType();
+
+        if ($contentType) {
+            $contentTypeParts = preg_split('/\s*[;,]\s*/', $contentType);
+
+            return strtolower($contentTypeParts[0]);
+        }
+
+        return null;
+    }
+
+    /**
+     * 获得请求内容类型参数
+     *
+     * @return array
+     */
+    public function getMediaTypeParams(): array
+    {
+        $contentType = $this->getContentType();
+        $contentTypeParams = [];
+
+        if ($contentType) {
+            $contentTypeParts = preg_split('/\s*[;,]\s*/', $contentType);
+            $contentTypePartsLength = count($contentTypeParts);
+
+            for ($i = 1; $i < $contentTypePartsLength; $i++) {
+                $paramParts = explode('=', $contentTypeParts[$i]);
+                $contentTypeParams[strtolower($paramParts[0])] = $paramParts[1];
+            }
+
+            unset($contentTypeParts, $contentTypePartsLength, $contentType);
+        }
+
+        return $contentTypeParams;
+    }
+
+    /**
+     * 获得请求内容编码
+     *
+     * @return string|null
+     */
+    public function getContentCharset()
+    {
+        $mediaTypeParams = $this->getMediaTypeParams();
+
+        return isset($mediaTypeParams['charset']) ? $mediaTypeParams['charset'] : null;
+    }
+
+    /**
+     * 获得请求内容长度
+     *
+     * @return int|null
+     */
+    public function getContentLength()
+    {
+        $result = $this->headers->get('Content-Length');
+
+        return $result ? (int) $result[0] : null;
+    }
+
+    /**
+     * 注册内容解析器
+     */
+    protected function registerMediaTypeParsers()
+    {
+        // JSON
+        $this->registerMediaTypeParser(['application/json'], function ($input) {
+            $result = Json::decode($input);
+            return is_array($result) ? $result : null;
+        });
+
+        // XML
+        $this->registerMediaTypeParser(['application/xml', 'text/xml'], function ($input) {
+            $backup = libxml_disable_entity_loader(true);
+            $backup_errors = libxml_use_internal_errors(true);
+            $result = simplexml_load_string($input);
+            libxml_disable_entity_loader($backup);
+            libxml_clear_errors();
+            libxml_use_internal_errors($backup_errors);
+
+            unset($backup, $backup_errors);
+
+            return $result !== false ? $result : null;
+        });
+
+        // String
+        $this->registerMediaTypeParser(['application/x-www-form-urlencoded'], function ($input) {
+            parse_str($input, $data);
+            return $data;
+        });
+    }
+
+    /**
+     * 注册内容解析器
+     *
+     * @param  array    $mediaTypes
+     * @param  callable $parser
+     */
+    protected function registerMediaTypeParser(array $mediaTypes, callable $parser)
+    {
+        if ($parser instanceof \Closure) {
+            $parser = $parser->bindTo($this);
+        }
+
+        foreach ($mediaTypes as $mediaType) {
+            $this->bodyParsers[$mediaType] = $parser;
+        }
     }
 
     /**
