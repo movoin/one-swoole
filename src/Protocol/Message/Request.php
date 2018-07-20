@@ -175,10 +175,6 @@ class Request implements RequestInterface
                 if (($overrideMethod = $this->filterMethod($this->getParsedBodyParam('_METHOD'))) !== null) {
                     $this->method = $overrideMethod;
                 }
-
-                if ($this->getBody()->eof()) {
-                    $this->getBody()->rewind();
-                }
             }
         }
 
@@ -200,7 +196,7 @@ class Request implements RequestInterface
 
         $clone = clone $this;
         $clone->originalMethod = $method;
-        $clone->method = $method;
+        $clone->method = null;
 
         return $clone;
     }

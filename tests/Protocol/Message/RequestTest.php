@@ -35,6 +35,28 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         $this->request = null;
     }
 
+    public function testCustomMethod()
+    {
+        $request = $this->request->withAddedHeader('X-Http-Method-Override', 'PUT');
+        $this->assertEquals($request->getMethod(), 'PUT', 'withAddedHeader');
+
+        $request = $this->request->withMethod('POST')->withParsedBody(['_METHOD' => 'PUT']);
+        $this->assertEquals($request->getMethod(), 'PUT', 'withParsedBody');
+    }
+
+    public function testIsMethod()
+    {
+        $this->assertTrue($this->request->isMethod('GET'));
+    }
+
+    public function testIsXhr()
+    {
+        $this->assertFalse($this->request->isXhr());
+
+        $request = $this->request->withAddedHeader('X-Requested-With', 'XMLHttpRequest');
+        $this->assertTrue($request->isXhr());
+    }
+
     /**
      * @dataProvider provideSomeGetMethods
      */

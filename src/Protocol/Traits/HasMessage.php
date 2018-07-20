@@ -191,6 +191,10 @@ trait HasMessage
      */
     public function getBody(): StreamInterface
     {
+        if ($this->body->eof()) {
+            $this->body->rewind();
+        }
+
         return $this->body;
     }
 
