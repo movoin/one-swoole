@@ -15,7 +15,7 @@ namespace One\Swoole;
 use One\Support\Container;
 use Swoole\Server as SwServer;
 use Swoole\Http\Server as SwHttpServer;
-use Swoole\WebSocket\Server SwWebSocketServer;
+use Swoole\WebSocket\Server as SwWebSocketServer;
 
 class Server extends Container
 {
