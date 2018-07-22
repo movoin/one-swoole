@@ -237,6 +237,10 @@ class Response implements ResponseInterface
     {
         $code = $this->filterStatus($code);
 
+        if ($code === $this->status) {
+            return $this;
+        }
+
         if (! is_string($reasonPhrase)) {
             throw new InvalidArgumentException('ReasonPhrase must be a string');
         }

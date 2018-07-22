@@ -13,8 +13,6 @@
 namespace One\Tests\Protocol\Message;
 
 use One\Protocol\Factory;
-use One\Protocol\Message\Headers;
-use One\Protocol\Message\Request;
 use One\Protocol\Message\Stream;
 use One\Protocol\Message\Uri;
 use One\Tests\Protocol\Message\Swoole\Request as FakeRequest;
