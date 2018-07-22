@@ -96,7 +96,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
 
     public function testGetHeader()
     {
-        $this->assertEquals(1, $this->request->header('Dnt'));
+        $this->assertEquals('foobar.com', $this->request->header('Host'));
         $this->assertNull($this->request->header('bad'));
     }
 
@@ -117,12 +117,12 @@ class RequestTest extends \PHPUnit\Framework\TestCase
     public function testGetHeaders()
     {
         $headers = $this->request->getHeaders();
-        $this->assertEquals([1], $headers['Dnt']);
+        $this->assertEquals(['foobar.com'], $headers['Host']);
     }
 
     public function testGetServer()
     {
-        $this->assertEquals(1532059493, $this->request->server('MASTER_TIME'));
+        $this->assertEquals('/path/to/file', $this->request->server('PATH_INFO'));
     }
 
     public function testGetCookie()
@@ -262,6 +262,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         return [
             [ 'withProtocolVersion','2.0' ],
             [ 'withMethod',         'POST' ],
+            [ 'withMethod',         [ null ] ],
             [ 'withRequestTarget',  '/path/to/file?foo=bar' ],
             [
                 'withBody',

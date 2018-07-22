@@ -19,10 +19,24 @@ class Request extends \Swoole\Http\Request
         $request = new static();
 
         $request->fd = 1;
-        $request->header = Factory::newHeaders();
-        $request->server = Factory::newServer();
-        $request->cookie = Factory::newCookie();
-        $request->get = Factory::newGet();
+        $request->header = [
+            'host' => 'foobar.com',
+        ];
+        $request->server = [
+            'path_info' => '/path/to/file',
+            'remote_addr' => '127.0.0.1',
+            'request_method' => 'GET',
+            'server_port' => 9501,
+            'request_uri' => '/path/to/file?q=key&filter=foo',
+            'server_protocol' => 'HTTP/1.1',
+        ];
+        $request->cookie = [
+            'foo' => 'bar',
+        ];
+        $request->get = [
+            'filter' => 'foo',
+            'q' => 'key',
+        ];
 
         return $request;
     }
@@ -32,10 +46,23 @@ class Request extends \Swoole\Http\Request
         $request = new static();
 
         $request->fd = 1;
-        $request->header = Factory::newHeaders();
-        $request->server = Factory::newServer('POST');
-        $request->cookie = Factory::newCookie();
-        $request->post = Factory::newFormPost();
+        $request->header = [
+            'host' => 'foobar.com',
+        ];
+        $request->server = [
+            'path_info' => '/path/to/file',
+            'remote_addr' => '127.0.0.1',
+            'request_method' => 'POST',
+            'request_uri' => '/path/to/file',
+            'server_port' => 9501,
+            'server_protocol' => 'HTTP/1.1',
+        ];
+        $request->cookie = [
+            'foo' => 'bar',
+        ];
+        $request->post = [
+            'foo' => 'bar',
+        ];
 
         return $request;
     }
