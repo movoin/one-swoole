@@ -239,6 +239,25 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         );
     }
 
+    #### Upload Files ####
+
+    public function testUploadFile()
+    {
+        $request = $this->getUploadedFileRequest();
+
+        $files = $request->getUploadedFiles();
+
+        $this->assertTrue(count($files) === 1);
+        $this->assertInstanceOf('One\Protocol\Message\UploadedFile', $files['file']);
+    }
+
+    protected function getUploadedFileRequest()
+    {
+        return Factory::newRequest(
+            FakeRequest::createFileUploadRequest()
+        );
+    }
+
     #### Exceptions ####
 
     /**

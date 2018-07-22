@@ -168,14 +168,35 @@ class Request extends \Swoole\Http\Request
         return $request;
     }
 
-    public static function createDeleteMethodRequest()
-    {
-        $static->method = 'POST';
-    }
-
     public static function createFileUploadRequest()
     {
-        $static->method = 'FILE';
+        $request = new static();
+
+        $request->fd = 1;
+        $request->header = [
+            'host' => 'foobar.com',
+            'content-type' => 'application/x-www-form-urlencoded; charset=utf-8',
+            'content-length' => 79
+        ];
+        $request->server = [
+            'path_info' => '/path/to/file',
+            'remote_addr' => '127.0.0.1',
+            'request_method' => 'POST',
+            'request_uri' => '/path/to/file',
+            'server_port' => 9501,
+            'server_protocol' => 'HTTP/1.1',
+        ];
+        $request->files = [
+            'file' => [
+                'name' => 'facepalm.jpg',
+                'type' => 'image/jpeg',
+                'tmp_name' => '/tmp/swoole.upfile.n3FmFr',
+                'error' => 0,
+                'size' => 15476
+            ]
+        ];
+
+        return $request;
     }
 
     public function rawContent()
