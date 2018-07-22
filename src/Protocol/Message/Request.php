@@ -18,7 +18,6 @@ use One\Protocol\Factory;
 use One\Protocol\Contracts\Request as RequestInterface;
 use One\Protocol\Exceptions\InvalidMethodException;
 use One\Protocol\Traits\HasMessage;
-use One\Protocol\Traits\HasProtocol;
 use One\Protocol\Message\Cookies;
 use One\Support\Collection;
 use One\Support\Helpers\Json;
@@ -28,8 +27,7 @@ use Psr\Http\Message\UploadedFileInterface;
 
 class Request implements RequestInterface
 {
-    use HasMessage,
-        HasProtocol;
+    use HasMessage;
 
     /**
      * 请求方法

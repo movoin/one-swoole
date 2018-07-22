@@ -11,3 +11,20 @@
  */
 
 namespace One\Swoole;
+
+use One\Support\Container;
+use Swoole\Server as SwServer;
+use Swoole\Http\Server as SwHttpServer;
+use Swoole\WebSocket\Server SwWebSocketServer;
+
+class Server extends Container
+{
+    /**
+     * 默认监听 IP
+     */
+    const DEFAULT_HOST = '0.0.0.0';
+    /**
+     * 默认监听端口
+     */
+    const DEFAULT_PORT = 9501;
+}

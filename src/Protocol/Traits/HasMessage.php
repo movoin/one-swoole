@@ -30,6 +30,13 @@ trait HasMessage
         '2.0' => 1,
         '2'   => 1
     ];
+
+    /**
+     * 协议
+     *
+     * @var string
+     */
+    protected $protocol;
     /**
      * 协议版本
      *
@@ -48,6 +55,41 @@ trait HasMessage
      * @var \Psr\Http\Message\StreamInterface
      */
     protected $body;
+
+    /**
+     * 获得协议
+     *
+     * @return string
+     */
+    public function getProtocol(): string
+    {
+        return $this->protocol;
+    }
+
+    /**
+     * 设置协议
+     *
+     * @param  string $protocol
+     */
+    public function setProtocol(string $protocol)
+    {
+        $this->protocol = $protocol;
+    }
+
+    /**
+     * 设置协议
+     *
+     * @param  string $protocol
+     *
+     * @return self
+     */
+    public function withProtocol(string $protocol): self
+    {
+        $clone = clone $this;
+        $clone->protocol = $protocol;
+
+        return $clone;
+    }
 
     /**
      * 获得消息协议版本

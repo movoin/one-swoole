@@ -12,9 +12,6 @@
 
 namespace One\Protocol\Contracts;
 
-use One\Protocol\Contracts\Request;
-use One\Protocol\Contracts\Response;
-
 interface Protocol
 {
     /**

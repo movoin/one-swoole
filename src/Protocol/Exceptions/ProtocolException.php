@@ -12,11 +12,14 @@
 
 namespace One\Protocol\Exceptions;
 
-use One\Protocol\Traits\HasProtocol;
-
 class ProtocolException extends \RuntimeException
 {
-    use HasProtocol;
+    /**
+     * 协议
+     *
+     * @var string
+     */
+    protected $protocol;
 
     /**
      * 协议不支持
@@ -42,5 +45,25 @@ class ProtocolException extends \RuntimeException
     {
         $this->setProtocol($protocol);
         parent::__construct(sprintf($message, $protocol), $code, $previous);
+    }
+
+    /**
+     * 获得协议
+     *
+     * @return string
+     */
+    public function getProtocol(): string
+    {
+        return $this->protocol;
+    }
+
+    /**
+     * 设置协议
+     *
+     * @param  string $protocol
+     */
+    public function setProtocol(string $protocol)
+    {
+        $this->protocol = $protocol;
     }
 }

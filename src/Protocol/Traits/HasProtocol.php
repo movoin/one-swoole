@@ -12,21 +12,23 @@
 
 namespace One\Protocol\Traits;
 
+use One\Protocol\Contracts\Protocol;
+
 trait HasProtocol
 {
     /**
      * 协议
      *
-     * @var string
+     * @var \One\Protocol\Contracts\Protocol
      */
     protected $protocol;
 
     /**
      * 获得协议
      *
-     * @return string
+     * @return \One\Protocol\Contracts\Protocol
      */
-    public function getProtocol(): string
+    public function getProtocol(): Protocol
     {
         return $this->protocol;
     }
@@ -34,25 +36,10 @@ trait HasProtocol
     /**
      * 设置协议
      *
-     * @param  string $protocol
+     * @param  \One\Protocol\Contracts\Protocol $protocol
      */
-    public function setProtocol(string $protocol)
+    public function setProtocol(Protocol $protocol)
     {
         $this->protocol = $protocol;
-    }
-
-    /**
-     * 设置协议
-     *
-     * @param  string $protocol
-     *
-     * @return self
-     */
-    public function withProtocol(string $protocol): self
-    {
-        $clone = clone $this;
-        $clone->protocol = $protocol;
-
-        return $clone;
     }
 }

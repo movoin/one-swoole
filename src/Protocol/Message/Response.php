@@ -16,14 +16,12 @@ use InvalidArgumentException;
 use One\Protocol\Factory;
 use One\Protocol\Contracts\Response as ResponseInterface;
 use One\Protocol\Traits\HasMessage;
-use One\Protocol\Traits\HasProtocol;
 use Psr\Http\Message\StreamInterface;
 use Swoole\Http\Response as SwooleResponse;
 
 class Response implements ResponseInterface
 {
-    use HasMessage,
-        HasProtocol;
+    use HasMessage;
 
     /**
      * 状态码原因映射
@@ -147,7 +145,7 @@ class Response implements ResponseInterface
     /**
      * 发送响应
      */
-    public function sendAll()
+    public function end()
     {
         $this->sendHeaders();
         $this->sendSecurityHeaders();

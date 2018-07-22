@@ -18,13 +18,4 @@ use One\Protocol\Contracts\Response;
 
 class Protocol implements ProtocolInterface
 {
-    /**
-     * 协议处理
-     *
-     * @param  \One\Protocol\Contracts\Request   $request
-     * @param  \One\Protocol\Contracts\Response  $response
-     */
-    public function handle(Request $request, Response $response)
-    {
-    }
 }

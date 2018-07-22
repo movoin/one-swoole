@@ -11,3 +11,9 @@
  */
 
 namespace One\Protocol\Protocols;
+
+use One\Protocol\Protocol;
+
+class HttpProtocol extends Protocol
+{
+}

@@ -12,7 +12,8 @@
 
 namespace One\Tests\Protocol\Message;
 
-use One\Protocol\Message\Response;
+use One\Protocol\Factory;
+use One\Tests\Protocol\Message\Swoole\Response as FakeResponse;
 
 class ResponseTest extends \PHPUnit\Framework\TestCase
 {
@@ -20,12 +21,20 @@ class ResponseTest extends \PHPUnit\Framework\TestCase
 
     public function setUp()
     {
-        $this->response = new Response;
+        $this->response = Factory::newResponse(FakeResponse::newResponse());
     }
 
     public function tearDown()
     {
         $this->response = null;
+    }
+
+    public function testInstanceOf()
+    {
+        $response = $this->response->withHeader('foo', 'bar');
+        $response->end();
+
+        $this->assertInstanceOf('One\\Protocol\\Contracts\\Response', $response);
     }
 
     public function testGetStatusCode()
