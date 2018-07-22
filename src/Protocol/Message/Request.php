@@ -510,12 +510,6 @@ class Request implements RequestInterface
             $body = (string) $this->getBody();
             $parsed = $this->bodyParsers[$mediaType]($body);
 
-            if (! is_null($parsed) && ! is_object($parsed) && ! is_array($parsed)) {
-                throw new RuntimeException(
-                    'Request body media type parser return value must be an array, an object, or null'
-                );
-            }
-
             $this->parsedBody = $parsed;
 
             unset($parsed, $body, $mediaType);
@@ -836,7 +830,7 @@ class Request implements RequestInterface
 
         // String
         $this->registerMediaTypeParser(['application/x-www-form-urlencoded'], function ($input) {
-            parse_str($input, $data);
+            parse_str(html_entity_decode($input), $data);
             return $data;
         });
     }

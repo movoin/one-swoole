@@ -35,6 +35,8 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         $this->request = null;
     }
 
+    #### GET Request ####
+
     public function testCustomMethod()
     {
         $request = $this->request->withAddedHeader('X-Http-Method-Override', 'PUT');
@@ -138,11 +140,19 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         $request = $this->request->withAddedHeader('X-Client-Ip', '192.168.0.1');
         $this->assertEquals('192.168.0.1', $request->getClientIP(), 'X-Client-Ip');
 
-        // $request = $this->request->withAddedHeader('X-Forwarded-For', '192.168.0.1');
-        // $this->assertEquals('192.168.0.1', $request->getClientIP(), 'X-Forwarded-For');
+        $request = Factory::newRequest(
+            FakeRequest::createGetMethodRequestWithHeaders([
+                'x-forwarded-for' => '192.168.0.1'
+            ])
+        );
+        $this->assertEquals('192.168.0.1', $request->getClientIP(), 'X-Forwarded-For');
 
-        // $request = $this->request->withAddedHeader('Client-Ip', '192.168.0.1');
-        // $this->assertEquals('192.168.0.1', $request->getClientIP(), 'Client-Ip');
+        $request = Factory::newRequest(
+            FakeRequest::createGetMethodRequestWithHeaders([
+                'client-ip' => '192.168.0.1'
+            ])
+        );
+        $this->assertEquals('192.168.0.1', $request->getClientIP(), 'Client-Ip');
     }
 
     public function testInvalidMethodException()
@@ -153,6 +163,83 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             $this->assertEquals($e->getRequest(), $this->request);
         }
     }
+
+    #### POST Request ####
+
+    public function testGetParsedBodyParam()
+    {
+        $request = $this->getPostRequest();
+
+        $this->assertEquals('bar', $request->getParsedBodyParam('foo'), 'getParsedBodyParam');
+        $this->assertEquals('bar', $request->getParam('foo'), 'getParam');
+        $this->assertEquals('bar', $request->post('foo'), 'post');
+    }
+
+    public function testGetBody()
+    {
+        $request = $this->getPostRequest();
+        $body = $request->getBody();
+
+        $this->assertInstanceOf('Psr\\Http\\Message\\StreamInterface', $body);
+        $body->write('&zar=tar');
+        $body->read(15);
+        $this->assertEquals('foo=bar&zar=tar', (string) $request->getBody());
+    }
+
+    public function testJsonPost()
+    {
+        $request = $this->getPostJsonRequest();
+        $this->assertEquals('bar', $request->post('foo'));
+        $this->assertEquals('utf-8', $request->getContentCharset());
+    }
+
+    public function testXmlPost()
+    {
+        $request = $this->getPostXmlRequest();
+
+        $this->assertEquals('bar', $request->getParsedBodyParam('foo'), 'XML:getParsedBodyParam');
+        $this->assertEquals('bar', $request->getParam('foo'), 'XML:getParam');
+        $this->assertEquals('bar', $request->post('foo'), 'XML:post');
+    }
+
+    public function testFormPost()
+    {
+        $request = $this->getPostFormRequest();
+
+        $this->assertEquals('bar', $request->getParsedBodyParam('foo'), 'XML:getParsedBodyParam');
+        $this->assertEquals('bar', $request->getParam('foo'), 'XML:getParam');
+        $this->assertEquals('bar', $request->post('foo'), 'XML:post');
+    }
+
+    protected function getPostRequest()
+    {
+        return Factory::newRequest(
+            FakeRequest::createPostMethodRequest()
+        );
+    }
+
+    protected function getPostFormRequest()
+    {
+        return Factory::newRequest(
+            FakeRequest::createPostFormRequest()
+        );
+    }
+
+    protected function getPostJsonRequest()
+    {
+        return Factory::newRequest(
+            FakeRequest::createPostJsonRequest()
+        );
+    }
+
+    protected function getPostXmlRequest()
+    {
+        return Factory::newRequest(
+            FakeRequest::createPostXMLRequest()
+        );
+    }
+
+    #### Exceptions ####
 
     /**
      * @expectedException \InvalidArgumentException

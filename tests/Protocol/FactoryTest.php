@@ -16,6 +16,14 @@ use One\Protocol\Factory;
 
 class FactoryTest extends \PHPUnit\Framework\TestCase
 {
+    /**
+     * @expectedException \One\Protocol\Exceptions\ProtocolException
+     */
+    public function testProtocolException()
+    {
+        Factory::newProtocol('BadProtocol');
+    }
+
     public function testNewStream()
     {
         // String

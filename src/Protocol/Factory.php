@@ -54,11 +54,11 @@ final class Factory
     public static function newProtocol(string $protocol): Protocol
     {
         if (! in_array($protocol, static::$protocols)) {
-            throw ProtocolException::notSupport($ptotocol);
+            throw ProtocolException::notSupport($protocol);
         }
 
         return Reflection::newInstance(
-            '\\One\\Protocol\\Protocols\\' . static::$protocols[$ptotocol]
+            '\\One\\Protocol\\Protocols\\' . static::$protocols[$protocol]
         );
     }
 
