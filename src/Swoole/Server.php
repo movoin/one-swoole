@@ -12,18 +12,11 @@
 
 namespace One\Swoole;
 
-use One\Config;
-use One\Protocol\Factory;
-use One\Protocol\Contracts\Protocol;
-use One\Protocol\Traits\HasProtocol;
 use One\Support\Container;
-use One\Swoole\Contracts\Server as ServerInterface;
 use One\Swoole\Traits\HasConfig;
 use One\Swoole\Traits\HasSwoole;
-use One\Swoole\Exceptions\SwooleException;
-use Swoole\Server as SwServer;
-use Swoole\Http\Server as SwHttpServer;
-use Swoole\WebSocket\Server as SwWebSocketServer;
+use One\Protocol\Traits\HasProtocol;
+use One\Swoole\Contracts\Server as ServerInterface;
 
 abstract class Server extends Container implements ServerInterface
 {

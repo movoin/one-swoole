@@ -14,7 +14,6 @@ namespace One\Swoole\Traits;
 
 use One\Protocol\Factory;
 use One\Protocol\Contracts\Protocol;
-use One\Swoole\Exceptions\SwooleException;
 
 trait HasProtocol
 {

@@ -12,7 +12,9 @@
 
 namespace One\Swoole\Traits;
 
-use Swoole\Server;
+use Swoole\Server as SwServer;
+use Swoole\Http\Server as SwHttpServer;
+use Swoole\WebSocket\Server as SwWebSocketServer;
 
 trait HasSwoole
 {
@@ -28,7 +30,7 @@ trait HasSwoole
      *
      * @return \Swoole\Server
      */
-    protected function getSwoole(): Server
+    protected function getSwoole(): SwServer
     {
         return $this->swoole;
     }
@@ -50,7 +52,7 @@ trait HasSwoole
      * @return \Swoole\Server
      * @throws \InvalidArgumentException
      */
-    protected function createSwooleServer(string $protocolName, array $swooleConfig = []): Server
+    protected function createSwooleServer(string $protocolName, array $swooleConfig = []): SwServer
     {
         switch ($protocolName) {
             // HTTP Server

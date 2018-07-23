@@ -5,28 +5,28 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  *
- * @package     One\Server\Traits
+ * @package     One\Protocol\Traits
  * @author      Allen Luo <movoin@gmail.com>
  * @since       0.1
  */
 
-namespace One\Server\Traits;
+namespace One\Protocol\Traits;
 
-use One\Server\Contracts\Server;
+use One\Swoole\Contracts\Server;
 
 trait HasServer
 {
     /**
-     * Server 对象
+     * Swoole Server 对象
      *
-     * @var \One\Server\Contracts\Server
+     * @var \One\Swoole\Contracts\Server
      */
     protected $server;
 
     /**
-     * 获得 Server 对象
+     * 获得 Swoole Server 对象
      *
-     * @return \One\Server\Contracts\Server
+     * @return \One\Swoole\Contracts\Server
      */
     public function getServer(): Server
     {
@@ -34,9 +34,9 @@ trait HasServer
     }
 
     /**
-     * 设置 Server 对象
+     * 设置 Swoole Server 对象
      *
-     * @param \One\Server\Contracts\Server $server
+     * @param \One\Swoole\Contracts\Server $server
      */
     public function setServer(Server $server)
     {
