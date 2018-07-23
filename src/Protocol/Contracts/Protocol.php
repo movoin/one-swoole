@@ -23,6 +23,20 @@ interface Protocol
     const WEBSOCKET = 'websocket';
 
     /**
+     * 获得服务进程启动项目
+     *
+     * @return array
+     */
+    public function getServerStartItems(): array;
+
+    /**
+     * 获得工作进程启动项目
+     *
+     * @return array
+     */
+    public function getWorkerStartItems(): array;
+
+    /**
      * 协议处理
      *
      * @param  \One\Protocol\Contracts\Request   $request
