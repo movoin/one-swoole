@@ -12,7 +12,7 @@
 
 namespace One\Swoole\Traits;
 
-use Swoole\Server as SwServer;
+use Swoole\Server;
 
 trait HasSwoole
 {
@@ -28,19 +28,9 @@ trait HasSwoole
      *
      * @return \Swoole\Server
      */
-    public function getSwoole(): SwServer
+    protected function getSwoole(): Server
     {
         return $this->swoole;
-    }
-
-    /**
-     * 设置 Swoole Server 对象
-     *
-     * @param \Swoole\Server $swoole
-     */
-    public function setSwoole(SwServer $swoole)
-    {
-        $this->swoole = $swoole;
     }
 
     /**
@@ -49,5 +39,109 @@ trait HasSwoole
     protected function runSwoole()
     {
         $this->swoole->start();
+    }
+
+    /**
+     * 创建 Swoole Server 实例
+     *
+     * @param  string $protocolName
+     * @param  array  $swooleConfig
+     *
+     * @return \Swoole\Server
+     * @throws \InvalidArgumentException
+     */
+    protected function createSwooleServer(string $protocolName, array $swooleConfig = []): Server
+    {
+        switch ($protocolName) {
+            // HTTP Server
+            case Protocol::HTTP:
+                $server = SwHttpServer::class;
+                break;
+
+            // WebSocket Server
+            case Protocol::WEBSOCKET:
+                $server = SwWebSocketServer::class;
+                break;
+
+            // TCP/UDP Server
+            default:
+                $server = SwServer::class;
+                break;
+        }
+
+        // {{ 创建 Server
+        $swoole = new $server(
+            $swooleConfig['host'],
+            $swooleConfig['port'],
+            SWOOLE_PROCESS,
+            SWOOLE_SOCK_TCP
+        );
+
+        $swoole->set($swooleConfig['swoole']);
+        unset($server);
+        // }}
+
+        return $this->bindSwooleEvents($swoole, $protocolName);
+    }
+
+    /**
+     * 绑定 Swoole Server 事件
+     *
+     * @param  \Swoole\Server   $swoole
+     * @param  string           $protocolName
+     *
+     * @return \Swoole\Server
+     */
+    protected function bindSwooleEvents(SwServer $swoole, string $protocolName): SwServer
+    {
+        // {{ 初始化 Swoole Server 事件
+        array_walk([
+            'Start'         => 'onMasterStart',
+            'Shutdown'      => 'onMasterStop',
+            'ManagerStart'  => 'onManagerStart',
+            'WorkerStart'   => 'onWorkerStart',
+            'WorkerStop'    => 'onWorkerStop',
+            'WorkerError'   => 'onWorkerError',
+            'WorkerExit'    => 'onWorkerExit',
+            'PipeMessage'   => 'onPipeMessage',
+            'Connect'       => 'onConnect',
+            'Close'         => 'onClose',
+            'Receive'       => 'onReceive',
+        ], function ($handler, $event) use ($swoole) {
+            $swoole->on($event, [$this, $handler]);
+        });
+
+        switch ($protocolName) {
+            // HTTP Server
+            case Protocol::HTTP:
+                $swoole->on('Request', [$this, 'onRequest']);
+                break;
+
+            // UDP Server
+            case Protocol::UDP:
+                $swoole->on('Packet', [$this, 'onPacket']);
+                break;
+
+            // WebSocket Server
+            case Protocol::WEBSOCKET:
+                $swoole->on('Open', [$this, 'onOpen']);
+                $swoole->on('HandShake', [$this, 'onHandShake']);
+                $swoole->on('Message', [$this, 'onMessage']);
+                break;
+        }
+
+        $tasks = isset($swoole->setting['task_worker_num']) ?
+                (int) $swoole->setting['task_worker_num'] :
+                0;
+
+        if ($task > 0) {
+            $swoole->on('Task', [$this, 'onTask']);
+            $swoole->on('Finish', [$this, 'onFinish']);
+        }
+
+        unset($tasks);
+        // }}
+
+        return $swoole;
     }
 }

@@ -46,6 +46,10 @@
       "parallel-lint . --exclude vendor",
       "phpunit -c ./phpunit.xml"
     ],
+    "lint": [
+      "phpcs -p --standard=PSR2 --runtime-set ignore_errors_on_exit 1 --runtime-set ignore_warnings_on_exit 1 src",
+      "parallel-lint . --exclude vendor"
+    ],
     "phpunit": "phpunit -c ./phpunit.xml",
     "fix-style": "phpcbf -p --standard=PSR2 --runtime-set ignore_errors_on_exit 1 --runtime-set ignore_warnings_on_exit 1 src"
   }

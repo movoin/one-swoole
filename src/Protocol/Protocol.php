@@ -15,7 +15,9 @@ namespace One\Protocol;
 use One\Protocol\Contracts\Protocol as ProtocolInterface;
 use One\Protocol\Contracts\Request;
 use One\Protocol\Contracts\Response;
+use One\Swoole\Traits\HasSwoole;
 
 class Protocol implements ProtocolInterface
 {
+    use HasSwoole;
 }
