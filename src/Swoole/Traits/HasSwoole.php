@@ -14,7 +14,7 @@ namespace One\Swoole\Traits;
 
 use Swoole\Server as SwServer;
 
-trait HasSwooleServer
+trait HasSwoole
 {
     /**
      * Swoole Server 对象

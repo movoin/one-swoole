@@ -256,6 +256,19 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         );
     }
 
+    #### Protocol ####
+
+    public function testWithProtocol()
+    {
+        $request = $this->request->withProtocol('http');
+
+        $this->assertEquals('http', $request->getProtocol());
+
+        $request->setProtocol('tcp');
+
+        $this->assertEquals('tcp', $request->getProtocol());
+    }
+
     #### Exceptions ####
 
     /**

@@ -13,6 +13,7 @@
 namespace One\Tests\Protocol;
 
 use One\Protocol\Factory;
+use One\Protocol\Exceptions\ProtocolException;
 
 class FactoryTest extends \PHPUnit\Framework\TestCase
 {
@@ -22,6 +23,15 @@ class FactoryTest extends \PHPUnit\Framework\TestCase
     public function testProtocolException()
     {
         Factory::newProtocol('BadProtocol');
+    }
+
+    public function testProtocolExceptionMethod()
+    {
+        try {
+            Factory::newProtocol('BadProtocol');
+        } catch (ProtocolException $e) {
+            $this->assertEquals('BadProtocol', $e->getProtocol());
+        }
     }
 
     public function testNewStream()
