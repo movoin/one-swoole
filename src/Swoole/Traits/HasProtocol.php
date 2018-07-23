@@ -35,6 +35,22 @@ trait HasProtocol
     }
 
     /**
+     * 创建协议
+     *
+     * @param  string $protocol
+     *
+     * @return self
+     * @throws \One\Protocol\Exceptions\ProtocolException
+     */
+    protected function createProtocol(string $protocol): self
+    {
+        $this->protocol = Factory::newProtocol($protocol);
+        $this->protocol->setServer($this);
+
+        return $this;
+    }
+
+    /**
      * 绑定协议事件
      *
      * @param  string $event
@@ -45,18 +61,5 @@ trait HasProtocol
         if (method_exists($this->protocol, $event)) {
             call_user_func_array([$this->protocol, $event], $parameters);
         }
-    }
-
-    /**
-     * 创建协议
-     *
-     * @param  string $protocol
-     *
-     * @throws \One\Protocol\Exceptions\ProtocolException
-     */
-    protected function createProtocol(string $protocol)
-    {
-        $this->protocol = Factory::newProtocol($protocol);
-        $this->protocol->setServer($this);
     }
 }

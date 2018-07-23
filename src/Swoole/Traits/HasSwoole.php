@@ -49,10 +49,10 @@ trait HasSwoole
      * @param  string $protocolName
      * @param  array  $swooleConfig
      *
-     * @return \Swoole\Server
+     * @return self
      * @throws \InvalidArgumentException
      */
-    protected function createSwooleServer(string $protocolName, array $swooleConfig = []): SwServer
+    protected function createSwooleServer(string $protocolName, array $swooleConfig = []): self
     {
         switch ($protocolName) {
             // HTTP Server
@@ -81,9 +81,10 @@ trait HasSwoole
 
         $swoole->set($swooleConfig['swoole']);
         unset($server);
-        // }}
 
-        return $this->bindSwooleEvents($swoole, $protocolName);
+        $this->swoole = $this->bindSwooleEvents($swoole, $protocolName);
+        unset($swoole);
+        // }}
     }
 
     /**
