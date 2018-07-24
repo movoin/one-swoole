@@ -16,18 +16,12 @@ use One\Config;
 
 class ConfigTest extends \PHPUnit\Framework\TestCase
 {
-    public function setUp()
-    {
-        Config::setRootPath(CONFIG_PATH);
-        Config::addPlaceHolder('{ROOT_PATH}', ROOT_PATH);
-    }
-
     public function testLoadConfig()
     {
         Config::load();
         Config::load();
 
-        $this->assertEquals('one-test', Config::get('global.name'));
+        $this->assertEquals('One', Config::get('global.name'));
     }
 
     public function testClearConfig()

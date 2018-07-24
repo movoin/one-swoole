@@ -37,14 +37,6 @@ trait HasConfig
             throw new SwooleException('Undefined constant `CONFIG_PATH`');
         }
 
-        Config::setRootPath(CONFIG_PATH);
-
-        if (! defined('ROOT_PATH')) {
-            throw new SwooleException('Undefined constant `ROOT_PATH`');
-        }
-
-        Config::addPlaceHolder('{ROOT_PATH}', ROOT_PATH);
-
         // 加载配置
         Config::load();
     }

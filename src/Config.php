@@ -12,15 +12,30 @@
 
 namespace One;
 
-use InvalidArgumentException;
 use DirectoryIterator;
-use One\Run;
+use InvalidArgumentException;
 use One\Support\Helpers\Arr;
 use One\Support\Helpers\Assert;
 use One\Support\Helpers\Yaml;
 
 final class Config
 {
+    /**
+     * 运行模式
+     *
+     * - DEPLOY : 部署
+     * - DEV    : 开发
+     * - TEST   : 测试
+     * - LOCAL  : 本机
+     */
+    const DEPLOY   = 'deploy';
+    const DEV      = 'devel';
+    const TEST     = 'test';
+    const LOCAL    = 'local';
+
+    const NAME     = 'One';
+    const VERSION  = '0.1';
+
     /**
      * 配置
      *
@@ -47,15 +62,29 @@ final class Config
     private static $path;
 
     /**
+     * 返回运行模式
+     *
+     * @return string
+     */
+    public static function mode(): string
+    {
+        if (defined('RUN_MODE')) {
+            return RUN_MODE;
+        }
+
+        return static::DEPLOY;
+    }
+
+    /**
      * 设置配置文件根目录
      *
      * @param string $root
      *
-     * @throws InvalidArgumentException
+     * @throws \InvalidArgumentException
      */
     public static function setRootPath(string $root)
     {
-        $mode = Run::mode();
+        $mode = static::mode();
         $path = "{$root}/{$mode}";
 
         if (! file_exists($path)) {
@@ -93,11 +122,31 @@ final class Config
      * 加载配置
      *
      * @param  bool $force
+     *
+     * @throws \RuntimeException
      */
     public static function load($force = false)
     {
         if ($force === false && ! empty(static::$config)) {
             return;
+        }
+
+        if (! defined('ROOT_PATH')) {
+            throw new RuntimeException('Undefined constant `ROOT_PATH`');
+        }
+
+        if (! isset(static::$placeholders['{ROOT_PATH}'])) {
+            static::addPlaceHolder('{ROOT_PATH}', ROOT_PATH);
+        }
+
+        if (defined('RUNTIME_PATH') &&
+            ! isset(static::$placeholders['{RUNTIME_PATH}'])
+        ) {
+            static::addPlaceHolder('{RUNTIME_PATH}', RUNTIME_PATH);
+        }
+
+        if (defined('CONFIG_PATH') && ! isset(static::$root)) {
+            static::setRootPath(CONFIG_PATH);
         }
 
         $conf = static::importFromPath(static::$path);
@@ -118,11 +167,11 @@ final class Config
 
         // 主配置
         if (! isset($conf['global']['name'])) {
-            $conf['global']['name'] = Run::name() . '-' . Run::mode();
+            $conf['global']['name'] = static::NAME;
         }
 
         if (! isset($conf['global']['version'])) {
-            $conf['global']['version'] = Run::version();
+            $conf['global']['version'] = static::VERSION;
         }
 
         // 协议配置

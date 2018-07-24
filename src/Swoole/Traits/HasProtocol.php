@@ -51,12 +51,12 @@ trait HasProtocol
     }
 
     /**
-     * 绑定协议事件
+     * 调用协议方法
      *
      * @param  string $event
      * @param  array  $parameters
      */
-    protected function bindProtocolEvent(string $event, ...$parameters)
+    protected function callProtocolMethod(string $event, ...$parameters)
     {
         if (method_exists($this->protocol, $event)) {
             call_user_func_array([$this->protocol, $event], $parameters);
