@@ -28,7 +28,10 @@ class Server extends AbstractServer
     protected $providers = [
         'One\\Protocol\\Providers\\Environment',
         'One\\Protocol\\Providers\\ExceptionHandler',
+        'One\\Event\\EventProvider',
         'One\\Logging\\LoggerProvider',
+        'One\\FileSystem\\FileSystemProvider',
+        'One\\Swoole\\Components\\Task\\TaskProvider',
     ];
 
     /**
@@ -337,16 +340,22 @@ class Server extends AbstractServer
      * @param  \Swoole\Server   $server
      * @param  int              $taskId
      * @param  int              $fromId
-     * @param  string           $data
+     * @param  mixed            $data
+     *
+     * @return array
      */
-    public function onTask(SwServer $server, int $taskId, int $fromId, string $data)
+    public function onTask(SwServer $server, int $taskId, int $fromId, $data)
     {
         // {{ log
         $this->get('logger')->info('投递任务', [
             'id' => $taskId,
             'fromId' => $fromId,
-            'data' => $data
+            'data' => is_array($data) ? json_encode($data) : $data
         ]);
+        // }}
+
+        // {{
+        return $this->get('task')->onTask($server, $taskId, $fromId, $data);
         // }}
     }
 
@@ -355,14 +364,18 @@ class Server extends AbstractServer
      *
      * @param  \Swoole\Server   $server
      * @param  int              $taskId
-     * @param  string           $data
+     * @param  mixed            $data
      */
-    public function onFinish(SwServer $server, int $taskId, string $data)
+    public function onFinish(SwServer $server, int $taskId, $data)
     {
+        // {{
+        $this->get('task')->onFinish($server, $taskId, $data);
+        // }}
+
         // {{ log
         $this->get('logger')->info('结束任务', [
             'id' => $taskId,
-            'data' => $data
+            'data' => is_array($data) ? json_encode($data) : $data
         ]);
         // }}
     }
