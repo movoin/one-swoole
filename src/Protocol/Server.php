@@ -32,6 +32,7 @@ class Server extends AbstractServer
         'One\\Logging\\LoggerProvider',
         'One\\FileSystem\\FileSystemProvider',
         'One\\Swoole\\Components\\Task\\TaskProvider',
+        'One\\Swoole\\Components\\Timer\\TimerProvider',
     ];
 
     /**

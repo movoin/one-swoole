@@ -14,17 +14,12 @@ namespace One\Swoole\Components\Task;
 
 use RuntimeException;
 use One\Support\Helpers\Reflection;
+use One\Swoole\Components\Component;
 use One\Swoole\Components\Task\Contracts\TaskHandler;
 use Swoole\Server;
 
-class Scheduler
+class Scheduler extends Component
 {
-    /**
-     * Swoole Server 对象
-     *
-     * @var \Swoole\Server
-     */
-    private $swoole;
     /**
      * 是否启用
      *
@@ -105,7 +100,7 @@ class Scheduler
     public function run(string $name, $parameters = null)
     {
         if ($this->enabled && $this->has($name)) {
-            $this->swoole->task([
+            $this->getSwoole()->task([
                 'name' => $name,
                 'parameters' => $parameters
             ]);
@@ -121,7 +116,7 @@ class Scheduler
     public function finish(string $name, array $result = null)
     {
         if ($this->enabled && $this->has($name)) {
-            $this->swoole->finish([
+            $this->getSwoole()->finish([
                 'name' => $name,
                 'result' => $result
             ]);
