@@ -35,6 +35,5 @@ class Protocol implements ProtocolInterface
      */
     public function handle(Request $request, Response $response): Response
     {
-
     }
 }
