@@ -215,6 +215,25 @@ class Server extends AbstractServer
     }
 
     /**
+     * 接收管道消息
+     *
+     * @param  \Swoole\Server   $server
+     * @param  int              $fromId
+     * @param  string           $message
+     */
+    public function onPipeMessage(SwServer $server, int $fromId, string $message)
+    {
+        // {{ log
+        $this->get('logger')->info('接收管道消息', [
+            'fromWorkerId' => $fromId,
+            'message' => $message
+        ]);
+        // }}
+
+        $this->callProtocolMethod('onPipeMessage', $server, $fd, $fromId, $data);
+    }
+
+    /**
      * 连接接入
      *
      * @param  \Swoole\Server   $server
@@ -288,25 +307,6 @@ class Server extends AbstractServer
     }
 
     /**
-     * 接收管道消息
-     *
-     * @param  \Swoole\Server   $server
-     * @param  int              $fromId
-     * @param  string           $message
-     */
-    public function onPipeMessage(SwServer $server, int $fromId, string $message)
-    {
-        // {{ log
-        $this->get('logger')->info('接收管道消息', [
-            'fromWorkerId' => $fromId,
-            'message' => $message
-        ]);
-        // }}
-
-        $this->callProtocolMethod('onPipeMessage', $server, $fd, $fromId, $data);
-    }
-
-    /**
      * 接收 HTTP 请求
      *
      * @param  \Swoole\Http\Request  $swRequest
@@ -314,6 +314,9 @@ class Server extends AbstractServer
      */
     public function onRequest(SwRequest $swRequest, SwResponse $swResponse)
     {
+        $request = Factory::newHttpRequest($swRequest);
+        $response = Factory::newHttpResponse($swResponse);
+
         // {{ log
         $this->get('logger')->info('接收数据', [
             'type' => 'HTTP',
@@ -322,11 +325,6 @@ class Server extends AbstractServer
             'clientIP' => $request->getClientIP()
         ]);
         // }}
-
-        $request = Factory::newRequest($swRequest)
-                        ->withProtocol($this->getConfig('protocol'));
-        $response = Factory::newResponse($swResponse)
-                        ->withProtocol($this->getConfig('protocol'));
 
         // {{
         $this->callProtocolMethod('onRequest', $request, $response);

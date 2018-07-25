@@ -85,6 +85,10 @@ trait HasMessage
      */
     public function withProtocol(string $protocol): self
     {
+        if ($this->protocol === $protocol) {
+            return $this;
+        }
+
         $clone = clone $this;
         $clone->protocol = $protocol;
 

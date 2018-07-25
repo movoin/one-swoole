@@ -12,18 +12,34 @@
 
 namespace One\Protocol\Exceptions;
 
-use Psr\Http\Message\ServerRequestInterface;
+use One\Protocol\Contracts\Request;
 
 class InvalidMethodException extends \InvalidArgumentException
 {
+    /**
+     * 请求对象
+     *
+     * @var \One\Protocol\Contracts\Request
+     */
     protected $request;
 
-    public function __construct(ServerRequestInterface $request, $method)
+    /**
+     * 构造
+     *
+     * @param \One\Protocol\Contracts\Request   $request
+     * @param string                            $method
+     */
+    public function __construct(Request $request, string $method)
     {
         $this->request = $request;
         parent::__construct(sprintf('Unsupported HTTP method "%s" provided', $method));
     }
 
+    /**
+     * 获得请求对象
+     *
+     * @return \One\Protocol\Contracts\Request
+     */
     public function getRequest()
     {
         return $this->request;

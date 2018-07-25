@@ -23,7 +23,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
 
     public function setUp()
     {
-        $this->request = Factory::newRequest(
+        $this->request = Factory::newHttpRequest(
             FakeRequest::createGetMethodRequest()
         );
     }
@@ -138,14 +138,14 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         $request = $this->request->withAddedHeader('X-Client-Ip', '192.168.0.1');
         $this->assertEquals('192.168.0.1', $request->getClientIP(), 'X-Client-Ip');
 
-        $request = Factory::newRequest(
+        $request = Factory::newHttpRequest(
             FakeRequest::createGetMethodRequestWithHeaders([
                 'x-forwarded-for' => '192.168.0.1'
             ])
         );
         $this->assertEquals('192.168.0.1', $request->getClientIP(), 'X-Forwarded-For');
 
-        $request = Factory::newRequest(
+        $request = Factory::newHttpRequest(
             FakeRequest::createGetMethodRequestWithHeaders([
                 'client-ip' => '192.168.0.1'
             ])
@@ -180,7 +180,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
 
         $this->assertInstanceOf('Psr\\Http\\Message\\StreamInterface', $body);
         $body->write('&zar=tar');
-        $body->read(15);
+        $body->read(14);
         $this->assertEquals('foo=bar&zar=tar', (string) $request->getBody());
     }
 
@@ -211,28 +211,28 @@ class RequestTest extends \PHPUnit\Framework\TestCase
 
     protected function getPostRequest()
     {
-        return Factory::newRequest(
+        return Factory::newHttpRequest(
             FakeRequest::createPostMethodRequest()
         );
     }
 
     protected function getPostFormRequest()
     {
-        return Factory::newRequest(
+        return Factory::newHttpRequest(
             FakeRequest::createPostFormRequest()
         );
     }
 
     protected function getPostJsonRequest()
     {
-        return Factory::newRequest(
+        return Factory::newHttpRequest(
             FakeRequest::createPostJsonRequest()
         );
     }
 
     protected function getPostXmlRequest()
     {
-        return Factory::newRequest(
+        return Factory::newHttpRequest(
             FakeRequest::createPostXMLRequest()
         );
     }
@@ -251,7 +251,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
 
     protected function getUploadedFileRequest()
     {
-        return Factory::newRequest(
+        return Factory::newHttpRequest(
             FakeRequest::createFileUploadRequest()
         );
     }

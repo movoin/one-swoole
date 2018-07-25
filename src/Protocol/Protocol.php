@@ -16,8 +16,12 @@ use One\Protocol\Contracts\Protocol as ProtocolInterface;
 use One\Protocol\Contracts\Request;
 use One\Protocol\Contracts\Response;
 use One\Protocol\Traits\HasServer;
+use One\Protocol\Traits\HasStartItem;
+use One\Protocol\Traits\HasMiddleware;
 
 class Protocol implements ProtocolInterface
 {
-    use HasServer;
+    use HasServer,
+        HasStartItem,
+        HasMiddleware;
 }

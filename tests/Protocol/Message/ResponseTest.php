@@ -21,7 +21,7 @@ class ResponseTest extends \PHPUnit\Framework\TestCase
 
     public function setUp()
     {
-        $this->response = Factory::newResponse(FakeResponse::newResponse());
+        $this->response = Factory::newHttpResponse(FakeResponse::newResponse());
     }
 
     public function tearDown()

@@ -63,13 +63,13 @@ final class Factory
     }
 
     /**
-     * 创建请求对象
+     * 创建 HTTP 请求对象
      *
      * @param  Swoole\Http\Request $swoole
      *
      * @return \One\Protocol\Contracts\Request
      */
-    public static function newRequest(SwooleRequest $swoole): RequestInterface
+    public static function newHttpRequest(SwooleRequest $swoole): RequestInterface
     {
         // {{ Headers
         $headers = new Headers;
@@ -146,7 +146,7 @@ final class Factory
 
         unset($method, $uri, $headers, $cookies, $server, $uploadedFiles);
 
-        return $request;
+        return $request->withProtocol(Protocol::HTTP);
     }
 
     /**
@@ -156,7 +156,7 @@ final class Factory
      *
      * @return \One\Protocol\Contracts\Response
      */
-    public static function newResponse(SwooleResponse $swoole): ResponseInterface
+    public static function newHttpResponse(SwooleResponse $swoole): ResponseInterface
     {
         return (new Response)->withSwooleResponse($swoole);
     }

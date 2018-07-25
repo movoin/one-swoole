@@ -15,7 +15,7 @@ namespace One\Swoole;
 use One\Support\Container;
 use One\Swoole\Traits\HasConfig;
 use One\Swoole\Traits\HasSwoole;
-use One\Protocol\Traits\HasProtocol;
+use One\Swoole\Traits\HasProtocol;
 use One\Swoole\Contracts\Server as ServerInterface;
 
 abstract class Server extends Container implements ServerInterface

@@ -73,14 +73,6 @@ class Stream implements StreamInterface
     }
 
     /**
-     * 析构
-     */
-    public function __destruct()
-    {
-        $this->close();
-    }
-
-    /**
      * 关闭流
      */
     public function close()

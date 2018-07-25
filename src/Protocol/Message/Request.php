@@ -141,9 +141,9 @@ class Request implements RequestInterface
     public function __clone()
     {
         $this->attributes = clone $this->attributes;
-        $this->body = clone $this->body;
         $this->cookies = clone $this->cookies;
         $this->headers = clone $this->headers;
+        $this->body = clone $this->body;
     }
 
     /**
