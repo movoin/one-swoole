@@ -128,7 +128,7 @@ class Server extends AbstractServer
     public function onMasterStop(SwServer $server)
     {
         // {{ log
-        $this->get('logger')->info('终止 Master 进程');
+        $this->get('logger')->info('结束 Master 进程');
         // }}
     }
 
@@ -195,7 +195,7 @@ class Server extends AbstractServer
         $workerType = $server->taskworker ? 'task' : 'worker';
 
         // {{ log
-        $this->get('logger')->info('终止 Worker 进程', [
+        $this->get('logger')->info('结束 Worker 进程', [
             'id' => $workerId,
             'type' => ucfirst($workerType)
         ]);
@@ -428,7 +428,7 @@ class Server extends AbstractServer
             $provider->register();
             $provider->boot();
 
-            unset($boot);
+            unset($provider);
         });
 
         // {{ log
@@ -450,14 +450,12 @@ class Server extends AbstractServer
             $provider->register();
             $provider->boot();
 
-            unset($boot);
-        });
+            // {{ log
+            $this->get('logger')->info('注册基础组件 ' . $item);
+            // }}
 
-        // {{ log
-        array_walk($this->providers, function ($provider) {
-            $this->get('logger')->info('注册基础组件 ' . $provider);
+            unset($provider);
         });
-        // }}
 
         return $this;
     }
