@@ -54,7 +54,7 @@ trait HasConfig
         // }}
 
         // 初始化配置
-        $config = Config::get('protocol.' . $this->getProcessName(), []);
+        $config = Config::get('server.' . $this->getProcessName(), []);
 
         if (! isset($config['protocol'])) {
             throw new SwooleException('The server protocol is undefined');
@@ -62,20 +62,16 @@ trait HasConfig
 
         if (isset($config['listen'])) {
             $uri = parse_url($config['listen']);
-            unset($config['listen']);
         } else {
             $uri = [];
         }
+
         $config['host'] = isset($uri['host']) ? $uri['host'] : self::DEFAULT_HOST;
         $config['port'] = isset($uri['port']) ? $uri['port'] : self::DEFAULT_PORT;
         unset($uri);
 
-        $basename = "{$config['runtimePath']}/{$this->getProcessName()}";
-        $config['pidFile'] = "{$basename}.pid";
-        $config['sockFile'] = "{$basename}.sock";
-        unset($basename);
-
         $this->config = $config;
+
         unset($config);
     }
 

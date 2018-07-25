@@ -18,7 +18,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class StartCommand extends Command
+class StopCommand extends Command
 {
     /**
      * 配置命令
@@ -26,9 +26,9 @@ class StartCommand extends Command
     protected function configure()
     {
         $this
-            ->setName('server:start')
+            ->setName('server:stop')
             ->addArgument('server', InputArgument::OPTIONAL, 'Server process name')
-            ->setHelp('Start the specified server process, or start all unstarted server processes.')
+            ->setHelp('Stop the specified server process, or stop all unstarted server processes.')
         ;
     }
 
@@ -41,6 +41,6 @@ class StartCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $runner = new Runner;
-        $runner->runCommand('start', 'http');
+        $runner->runCommand('stop', 'http');
     }
 }

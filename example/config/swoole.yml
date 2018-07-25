@@ -35,4 +35,10 @@ heartbeat_idle_time: 10
 open_cpu_affinity: 1
 # 关闭 Nagle 合并算法，可提高 HTTP 响应速度
 open_tcp_nodelay: 1
+# 异步重启开关
+reload_async: 1
+# 异步重启关闭 Worker 最大等待时间
+max_wait_time: 60
+# TCP 快速握手特性
+tcp_fastopen: 1
 ...

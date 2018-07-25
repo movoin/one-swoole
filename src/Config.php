@@ -175,52 +175,54 @@ final class Config
         }
 
         // 协议配置
-        if (isset($conf['protocol'])) {
-            foreach ($conf['protocol'] as $name => &$protocol) {
+        if (isset($conf['server'])) {
+            foreach ($conf['server'] as $name => &$server) {
                 // Swoole 配置
-                if (isset($protocol['swoole'])) {
-                    $protocol['swoole'] = array_merge(
+                if (isset($server['swoole'])) {
+                    $server['swoole'] = array_merge(
                         $conf['swoole'],
-                        $protocol['swoole']
+                        $server['swoole']
                     );
                 } else {
-                    $protocol['swoole'] = $conf['swoole'];
+                    $server['swoole'] = $conf['swoole'];
                 }
 
                 // Protocol
-                $protocol['protocol'] = isset($protocol['protocol']) ?
-                                        strtolower($protocol['protocol']) :
-                                        'http';
+                $server['protocol'] = isset($server['protocol']) ?
+                                    strtolower($server['protocol']) :
+                                    'http';
 
                 // Runtime
-                if (! isset($protocol['runtimePath'])) {
-                    $protocol['runtimePath'] = isset($conf['global']['runtimePath']) ?
-                                                $conf['global']['runtimePath'] :
-                                                '/tmp';
+                if (! isset($server['runtime_path'])) {
+                    $server['runtime_path'] = isset($conf['global']['runtime_path']) ?
+                                            $conf['global']['runtime_path'] :
+                                            '/tmp';
                 }
 
                 // Swoole 日志
-                if (! isset($protocol['swoole']['log_file'])) {
-                    $protocol['swoole']['log_file'] = $protocol['runtimePath'] . '/logs/error.log';
+                if (! isset($server['swoole']['log_file'])) {
+                    $server['swoole']['log_file'] = $server['runtime_path'] . '/logs/error.log';
                 }
 
                 // TCP 监听
-                if (! isset($protocol['sock'])) {
-                    $protocol['sock'] = $protocol['runtimePath'] . '/var/' . $name . '.sock';
+                if (! isset($server['sock'])) {
+                    $server['sock'] = $server['runtime_path'] . '/var/' . $name . '.sock';
                 }
 
                 // 主进程 PID 文件位置
-                $protocol['swoole']['pid_file'] = $protocol['runtimePath'] . '/var/' . $name . '.pid';
+                $server['swoole']['pid_file'] = $server['runtime_path'] . '/var/' . $name . '.pid';
             }
         }
 
-        unset($conf['swoole']);
+        $global = $conf['global'];
+
+        unset($conf['swoole'], $conf['global']);
 
         // {{
-        static::$config = static::preformPlaceHolder($conf);
+        static::$config = static::preformPlaceHolder(array_merge($global, $conf));
         // }}
 
-        unset($conf);
+        unset($conf, $global);
     }
 
     /**

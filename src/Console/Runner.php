@@ -35,12 +35,12 @@ class Runner
     public function runCommand(...$cmds): array
     {
         $command = array_merge([
-                Config::get('global.runCommand'),
+                Config::get('run_command'),
                 'server:run'
             ], $cmds);
 
         $process = new Process(function ($worker) use ($command) {
-            $worker->exec(Config::get('global.phpBin', 'php'), $command);
+            $worker->exec(Config::get('php_bin', 'php'), $command);
         }, true);
 
         $process->start();

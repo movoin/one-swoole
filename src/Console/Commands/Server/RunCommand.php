@@ -46,7 +46,7 @@ class RunCommand extends Command
         $process    = $input->getArgument('server');
 
         $server = new Server(
-            Config::get('global.name'),
+            Config::get('name'),
             $process
         );
 

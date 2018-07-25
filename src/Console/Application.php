@@ -31,8 +31,8 @@ class Application extends SymfonyApplication
 
         // {{
         parent::__construct(
-            Config::get('main.name', $name),
-            Config::get('main.version', $version)
+            Config::get('name', $name),
+            Config::get('version', $version)
         );
         // }}
 

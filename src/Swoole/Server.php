@@ -90,7 +90,7 @@ abstract class Server extends Container implements ServerInterface
      */
     public function getSock(): string
     {
-        return $this->getConfig('sockFile', '');
+        return $this->getConfig('sock', '');
     }
 
     /**
@@ -140,8 +140,8 @@ abstract class Server extends Container implements ServerInterface
     {
         $pid = 0;
 
-        if (is_readable($this->getConfig('pidFile'))) {
-            $pid = file_get_contents($this->getConfig('pidFile'));
+        if (is_readable($this->getConfig('swoole.pid_file'))) {
+            $pid = file_get_contents($this->getConfig('swoole.pid_file'));
         }
 
         return $pid;

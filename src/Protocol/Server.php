@@ -21,15 +21,22 @@ use Swoole\Http\Response as SwResponse;
 class Server extends AbstractServer
 {
     /**
-     * 组件提供器
+     * 核心组件
+     *
+     * @var array
+     */
+    protected $core = [
+        'One\\Logging\\LoggerProvider',
+        'One\\Protocol\\Providers\\Environment',
+        'One\\Protocol\\Providers\\ExceptionHandler',
+    ];
+    /**
+     * 基础组件
      *
      * @var array
      */
     protected $providers = [
-        'One\\Protocol\\Providers\\Environment',
-        'One\\Protocol\\Providers\\ExceptionHandler',
         'One\\Event\\EventProvider',
-        'One\\Logging\\LoggerProvider',
         'One\\FileSystem\\FileSystemProvider',
         'One\\Swoole\\Components\\Task\\TaskProvider',
         'One\\Swoole\\Components\\Timer\\TimerProvider',
@@ -40,13 +47,26 @@ class Server extends AbstractServer
      */
     public function start()
     {
-        $this->initialize();
         $this
-            ->createProtocol()
+            ->createProtocol(
+                $this->getConfig('protocol')
+            )
             ->createSwooleServer(
                 $this->getConfig('protocol'),
-                $this->getConfig('swoole')
-            );
+                $this->getConfig('')
+            )
+            ->initializeCoreProviders()
+            ->initializeProviders()
+        ;
+
+        // {{ log
+        $this->get('logger')->info(
+            sprintf(
+                '启动服务 %s',
+                $this->getConfig('listen')
+            )
+        );
+        // }}
 
         $this->runSwoole();
     }
@@ -56,8 +76,24 @@ class Server extends AbstractServer
      */
     public function stop()
     {
-        if ($pid = $this->isRunning()) {
-            posix_kill($pid, SIGTERM);
+        // {{
+        $this->initializeCoreProviders();
+        // }}
+
+        // {{ log
+        $this->get('logger')->info(
+            sprintf(
+                '停止服务 %s',
+                $this->getConfig('listen')
+            ),
+            [
+                'pid' => $this->getPid()
+            ]
+        );
+        // }}
+
+        if ($this->isRunning()) {
+            posix_kill($this->getPid(), SIGTERM);
         }
     }
 
@@ -77,7 +113,6 @@ class Server extends AbstractServer
 
         // {{ log
         $this->get('logger')->info('启动 Master 进程', [
-            'protocol' => $this->getConfig('protocol'),
             'pid' => $server->master_pid
         ]);
         // }}
@@ -108,7 +143,7 @@ class Server extends AbstractServer
         // }}
 
         // {{ log
-        $this->get('logger')->info('启动 Master 进程', [
+        $this->get('logger')->info('启动 Manager 进程', [
             'pid' => $server->manager_pid
         ]);
         // }}
@@ -382,9 +417,31 @@ class Server extends AbstractServer
     // ------------- EVENTS END ------------- //
 
     /**
-     * 初始化环境
+     * 初始化核心组件
      */
-    protected function initialize()
+    protected function initializeCoreProviders(): self
+    {
+        array_walk($this->core, function ($item) {
+            $provider = $this->make($item, [$this]);
+            $provider->register();
+            $provider->boot();
+
+            unset($boot);
+        });
+
+        // {{ log
+        array_walk($this->core, function ($provider) {
+            $this->get('logger')->info('注册核心组件 ' . $provider);
+        });
+        // }}
+
+        return $this;
+    }
+
+    /**
+     * 初始化基础组件
+     */
+    protected function initializeProviders(): self
     {
         array_walk($this->providers, function ($item) {
             $provider = $this->make($item, [$this]);
@@ -396,9 +453,11 @@ class Server extends AbstractServer
 
         // {{ log
         array_walk($this->providers, function ($provider) {
-            $this->get('logger')->info('注册组件 ' . $provider);
+            $this->get('logger')->info('注册基础组件 ' . $provider);
         });
         // }}
+
+        return $this;
     }
 
     /**

@@ -24,4 +24,17 @@ class Protocol implements ProtocolInterface
     use HasServer,
         HasStartItem,
         HasMiddleware;
+
+    /**
+     * 协议处理
+     *
+     * @param  \One\Protocol\Contracts\Request   $request
+     * @param  \One\Protocol\Contracts\Response  $response
+     *
+     * @return \One\Protocol\Contracts\Response
+     */
+    public function handle(Request $request, Response $response): Response
+    {
+
+    }
 }

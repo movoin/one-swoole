@@ -12,6 +12,7 @@
 
 namespace One\Swoole\Traits;
 
+use One\Protocol\Contracts\Protocol;
 use Swoole\Server as SwServer;
 use Swoole\Http\Server as SwHttpServer;
 use Swoole\WebSocket\Server as SwWebSocketServer;
@@ -30,7 +31,7 @@ trait HasSwoole
      *
      * @return \Swoole\Server
      */
-    protected function getSwoole(): SwServer
+    public function getSwoole(): SwServer
     {
         return $this->swoole;
     }
@@ -47,12 +48,12 @@ trait HasSwoole
      * 创建 Swoole Server 实例
      *
      * @param  string $protocolName
-     * @param  array  $swooleConfig
+     * @param  array  $config
      *
      * @return self
      * @throws \InvalidArgumentException
      */
-    protected function createSwooleServer(string $protocolName, array $swooleConfig = []): self
+    protected function createSwooleServer(string $protocolName, array $config = []): self
     {
         switch ($protocolName) {
             // HTTP Server
@@ -73,18 +74,20 @@ trait HasSwoole
 
         // {{ 创建 Server
         $swoole = new $server(
-            $swooleConfig['host'],
-            $swooleConfig['port'],
+            $config['host'],
+            $config['port'],
             SWOOLE_PROCESS,
             SWOOLE_SOCK_TCP
         );
 
-        $swoole->set($swooleConfig['swoole']);
+        $swoole->set($config['swoole']);
         unset($server);
 
         $this->swoole = $this->bindSwooleEvents($swoole, $protocolName);
         unset($swoole);
         // }}
+
+        return $this;
     }
 
     /**
@@ -98,7 +101,7 @@ trait HasSwoole
     protected function bindSwooleEvents(SwServer $swoole, string $protocolName): SwServer
     {
         // {{ 初始化 Swoole Server 事件
-        array_walk([
+        $events = [
             'Start'         => 'onMasterStart',
             'Shutdown'      => 'onMasterStop',
             'ManagerStart'  => 'onManagerStart',
@@ -110,9 +113,13 @@ trait HasSwoole
             'Connect'       => 'onConnect',
             'Close'         => 'onClose',
             'Receive'       => 'onReceive',
-        ], function ($handler, $event) use ($swoole) {
+        ];
+
+        array_walk($events, function ($handler, $event) use ($swoole) {
             $swoole->on($event, [$this, $handler]);
         });
+
+        unset($events);
 
         switch ($protocolName) {
             // HTTP Server
@@ -137,7 +144,7 @@ trait HasSwoole
                 (int) $swoole->setting['task_worker_num'] :
                 0;
 
-        if ($task > 0) {
+        if ($tasks > 0) {
             $swoole->on('Task', [$this, 'onTask']);
             $swoole->on('Finish', [$this, 'onFinish']);
         }

@@ -1,0 +1,9 @@
+---
+#
+# 文件系统配置
+#
+local:
+  adapter: local
+  config:
+    path: "{RUNTIME_PATH}/local"
+...

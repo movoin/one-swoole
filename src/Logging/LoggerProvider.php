@@ -25,7 +25,7 @@ class LoggerProvider extends Provider
     {
         $this->bind('logger', function ($server) {
             $name = $server->getProcessName();
-            $path = $this->config('main.runtimePath', '') . '/logs/' . $name . '.log';
+            $path = $this->config('runtime_path', '') . '/logs/' . $name . '.log';
 
             return new Logger($name, $path);
         });

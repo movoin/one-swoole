@@ -53,7 +53,7 @@ final class Factory
      */
     public static function newProtocol(string $protocol): Protocol
     {
-        if (! in_array($protocol, static::$protocols)) {
+        if (! isset(static::$protocols[$protocol])) {
             throw ProtocolException::notSupport($protocol);
         }
 

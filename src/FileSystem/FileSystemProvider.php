@@ -25,7 +25,7 @@ class FileSystemProvider extends Provider
     public function register()
     {
         if (($config = $this->config('filesystem')) === null) {
-            throw new RuntimeException('未定义 FileSystem');
+            throw new RuntimeException('The FileSystem is undefined');
         }
 
         $this->bind('fs', function ($server) use ($config) {
