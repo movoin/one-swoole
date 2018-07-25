@@ -80,20 +80,22 @@ class Server extends AbstractServer
         $this->initializeCoreProviders();
         // }}
 
-        // {{ log
-        $this->get('logger')->info(
-            sprintf(
-                '停止服务 %s',
-                $this->getConfig('listen')
-            ),
-            [
-                'pid' => $this->getPid()
-            ]
-        );
-        // }}
-
         if ($this->isRunning()) {
-            posix_kill($this->getPid(), SIGTERM);
+            $pid = $this->getPid();
+
+            // {{ log
+            $this->get('logger')->info(
+                sprintf(
+                    '停止服务 %s',
+                    $this->getConfig('listen')
+                ),
+                [
+                    'pid' => $pid
+                ]
+            );
+            // }}
+
+            posix_kill($pid, SIGTERM);
         }
     }
 
