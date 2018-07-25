@@ -21,14 +21,14 @@ class ConfigTest extends \PHPUnit\Framework\TestCase
         Config::load();
         Config::load();
 
-        $this->assertEquals('One', Config::get('global.name'));
+        $this->assertEquals('One', Config::get('name'));
     }
 
     public function testClearConfig()
     {
         Config::clear();
 
-        $this->assertNull(Config::get('global'));
+        $this->assertNull(Config::get('name'));
     }
 
     public function testWriteConfig()
@@ -45,7 +45,7 @@ class ConfigTest extends \PHPUnit\Framework\TestCase
         Config::addPlaceHolder('{ROOT_PATH}', ROOT_PATH);
 
         Config::load(true);
-        $this->assertEquals('/tmp', Config::get('protocol.http.runtimePath'));
+        $this->assertEquals('/tmp', Config::get('server.http.runtime_path'));
     }
 
     /**
