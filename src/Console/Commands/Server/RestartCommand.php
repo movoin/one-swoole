@@ -65,7 +65,7 @@ class RestartCommand extends Command
 
         unset($server);
 
-        $runner = new Runner;
+        $runner = new Runner($output);
 
         try {
             foreach ($servers as $server) {
