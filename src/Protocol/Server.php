@@ -47,28 +47,30 @@ class Server extends AbstractServer
      */
     public function start()
     {
-        $this
-            ->createProtocol(
-                $this->getConfig('protocol')
-            )
-            ->createSwooleServer(
-                $this->getConfig('protocol'),
-                $this->getConfig('')
-            )
-            ->initializeCoreProviders()
-            ->initializeProviders()
-        ;
+        if ($this->isRunning() === false) {
+            $this
+                ->createProtocol(
+                    $this->getConfig('protocol')
+                )
+                ->createSwooleServer(
+                    $this->getConfig('protocol'),
+                    $this->getConfig('')
+                )
+                ->initializeCoreProviders()
+                ->initializeProviders()
+            ;
 
-        // {{ log
-        $this->get('logger')->info(
-            sprintf(
-                '启动服务 %s',
-                $this->getConfig('listen')
-            )
-        );
-        // }}
+            // {{ log
+            $this->get('logger')->info(
+                sprintf(
+                    '启动服务 %s',
+                    $this->getConfig('listen')
+                )
+            );
+            // }}
 
-        $this->runSwoole();
+            $this->runSwoole();
+        }
     }
 
     /**

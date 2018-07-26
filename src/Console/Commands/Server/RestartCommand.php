@@ -19,7 +19,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class StopCommand extends Command
+class RestartCommand extends Command
 {
     /**
      * 配置命令
@@ -27,10 +27,10 @@ class StopCommand extends Command
     protected function configure()
     {
         $this
-            ->setName('server:stop')
+            ->setName('server:restart')
             ->addArgument('server', InputArgument::OPTIONAL, '服务进程名称')
-            ->setDescription('关闭服务进程')
-            ->setHelp('关闭指定或全部服务进程')
+            ->setDescription('重启服务进程')
+            ->setHelp('重启指定或全部服务进程')
         ;
     }
 
@@ -48,15 +48,15 @@ class StopCommand extends Command
         $server = $input->getArgument('server');
 
         if ($server !== null && ! isset($servers[$server])) {
-            $this->symfony()->error('关闭失败, 未定义 [' . $server . '] 服务');
+            $this->symfony()->error('重启失败, 未定义 [' . $server . '] 服务');
             return 0;
         } elseif ($server === null && $servers === []) {
-            $this->symfony()->error('关闭失败, 未定义任何服务');
+            $this->symfony()->error('重启失败, 未定义任何服务');
             return 0;
         }
 
         // {{
-        $this->title('关闭服务进程');
+        $this->title('重启服务进程');
         // }}
 
         if ($server !== null) {
@@ -69,11 +69,19 @@ class StopCommand extends Command
 
         try {
             foreach ($servers as $server) {
-                if (! $runner->isRunning($server)) {
-                    $this->fail('<label>' . $server . '</> 服务进程未启动');
-                } else {
+                $ret = ['code' => 0];
+
+                if ($runner->isRunning($server)) {
                     $ret = $runner->runCommand('stop', $server);
-                    $msg = '关闭 <label>' . $server . '</> 服务进程';
+
+                    if ($ret['code'] !== 0) {
+                        $this->fail('关闭 <label>' . $server . '</> 服务进程');
+                    }
+                }
+
+                if ($ret['code'] === 0) {
+                    $ret = $runner->runCommand('start', $server);
+                    $msg = '重启 <label>' . $server . '</> 服务进程';
 
                     if ($ret['code'] === 0) {
                         $this->ok($msg);

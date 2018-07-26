@@ -13,6 +13,7 @@
 namespace One\Console;
 
 use One\Config;
+use One\Protocol\Server;
 use Swoole\Process;
 
 class Runner
@@ -48,5 +49,17 @@ class Runner
         $recv = Process::wait();
 
         return $recv;
+    }
+
+    /**
+     * 判断服务是否运行
+     *
+     * @param  string $server
+     *
+     * @return bool
+     */
+    public function isRunning(string $server): bool
+    {
+        return (new Server(Config::get('name'), $server))->isRunning();
     }
 }

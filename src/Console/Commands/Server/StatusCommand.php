@@ -19,7 +19,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class StopCommand extends Command
+class StatusCommand extends Command
 {
     /**
      * 配置命令
@@ -27,10 +27,10 @@ class StopCommand extends Command
     protected function configure()
     {
         $this
-            ->setName('server:stop')
+            ->setName('server:status')
             ->addArgument('server', InputArgument::OPTIONAL, '服务进程名称')
-            ->setDescription('关闭服务进程')
-            ->setHelp('关闭指定或全部服务进程')
+            ->setDescription('查看运行状态')
+            ->setHelp('查看服务进程运行状态')
         ;
     }
 
@@ -56,7 +56,7 @@ class StopCommand extends Command
         }
 
         // {{
-        $this->title('关闭服务进程');
+        $this->title('服务运行状态');
         // }}
 
         if ($server !== null) {
@@ -69,18 +69,14 @@ class StopCommand extends Command
 
         try {
             foreach ($servers as $server) {
-                if (! $runner->isRunning($server)) {
-                    $this->fail('<label>' . $server . '</> 服务进程未启动');
-                } else {
-                    $ret = $runner->runCommand('stop', $server);
-                    $msg = '关闭 <label>' . $server . '</> 服务进程';
+                $status = $runner->isRunning($server);
 
-                    if ($ret['code'] === 0) {
-                        $this->ok($msg);
-                    } else {
-                        $this->fail($msg);
-                    }
-                }
+                $this->status(
+                    sprintf('<label>%s</> 服务', strtoupper($server)),
+                    $status ? '<success>运行中</>' : '<failure>已关闭</>',
+                    $status ? 'success' : 'failure',
+                    $status ? '√' : '×'
+                );
 
                 $this->wait();
             }
