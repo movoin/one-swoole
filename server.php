@@ -2,14 +2,23 @@
 
 require __DIR__ . '/vendor/autoload.php';
 
-$http = new swoole_http_server("127.0.0.1", 9501);
-
-$http->on('request', function ($request, $response) {
-    print_r($request);
-    // print_r($response);
-    print_r(\One\Protocol\Factory::newRequest($request));
-
-    $response->end("EOF\n");
-});
-
-$http->start();
+/**
+ * 运行环境
+ */
+define('RUN_MODE', 'local');
+/**
+ * 根目录
+ */
+define('ROOT_PATH', __DIR__);
+/**
+ * 应用根目录
+ */
+define('APP_PATH', ROOT_PATH . '/src');
+/**
+ * 配置文件目录
+ */
+define('CONFIG_PATH', ROOT_PATH . '/example/config');
+/**
+ * 运行时文件目录
+ */
+define('RUNTIME_PATH', ROOT_PATH . '/example/runtime');
