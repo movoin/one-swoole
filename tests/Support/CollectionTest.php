@@ -193,4 +193,24 @@ class CollectionTest extends \PHPUnit\Framework\TestCase
     {
         $this->assertEquals(Json::encode($this->defaults), $this->collect->toJson());
     }
+
+    public function testSetStdClass()
+    {
+        $std = new \stdClass();
+        $std->foo = 'foo';
+
+        $this->collect->set('std', $std);
+        $this->assertEquals(['foo' => 'foo'], $this->collect->get('std'));
+
+        $std2 = [
+            'foo' => $std
+        ];
+
+        $this->collect->set('std2', $std2);
+        $this->assertEquals([
+            'foo' => [
+                'foo' => 'foo'
+            ]
+        ], $this->collect->get('std2'));
+    }
 }

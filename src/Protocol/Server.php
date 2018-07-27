@@ -38,6 +38,8 @@ class Server extends AbstractServer
     protected $providers = [
         'One\\Event\\EventProvider',
         'One\\FileSystem\\FileSystemProvider',
+        'One\\Annotation\\AnnotationProvider',
+        'One\\Routing\\RouterProvider',
         'One\\Swoole\\Components\\Task\\TaskProvider',
         'One\\Swoole\\Components\\Timer\\TimerProvider',
     ];

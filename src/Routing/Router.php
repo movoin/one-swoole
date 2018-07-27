@@ -74,8 +74,8 @@ class Router
     {
         $uri = $request->getUri()->getPath();
 
-        // HTTP 请求
-        if ($request->getProtocol() === Protocol::HTTP) {
+        // HTTP & WebSocket 请求
+        if ($request->getProtocol() === Protocol::HTTP || $request->getProtocol() === Protocol::WEBSOCKET) {
             return $this->getDispatcher()->dispatch(
                 $request->getMethod(),
                 $uri

@@ -68,11 +68,7 @@ final class Config
      */
     public static function mode(): string
     {
-        if (defined('RUN_MODE')) {
-            return RUN_MODE;
-        }
-
-        return static::DEPLOY;
+        return defined('RUN_MODE') ? RUN_MODE : static::DEPLOY;
     }
 
     /**
@@ -129,10 +125,6 @@ final class Config
     {
         if ($force === false && ! empty(static::$config)) {
             return;
-        }
-
-        if (! defined('ROOT_PATH')) {
-            throw new RuntimeException('Undefined constant `ROOT_PATH`');
         }
 
         if (! isset(static::$placeholders['{ROOT_PATH}'])) {

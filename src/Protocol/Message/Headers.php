@@ -18,6 +18,13 @@ use One\Support\Collection;
 class Headers extends Collection implements HeadersInterface
 {
     /**
+     * 是否递归处理键名
+     *
+     * @var bool
+     */
+    protected $recursive = false;
+
+    /**
      * 获得所有数据
      *
      * @return array
@@ -63,7 +70,7 @@ class Headers extends Collection implements HeadersInterface
     public function getOriginalKey(string $key, $default = null)
     {
         if ($this->has($key)) {
-            return parent::get($this->normalizeKey($key))['originalKey'];
+            return parent::get($key)['originalKey'];
         }
 
         return $default;

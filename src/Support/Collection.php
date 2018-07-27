@@ -26,6 +26,12 @@ class Collection implements Collectable, Jsonable
      * @var array
      */
     protected $items = [];
+    /**
+     * 是否递归处理键名
+     *
+     * @var bool
+     */
+    protected $recursive = true;
 
     /**
      * 构造
@@ -260,7 +266,9 @@ class Collection implements Collectable, Jsonable
             $normalized = [];
 
             foreach ($item as $key => $value) {
-                if (is_array($item)) {
+                $key = $this->recursive ? $this->normalizeKey($key) : $key;
+
+                if (is_array($value)) {
                     $normalized[$key] = $this->normalizeValue($value);
                 } elseif ($value instanceof \stdClass) {
                     $normalized[$key] = $this->normalizeValue(
@@ -272,7 +280,7 @@ class Collection implements Collectable, Jsonable
             }
         } elseif ($item instanceof \stdClass) {
             $normalized = $this->normalizeValue(
-                Arr::convertFromStdClass($value)
+                Arr::convertFromStdClass($item)
             );
         } else {
             $normalized = $item;
