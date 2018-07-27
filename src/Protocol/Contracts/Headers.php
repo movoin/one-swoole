@@ -21,13 +21,4 @@ interface Headers
      * @param mixed  $value
      */
     public function add(string $key, $value);
-
-    /**
-     * 标准化键名
-     *
-     * @param  string $key
-     *
-     * @return string
-     */
-    public function normalizeKey(string $key): string;
 }

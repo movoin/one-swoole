@@ -44,6 +44,16 @@ class Finder implements IteratorAggregate
      * @var string
      */
     protected $extension;
+    /**
+     * 忽略类型
+     *
+     * @var array
+     */
+    protected $skips = [
+        'abstract'  => 0,
+        'interface' => 0,
+        'trait'     => 0,
+    ];
 
     /**
      * 根路径
@@ -80,49 +90,6 @@ class Finder implements IteratorAggregate
         $this->path = $path;
         $this->interface = $interface;
         $this->extension = $extension;
-    }
-
-    /**
-     * 获得路径对应的命名空间
-     *
-     * @param  \SplFileInfo $file
-     *
-     * @return string
-     */
-    public static function getClassName(SplFileInfo $file): string
-    {
-        return
-            rtrim(static::getRootNamespace(), '\\') .
-            str_replace('/', '\\', str_replace($this->getAppPath(), '', $file->getPath())) .
-            '\\' .
-            $file->getBasename('.' . $file->getExtension())
-        ;
-    }
-
-    /**
-     * 获得应用命名空间
-     *
-     * @return string
-     */
-    public static function getRootNamespace(): string
-    {
-        if (! is_null(static::$namespace)) {
-            return static::$namespace;
-        }
-
-        $composer = Json::decode(file_get_contents($this->getRootPath() . '/composer.json'));
-
-        foreach ((array) Arr::get($composer, 'autoload.psr-4', []) as $namespace => $paths) {
-            foreach ((array) $paths as $path) {
-                if (realpath($this->getAppPath()) === realpath($this->getRootPath() . '/' . $path)) {
-                    return static::$namespace = $namespace;
-                }
-            }
-        }
-
-        unset($composer);
-
-        return '';
     }
 
     /**
@@ -167,6 +134,56 @@ class Finder implements IteratorAggregate
         $this->assertPresent($path);
 
         $this->appPath = $path;
+    }
+
+    /**
+     * 设置忽略类型
+     *
+     * @param  string $name
+     *
+     * @return self
+     */
+    public function withSkip(string $name): self
+    {
+        $clone = clone $this;
+
+        if (array_key_exists($name, $clone->skips)) {
+            $clone->skips[$name] = 1;
+        }
+
+        return $clone;
+    }
+
+    /**
+     * 设置全部忽略
+     *
+     * @return self
+     */
+    public function withSkipAll(): self
+    {
+        $clone = clone $this;
+
+        foreach ($clone->skips as $name => $value) {
+            $clone->skips[$name] = 1;
+        }
+
+        return $clone;
+    }
+
+    /**
+     * 设置全部不忽略
+     *
+     * @return self
+     */
+    public function withNotSkipAll(): self
+    {
+        $clone = clone $this;
+
+        foreach ($clone->skips as $name => $value) {
+            $clone->skips[$name] = 0;
+        }
+
+        return $clone;
     }
 
     /**
@@ -230,6 +247,49 @@ class Finder implements IteratorAggregate
     }
 
     /**
+     * 获得路径对应的命名空间
+     *
+     * @param  \SplFileInfo $file
+     *
+     * @return string
+     */
+    public function getClassName(SplFileInfo $file): string
+    {
+        return
+            rtrim($this->getRootNamespace(), '\\') .
+            str_replace('/', '\\', str_replace($this->getAppPath(), '', $file->getPath())) .
+            '\\' .
+            $file->getBasename('.' . $file->getExtension())
+        ;
+    }
+
+    /**
+     * 获得应用命名空间
+     *
+     * @return string
+     */
+    public function getRootNamespace(): string
+    {
+        if (! is_null(static::$namespace)) {
+            return static::$namespace;
+        }
+
+        $composer = Json::decode(file_get_contents($this->getRootPath() . '/composer.json'));
+
+        foreach ((array) Arr::get($composer, 'autoload.psr-4', []) as $namespace => $paths) {
+            foreach ((array) $paths as $path) {
+                if (realpath($this->getAppPath()) === realpath($this->getRootPath() . '/' . $path)) {
+                    return static::$namespace = $namespace;
+                }
+            }
+        }
+
+        unset($composer);
+
+        return '';
+    }
+
+    /**
      * 获得扁平化结果
      *
      * @return /Iterator
@@ -256,25 +316,10 @@ class Finder implements IteratorAggregate
      */
     protected function match(SplFileInfo $file): bool
     {
-        return $file->isFile() && $this->hasExtension($file) && $this->instanceOf($file);
-    }
-
-    /**
-     * 判断文件是否实现于指定接口
-     *
-     * @param  \SplFileInfo $file
-     *
-     * @return bool
-     */
-    protected function instanceOf(SplFileInfo $file): bool
-    {
-        if ($this->interface === null) {
-            return true;
-        }
-
-        $reflecter = new ReflectionClass(static::getClassName($file));
-
-        return (bool) $reflecter->implementsInterface($this->interface);
+        return $file->isFile() &&
+                $this->hasExtension($file) &&
+                $this->instanceOf($file)
+        ;
     }
 
     /**
@@ -291,6 +336,60 @@ class Finder implements IteratorAggregate
         }
 
         return strtolower($file->getExtension()) === strtolower($this->extension);
+    }
+
+    /**
+     * 判断文件是否实现于指定接口
+     *
+     * @param  \SplFileInfo $file
+     *
+     * @return bool
+     */
+    protected function instanceOf(SplFileInfo $file): bool
+    {
+        $reflecter = new ReflectionClass($this->getClassName($file));
+
+        if (! $this->isSkip($reflecter)) {
+            if ($this->interface === null) {
+                return true;
+            }
+            return (bool) $reflecter->implementsInterface($this->interface);
+        }
+
+        unset($reflecter);
+
+        return false;
+    }
+
+    /**
+     * 判断是否忽略
+     *
+     * @param  \ReflectionClass $reflecter
+     *
+     * @return bool
+     */
+    protected function isSkip(ReflectionClass $reflecter): bool
+    {
+        $skips = array_filter(
+            $this->skips,
+            function ($value) {
+                return $value === 1;
+            }
+        );
+
+        foreach ($skips as $name => $value) {
+            $method = 'is' . ucfirst($name);
+
+            if ($reflecter->$method()) {
+                return true;
+            }
+
+            unset($method);
+        }
+
+        unset($skips);
+
+        return false;
     }
 
     /**

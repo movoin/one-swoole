@@ -16,21 +16,20 @@ use InvalidArgumentException;
 use One\FileSystem\Finder;
 use Minime\Annotations\Reader;
 
-class Annotation
+class Annotation extends Collection
 {
     /**
-     * 注释结果
+     * 注释读取对象
      *
-     * @var array
+     * @var \Minime\Annotations\Reader
      */
-    protected $results = [];
-
+    private $reader;
     /**
      * 文件搜索对象
      *
      * @var \One\FileSystem\Finder
      */
-    private $finder;
+    private $files;
 
     /**
      * 构造
@@ -46,6 +45,38 @@ class Annotation
             throw new InvalidArgumentException('Directory ' . $path . ' not exists');
         }
 
-        $this->finder = new Finder($path, $interface, 'php');
+        $this->reader = Reader::createFromDefaults();
+        $this->files = (new Finder($path, $interface, 'php'))->withSkipAll();
+    }
+
+    /**
+     * 解析文件注释
+     */
+    public function parse()
+    {
+        foreach ($this->files as $file) {
+            $className = $this->finder->getClassName(parent::current());
+            $annotation = $this->reader->getClassAnnotations($className);
+
+            $this->set($className, $annotation);
+
+            unset($className, $annotation);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @return array
+     */
+    public function current(): array
+    {
+        $className = $this->finder->getClassName(parent::current());
+        $annotation = $this->reader->getClassAnnotations($className);
+
+        return [
+            'class' => $className,
+            'comments' => $annotation->toArray()
+        ];
     }
 }

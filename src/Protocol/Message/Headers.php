@@ -18,18 +18,6 @@ use One\Support\Collection;
 class Headers extends Collection implements HeadersInterface
 {
     /**
-     * 判断是否存在指定键名数据
-     *
-     * @param  string $key
-     *
-     * @return bool
-     */
-    public function has(string $key): bool
-    {
-        return parent::has($this->normalizeKey($key));
-    }
-
-    /**
      * 获得所有数据
      *
      * @return array
@@ -58,7 +46,7 @@ class Headers extends Collection implements HeadersInterface
     public function get(string $key, $default = null)
     {
         if ($this->has($key)) {
-            return parent::get($this->normalizeKey($key))['value'];
+            return parent::get($key)['value'];
         }
 
         return $default;
@@ -93,7 +81,7 @@ class Headers extends Collection implements HeadersInterface
             $value = [$value];
         }
 
-        parent::set($this->normalizeKey($key), [
+        parent::set($key, [
             'value' => $value,
             'originalKey' => $key
         ]);
@@ -112,16 +100,6 @@ class Headers extends Collection implements HeadersInterface
         $this->set($key, array_merge($oldValues, array_values($newValues)));
 
         unset($oldValues, $newValues);
-    }
-
-    /**
-     * 删除指定数据项
-     *
-     * @param  string $key
-     */
-    public function remove(string $key)
-    {
-        parent::remove($this->normalizeKey($key));
     }
 
     /**

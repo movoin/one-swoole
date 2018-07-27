@@ -15,6 +15,7 @@ namespace One\Support;
 use ArrayIterator;
 use One\Support\Contracts\Collectable;
 use One\Support\Contracts\Jsonable;
+use One\Support\Helpers\Arr;
 use One\Support\Helpers\Json;
 
 class Collection implements Collectable, Jsonable
@@ -63,7 +64,11 @@ class Collection implements Collectable, Jsonable
      */
     public function replace(array $items = [])
     {
-        $this->items = $items;
+        $this->items = [];
+
+        foreach ($items as $key => $item) {
+            $this->set($key, $item);
+        }
     }
 
     /**
@@ -71,10 +76,10 @@ class Collection implements Collectable, Jsonable
      *
      * @param  array  $items
      */
-    public function update(array $items)
+    public function update(array $items = [])
     {
-        foreach ($items as $key => $value) {
-            $this->set($key, $value);
+        foreach ($items as $key => $item) {
+            $this->set($key, $item);
         }
     }
 
@@ -136,7 +141,7 @@ class Collection implements Collectable, Jsonable
      */
     public function has(string $key): bool
     {
-        return isset($this->items[$key]);
+        return $this->offsetExists($key);
     }
 
     /**
@@ -163,7 +168,7 @@ class Collection implements Collectable, Jsonable
     public function getByValue(string $key, $value)
     {
         return array_filter($this->items, function ($val) use ($key, $value) {
-            return $val[$key] === $value;
+            return $val[$this->normalizeKey($key)] === $value;
         });
     }
 
@@ -231,6 +236,52 @@ class Collection implements Collectable, Jsonable
     }
 
     /**
+     * 标准化键名
+     *
+     * @param  string $key
+     *
+     * @return string
+     */
+    public function normalizeKey(string $key): string
+    {
+        return $key;
+    }
+
+    /**
+     * 标准化键值
+     *
+     * @param  mixed $item
+     *
+     * @return mixed
+     */
+    public function normalizeValue($item)
+    {
+        if (is_array($item)) {
+            $normalized = [];
+
+            foreach ($item as $key => $value) {
+                if (is_array($item)) {
+                    $normalized[$key] = $this->normalizeValue($value);
+                } elseif ($value instanceof \stdClass) {
+                    $normalized[$key] = $this->normalizeValue(
+                        Arr::convertFromStdClass($value)
+                    );
+                } else {
+                    $normalized[$key] = $value;
+                }
+            }
+        } elseif ($item instanceof \stdClass) {
+            $normalized = $this->normalizeValue(
+                Arr::convertFromStdClass($value)
+            );
+        } else {
+            $normalized = $item;
+        }
+
+        return $normalized;
+    }
+
+    /**
      * 设置数据项
      *
      * @param  mixed $offset
@@ -239,9 +290,9 @@ class Collection implements Collectable, Jsonable
     public function offsetSet($offset, $value)
     {
         if (is_null($offset)) {
-            $this->items[] = $value;
+            $this->items[] = $this->normalizeValue($value);
         } else {
-            $this->items[$offset] = $value;
+            $this->items[$this->normalizeKey($offset)] = $this->normalizeValue($value);
         }
     }
 
@@ -254,7 +305,7 @@ class Collection implements Collectable, Jsonable
      */
     public function offsetExists($offset): bool
     {
-        return isset($this->items[$offset]);
+        return isset($this->items[$this->normalizeKey($offset)]);
     }
 
     /**
@@ -264,7 +315,7 @@ class Collection implements Collectable, Jsonable
      */
     public function offsetUnset($offset)
     {
-        unset($this->items[$offset]);
+        unset($this->items[$this->normalizeKey($offset)]);
     }
 
     /**
@@ -276,7 +327,9 @@ class Collection implements Collectable, Jsonable
      */
     public function offsetGet($offset)
     {
-        return isset($this->items[$offset]) ? $this->items[$offset] : null;
+        return isset($this->items[$this->normalizeKey($offset)]) ?
+            $this->items[$this->normalizeKey($offset)] :
+            null;
     }
 
     /**
