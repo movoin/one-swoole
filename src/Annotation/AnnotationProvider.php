@@ -21,7 +21,7 @@ class AnnotationProvider extends Provider
      */
     public function register()
     {
-        $this->bind('annotation', function ($server), {
+        $this->bind('annotation', function ($server) {
             return new Parser(APP_PATH);
         });
     }

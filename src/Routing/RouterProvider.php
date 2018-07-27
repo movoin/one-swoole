@@ -21,7 +21,7 @@ class RouterProvider extends Provider
      */
     public function register()
     {
-        $this->bind('router', function ($server), {
+        $this->bind('router', function ($server) {
             $router = new Router;
             $docs = $server->get('annotation');
 
