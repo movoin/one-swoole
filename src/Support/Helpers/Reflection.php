@@ -26,8 +26,6 @@ final class Reflection
      */
     public static function newInstance(string $abstract, array $parameters = [])
     {
-        $reflector = new ReflectionClass($abstract);
-
-        return $reflector->newInstanceArgs($parameters);
+        return (new ReflectionClass($abstract))->newInstanceArgs($parameters);
     }
 }

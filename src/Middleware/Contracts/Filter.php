@@ -15,7 +15,7 @@ namespace One\Middleware\Contracts;
 use One\Protocol\Contracts\Request;
 use One\Protocol\Contracts\Response;
 
-interface Filter
+interface Filter extends Middleware
 {
     /**
      * 过滤请求，返回 null 则放行请求

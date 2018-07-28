@@ -12,10 +12,13 @@
 
 namespace One\Middleware;
 
+use ReflectionException;
 use One\Context\Contracts\Action;
 use One\Middleware\Contracts\Filter;
 use One\Middleware\Contracts\Interceptor;
 use One\Middleware\Contracts\Terminator;
+use One\Middleware\Contracts\Middleware;
+use One\Middleware\Exceptions\MiddlewareException;
 use One\Protocol\Contracts\Request;
 use One\Protocol\Contracts\Response;
 use One\Support\Helpers\Arr;
@@ -77,9 +80,9 @@ class Manager
      *
      * @param \One\Protocol\Contracts\Request $request
      *
-     * @return self
+     * @throws \One\Middleware\Exceptions\MiddlewareException
      */
-    public function matchRequest(Request $request): self
+    public function matchRequest(Request $request)
     {
         $this->reset();
 
@@ -93,10 +96,10 @@ class Manager
             foreach ($wildcards as $alias) {
                 if (isset($groups[$alias])) {
                     foreach ($groups[$alias] as $name) {
-                        $this->matched[] = Reflection::newInstance($name);
+                        $this->matched[] = $this->newMiddleware($name);
                     }
                 } else {
-                    $this->matched[] = Reflection::newInstance($alias);
+                    $this->matched[] = $this->newMiddleware($alias);
                 }
             }
 
@@ -110,7 +113,7 @@ class Manager
             // }}
             foreach ($matchs as $pattern => $name) {
                 if (preg_match("#{$pattern}#i", $uri)) {
-                    $this->matched[] = Reflection::newInstance($name);
+                    $this->matched[] = $this->newMiddleware($name);
                 }
             }
 
@@ -118,8 +121,6 @@ class Manager
         }
 
         unset($groups, $matchs);
-
-        return $this;
     }
 
     /**
@@ -202,5 +203,24 @@ class Manager
         return array_filter($this->registed, function ($middleware) {
             return $middleware instanceof $interface;
         });
+    }
+
+    /**
+     * 实例化中间件
+     *
+     * @param string $name
+     *
+     * @return \One\Middleware\Contracts\Middleware
+     * @throws \One\Middleware\Exceptions\MiddlewareException
+     */
+    protected function newMiddleware(string $name): Middleware
+    {
+        try {
+            $middleware = Reflection::newInstance($name);
+        } catch (ReflectionException $e) {
+            throw new MiddlewareException('Middleware error while retrieving "%s"', $name, 0, $e);
+        }
+
+        return $middleware;
     }
 }

@@ -39,8 +39,8 @@ interface Protocol
     /**
      * 协议处理
      *
-     * @param  \One\Protocol\Contracts\Request   $request
-     * @param  \One\Protocol\Contracts\Response  $response
+     * @param  \One\Protocol\Contracts\Request  $request
+     * @param  \One\Protocol\Contracts\Response $response
      *
      * @return \One\Protocol\Contracts\Response
      */

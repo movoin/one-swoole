@@ -364,8 +364,8 @@ class Server extends AbstractServer
         $this->get('logger')->info('接收数据', [
             'type' => 'HTTP',
             'method' => $request->getMethod(),
-            'uri' => $request->getUri()->getPath(),
-            'clientIP' => $request->getClientIP()
+            'uri' => $request->getRequestTarget(),
+            'client' => $request->getClientIP()
         ]);
         // }}
 

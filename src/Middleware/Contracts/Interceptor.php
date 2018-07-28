@@ -15,7 +15,7 @@ namespace One\Middleware\Contracts;
 use One\Protocol\Contracts\Request;
 use One\Protocol\Contracts\Response;
 
-interface Interceptor
+interface Interceptor extends Middleware
 {
     /**
      * 拦截请求，返回拦截后的请求和响应
