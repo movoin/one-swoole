@@ -48,14 +48,14 @@
   },
   "scripts": {
     "test": [
-      "phpcs -p --standard=PSR2 --runtime-set ignore_errors_on_exit 1 --runtime-set ignore_warnings_on_exit 1 src",
-      "parallel-lint . --exclude vendor",
+      "phpcs -p --basepath=./ --runtime-set ignore_errors_on_exit 1 --runtime-set ignore_warnings_on_exit 1",
+      "parallel-lint ./src",
       "var-dump-check --no-colors --exclude vendor/ --extensions php src",
       "phpunit -c ./phpunit.xml"
     ],
     "lint": [
-      "phpcs -p --standard=PSR2 --runtime-set ignore_errors_on_exit 1 --runtime-set ignore_warnings_on_exit 1 src",
-      "parallel-lint . --exclude vendor",
+      "phpcs -p --basepath=./ --runtime-set ignore_errors_on_exit 1 --runtime-set ignore_warnings_on_exit 1",
+      "parallel-lint ./src",
       "var-dump-check --no-colors --exclude vendor/ --extensions php src"
     ],
     "phpunit": "phpunit -c ./phpunit.xml",
