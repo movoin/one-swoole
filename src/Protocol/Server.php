@@ -26,7 +26,7 @@ class Server extends AbstractServer
      * @var array
      */
     protected $core = [
-        'One\\Logging\\LoggerProvider',
+        'One\\Logging\\Provider',
         'One\\Protocol\\Providers\\Environment',
         'One\\Protocol\\Providers\\ExceptionHandler',
     ];
@@ -36,12 +36,14 @@ class Server extends AbstractServer
      * @var array
      */
     protected $providers = [
-        'One\\Event\\EventProvider',
-        'One\\FileSystem\\FileSystemProvider',
-        'One\\Annotation\\AnnotationProvider',
-        'One\\Routing\\RouterProvider',
-        'One\\Swoole\\Components\\Task\\TaskProvider',
-        'One\\Swoole\\Components\\Timer\\TimerProvider',
+        'One\\Event\\Provider',
+        'One\\FileSystem\\Provider',
+        'One\\Annotation\\Provider',
+        'One\\Routing\\Provider',
+        'One\\Middleware\\Provider',
+        'One\\Validation\\Provider',
+        'One\\Swoole\\Components\\Task\\Provider',
+        'One\\Swoole\\Components\\Timer\\Provider',
     ];
 
     /**

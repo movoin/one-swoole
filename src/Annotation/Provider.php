@@ -12,9 +12,9 @@
 
 namespace One\Annotation;
 
-use One\Swoole\Provider;
+use One\Swoole\Provider as AbstractProvider;
 
-class AnnotationProvider extends Provider
+class Provider extends AbstractProvider
 {
     /**
      * 注册服务

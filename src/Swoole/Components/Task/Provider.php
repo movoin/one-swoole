@@ -12,9 +12,9 @@
 
 namespace One\Swoole\Components\Task;
 
-use One\Swoole\Provider;
+use One\Swoole\Provider as AbstractProvider;
 
-class TaskProvider extends Provider
+class Provider extends AbstractProvider
 {
     /**
      * 注册服务

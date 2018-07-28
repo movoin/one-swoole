@@ -12,9 +12,9 @@
 
 namespace One\Routing;
 
-use One\Swoole\Provider;
+use One\Swoole\Provider as AbstractProvider;
 
-class RouterProvider extends Provider
+class Provider extends AbstractProvider
 {
     /**
      * 注册服务

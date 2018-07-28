@@ -13,11 +13,11 @@
 namespace One\FileSystem;
 
 use RuntimeException;
-use One\Swoole\Provider;
 use One\FileSystem\Contracts\Adapter;
 use One\Support\Helpers\Reflection;
+use One\Swoole\Provider as AbstractProvider;
 
-class FileSystemProvider extends Provider
+class Provider extends AbstractProvider
 {
     /**
      * 注册服务

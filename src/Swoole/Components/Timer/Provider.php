@@ -12,9 +12,9 @@
 
 namespace One\Swoole\Components\Timer;
 
-use One\Swoole\Provider;
+use One\Swoole\Provider as AbstractProvider;
 
-class TimerProvider extends Provider
+class Provider extends AbstractProvider
 {
     /**
      * 注册服务

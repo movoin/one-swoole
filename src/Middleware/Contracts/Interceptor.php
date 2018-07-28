@@ -25,5 +25,5 @@ interface Interceptor
      *
      * @return [\One\Protocol\Contracts\Request, \One\Protocol\Contracts\Response]
      */
-    public function doFilter(Request $request, Response $response);
+    public function doIntercept(Request $request, Response $response);
 }

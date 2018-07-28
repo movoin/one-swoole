@@ -5,24 +5,22 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  *
- * @package     One\Event
+ * @package     One\Validation
  * @author      Allen Luo <movoin@gmail.com>
  * @since       0.1
  */
 
-namespace One\Event;
+namespace One\Validation;
 
-use One\Swoole\Provider;
+use One\Swoole\Provider as AbstractProvider;
 
-class EventProvider extends Provider
+class Provider extends AbstractProvider
 {
     /**
      * 注册服务
      */
     public function register()
     {
-        $this->bind('event', function ($server) {
-            return new Emitter;
-        });
+        $this->alias(Validator::class, 'validator');
     }
 }
