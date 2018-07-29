@@ -74,10 +74,11 @@ class HttpProtocol extends Protocol
         } catch (ProtocolException $e) {
             // {{ log
             $this->logger->error(
-                sprintf('处理 %s 请求发生异常', $e->getProtocol()),
+                sprintf('处理 %s 请求发生异常', strtoupper($e->getProtocol())),
                 [
                     'error' => $e->getMessage(),
-                    'errno' => $e->getCode()
+                    'errno' => $e->getCode(),
+                    'uri' => $request->getRequestTarget(),
                 ]
             );
             // }}
@@ -105,7 +106,7 @@ class HttpProtocol extends Protocol
             return $route;
         }
 
-        if (Router::METHOD_NOT_ALLWED === $status) {
+        if (Router::METHOD_NOT_ALLOWED === $status) {
             throw ProtocolException::methodNotAllowed(
                 $request->getMethod(),
                 $request->getRequestTarget(),

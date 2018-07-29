@@ -12,8 +12,8 @@
 
 namespace One\Protocol\Responders;
 
-use One\Context\Payload;
 use One\Protocol\Factory;
+use One\Context\Contracts\Payload;
 use One\Protocol\Contracts\Request;
 use One\Protocol\Contracts\Response;
 use One\Protocol\Contracts\Responder;

@@ -13,6 +13,8 @@
 namespace One\Protocol\Contracts;
 
 use One\Context\Contracts\Payload;
+use One\Protocol\Contracts\Request;
+use One\Protocol\Contracts\Response;
 
 interface Responder
 {
