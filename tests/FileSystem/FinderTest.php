@@ -21,8 +21,8 @@ class FinderTest extends \PHPUnit\Framework\TestCase
     public function setUp()
     {
         $this->finder = new Finder(__DIR__ . '/Fixtures');
-        $this->finder->setRootPath(TEST_PATH);
-        $this->finder->setAppPath(TEST_PATH);
+        $this->finder->setRootPath(ROOT_PATH);
+        $this->finder->setAppPath(ROOT_PATH);
     }
 
     public function tearDown()
@@ -32,7 +32,7 @@ class FinderTest extends \PHPUnit\Framework\TestCase
 
     public function testGetRootPath()
     {
-        $this->assertEquals(TEST_PATH, $this->finder->getRootPath());
+        $this->assertEquals(ROOT_PATH, $this->finder->getRootPath());
     }
 
     public function testSetRootPath()
@@ -43,7 +43,7 @@ class FinderTest extends \PHPUnit\Framework\TestCase
 
     public function testGetAppPath()
     {
-        $this->assertEquals(TEST_PATH, $this->finder->getAppPath());
+        $this->assertEquals(ROOT_PATH, $this->finder->getAppPath());
     }
 
     public function testSetAppPath()
