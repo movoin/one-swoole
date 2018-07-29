@@ -17,18 +17,22 @@ require __DIR__ . '/../vendor/autoload.php';
  */
 define('RUN_MODE', 'test');
 /**
+ * 运行环境
+ */
+define('TEST_PATH', __DIR__);
+/**
  * 根目录
  */
-define('ROOT_PATH', __DIR__);
+define('ROOT_PATH', TEST_PATH . '/.fixtures');
 /**
  * 应用根目录
  */
-define('APP_PATH', ROOT_PATH . '/_app');
+define('APP_PATH', ROOT_PATH . '/app');
 /**
  * 配置文件目录
  */
-define('CONFIG_PATH', ROOT_PATH . '/_config');
+define('CONFIG_PATH', ROOT_PATH . '/config');
 /**
  * 运行时文件目录
  */
-define('RUNTIME_PATH', ROOT_PATH . '/_runtime');
+define('RUNTIME_PATH', ROOT_PATH . '/runtime');

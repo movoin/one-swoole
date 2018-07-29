@@ -23,8 +23,9 @@ use ReflectionClass;
 use SplFileInfo;
 use One\Support\Helpers\Arr;
 use One\Support\Helpers\Json;
+use One\Support\Contracts\Arrayable;
 
-class Finder implements IteratorAggregate
+class Finder implements IteratorAggregate, Arrayable
 {
     /**
      * 遍历根路径
@@ -305,6 +306,16 @@ class Finder implements IteratorAggregate
                 return $this->match($current);
             }
         );
+    }
+
+    /**
+     * 获得数组结果
+     *
+     * @return array
+     */
+    public function toArray(): array
+    {
+        return iterator_to_array($this->getIterator());
     }
 
     /**
