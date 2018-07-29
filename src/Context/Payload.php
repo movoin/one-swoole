@@ -49,6 +49,29 @@ class Payload implements PayloadInterface
     protected $options = [];
 
     /**
+     * 构造
+     *
+     * @param int    $code
+     * @param string $message
+     * @param string $error
+     * @param mixed  $data
+     * @param array  $options
+     */
+    public function __construct(
+        int $code = 200,
+        string $message = '',
+        string $error = '',
+        $data = null,
+        array $options = []
+    ) {
+        $this->code = $code;
+        $this->message = $message;
+        $this->error = $error;
+        $this->data = $data;
+        $this->options = $options;
+    }
+
+    /**
      * 根据指定状态码克隆一个新的基本数据
      *
      * @param  int $code

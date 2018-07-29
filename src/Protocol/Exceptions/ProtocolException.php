@@ -12,7 +12,11 @@
 
 namespace One\Protocol\Exceptions;
 
+use One\Context\Payload;
 use One\Protocol\Contracts\Protocol;
+use One\Protocol\Contracts\Request;
+use One\Protocol\Contracts\Response;
+use One\Protocol\Contracts\Responder;
 
 class ProtocolException extends \RuntimeException
 {
@@ -39,52 +43,57 @@ class ProtocolException extends \RuntimeException
      * 非法请求
      *
      * @param  string $message
+     * @param  string $protocol
      *
      * @return self 400
      */
-    public static function badRequest(string $message): self
+    public static function badRequest(string $message, string $protocol = Protocol::HTTP): self
     {
         return new static(sprintf(
             'Bad Request: `%s`',
             $message
-        ), Protocol::HTTP, 400);
+        ), $protocol, 400);
     }
 
     /**
      * 未授权请求
      *
      * @param  string $uri
+     * @param  string $protocol
      *
      * @return self 401
      */
-    public static function unauthorized(string $uri): self
+    public static function unauthorized(string $uri, string $protocol = Protocol::HTTP): self
     {
         return new static(sprintf(
             'Unauthorized: `%s`',
             $uri
-        ), Protocol::HTTP, 401);
+        ), $protocol, 401);
     }
 
     /**
      * 禁止访问
      *
+     * @param  string $protocol
+     *
      * @return self 403
      */
-    public static function forbidden(): self
+    public static function forbidden(string $protocol = Protocol::HTTP): self
     {
-        return new static('Forbidden', Protocol::HTTP, 403);
+        return new static('Forbidden', $protocol, 403);
     }
 
     /**
      * URI 未找到
      *
      * @param  string $uri
+     * @param  string $protocol
      *
      * @return self 404
      */
-    public static function notFound(string $uri): self
+    public static function notFound(string $uri, string $protocol = Protocol::HTTP): self
     {
-        return new static('Not Found', Protocol::HTTP, 404);
+        return new static('Not Found', $protocol, 404);
     }
 
     /**
@@ -92,41 +101,45 @@ class ProtocolException extends \RuntimeException
      *
      * @param  string $method
      * @param  string $uri
+     * @param  string $protocol
      *
      * @return self 405
      */
-    public static function methodNotAllowed(string $method, string $uri): self
+    public static function methodNotAllowed(string $method, string $uri, string $protocol = Protocol::HTTP): self
     {
         return new static(sprintf(
             '`%s` not allowed `%s` method',
             $uri,
             $method
-        ), Protocol::HTTP, 405);
+        ), $protocol, 405);
     }
 
     /**
      * 请求内容类型不支持
      *
-     * @param string $contentType
+     * @param  string $contentType
+     * @param  string $protocol
      *
      * @return self 406
      */
-    public static function notAcceptable(string $contentType): self
+    public static function notAcceptable(string $contentType, string $protocol = Protocol::HTTP): self
     {
         return new static(sprintf(
             'Content type `%s` not acceptable',
             $contentType
-        ), Protocol::HTTP, 406);
+        ), $protocol, 406);
     }
 
     /**
      * 请求次数过多
      *
+     * @param  string $protocol
+     *
      * @return self 429
      */
-    public static function tooManyRequests(): self
+    public static function tooManyRequests(string $protocol = Protocol::HTTP): self
     {
-        return new static('Too Many Requests', Protocol::HTTP, 429);
+        return new static('Too Many Requests', $protocol, 429);
     }
 
     /**
@@ -161,5 +174,26 @@ class ProtocolException extends \RuntimeException
     public function setProtocol(string $protocol)
     {
         $this->protocol = $protocol;
+    }
+
+    /**
+     * 获得异常响应对象
+     *
+     * @param  \One\Protocol\Contracts\Request      $request
+     * @param  \One\Protocol\Contracts\Response     $response
+     * @param  \One\Protocol\Contracts\Responder    $responder
+     *
+     * @return \One\Protocol\Contracts\Response
+     */
+    public function makeResponse(Request $request, Response $response, Responder $responder): Response
+    {
+        return $responder(
+            $request,
+            $response,
+            new Payload(
+                $this->getCode(),
+                $this->getMessage()
+            )
+        );
     }
 }
