@@ -86,7 +86,7 @@ class HttpProtocol extends Protocol
             $response = $e->makeResponse($request, $response, $responder);
         }
 
-        $response->end();
+        return $response->end();
     }
 
     /**

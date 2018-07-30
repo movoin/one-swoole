@@ -14,10 +14,10 @@ namespace One\Tests\Routing;
 
 use One\Routing\Router;
 use One\Protocol\Factory;
-use One\Protocol\Message\Uri;
 use One\Protocol\Message\Cookies;
 use One\Protocol\Message\Headers;
 use One\Protocol\Message\Request;
+use One\Protocol\Message\Uri;
 
 class RouterTest extends \PHPUnit\Framework\TestCase
 {
