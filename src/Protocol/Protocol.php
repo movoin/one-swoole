@@ -12,6 +12,7 @@
 
 namespace One\Protocol;
 
+use ReflectionException;
 use One\Protocol\Contracts\Protocol as ProtocolInterface;
 use One\Protocol\Contracts\Request;
 use One\Protocol\Contracts\Response;
@@ -35,6 +36,8 @@ abstract class Protocol implements ProtocolInterface
      * @param  \One\Protocol\Contracts\Response  $response
      *
      * @return \One\Protocol\Contracts\Response
+     * @throws \One\Protocol\Exceptions\ProtocolException
+     * @throws \One\Middleware\Exceptions\MiddlewareException
      */
     public function handle(Request $request, Response $response): Response
     {
@@ -62,9 +65,10 @@ abstract class Protocol implements ProtocolInterface
         // }}
 
         // {{ 执行请求动作
-        if (! ($action = Reflection::newInstance($action, [$this->getServer()]))) {
-            $this->throwException(
-                'notFound',
+        try {
+            $action = Reflection::newInstance($action, [$this->getServer()]);
+        } catch (ReflectionException $e) {
+            throw ProtocolException::notFound(
                 $request->getRequestTarget(),
                 $request->getProtocol()
             );
@@ -91,19 +95,6 @@ abstract class Protocol implements ProtocolInterface
         unset($request, $responder);
 
         return $response;
-    }
-
-    /**
-     * 抛出协议异常
-     *
-     * @param  string   $method
-     * @param  array    $args
-     *
-     * @throws \One\Protocol\Exceptions\ProtocolException
-     */
-    protected function throwException(string $method, ...$args)
-    {
-        throw ProtocolException::$method($args);
     }
 
     /**

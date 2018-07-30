@@ -5,29 +5,32 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  *
- * @package     One\Tests\Middleware\Fixtures
+ * @package     One\Tests\Fixtures\Middlewares
  * @author      Allen Luo <movoin@gmail.com>
  * @since       0.1
  */
 
-namespace One\Tests\Middleware\Fixtures;
+namespace One\Tests\Fixtures\Middlewares;
 
 use One\Protocol\Contracts\Request;
 use One\Protocol\Contracts\Response;
-use One\Middleware\Contracts\Terminator;
+use One\Middleware\Contracts\Interceptor;
 
-class OneTerminator implements Terminator
+class OneInterceptor implements Interceptor
 {
     /**
-     * 终止请求，请求结束后对 Response 对象进行重写
+     * 拦截请求，返回拦截后的请求和响应
      *
      * @param  \One\Protocol\Contracts\Request  $request
      * @param  \One\Protocol\Contracts\Response $response
      *
-     * @return \One\Protocol\Contracts\Response
+     * @return [\One\Protocol\Contracts\Request, \One\Protocol\Contracts\Response]
      */
-    public function doTerminate(Request $request, Response $response): Response
+    public function doIntercept(Request $request, Response $response): array
     {
-        return $response;
+        return [
+            $request,
+            $response
+        ];
     }
 }

@@ -26,6 +26,7 @@ use One\Routing\Router;
 class ProtocolTester extends \PHPUnit\Framework\TestCase
 {
     protected $protocolName = 'http';
+    protected $middlewares = [];
 
     private $server;
     private $protocol;
@@ -40,6 +41,7 @@ class ProtocolTester extends \PHPUnit\Framework\TestCase
         $this->protocolName = 'http';
         $this->server = null;
         $this->protocol = null;
+        $this->middlewares = [];
 
         @unlink(RUNTIME_PATH . "/{$this->protocolName}.log");
     }
@@ -87,13 +89,28 @@ class ProtocolTester extends \PHPUnit\Framework\TestCase
                 '/test',
                 'One\\Tests\\Fixtures\\App\\TestAction'
             );
+            $router->addRoute(
+                'GET',
+                '/bad',
+                'One\\Tests\\Fixtures\\App\\BadAction'
+            );
+            $router->addRoute(
+                'GET',
+                '/bad/middleware',
+                'One\\Tests\\Fixtures\\App\\TestAction'
+            );
+            $router->addRoute(
+                'GET',
+                '/bad/middleware/handler',
+                'One\\Tests\\Fixtures\\App\\TestAction'
+            );
 
             return $router;
         });
 
         // Middleware
         $this->server->bind('middleware', function ($server) {
-            return new Manager([]);
+            return new Manager($this->middlewares);
         });
     }
 

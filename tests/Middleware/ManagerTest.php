@@ -30,16 +30,16 @@ class ManagerTest extends \PHPUnit\Framework\TestCase
         $this->manager = new Manager([
             'group' => [
                 'all' => [
-                    'One\\Tests\\Middleware\\Fixtures\\OneFilter',
-                    'One\\Tests\\Middleware\\Fixtures\\OneInterceptor',
-                    'One\\Tests\\Middleware\\Fixtures\\OneTerminator',
+                    'One\\Tests\\Fixtures\\Middlewares\\OneFilter',
+                    'One\\Tests\\Fixtures\\Middlewares\\OneInterceptor',
+                    'One\\Tests\\Fixtures\\Middlewares\\OneTerminator',
                 ]
             ],
             'match' => [
                 '*' => 'all',
-                '/filter' => 'One\\Tests\\Middleware\\Fixtures\\OneFilter',
-                '/interceptor' => 'One\\Tests\\Middleware\\Fixtures\\OneInterceptor',
-                '/terminator' => 'One\\Tests\\Middleware\\Fixtures\\OneTerminator',
+                '/filter' => 'One\\Tests\\Fixtures\\Middlewares\\OneFilter',
+                '/interceptor' => 'One\\Tests\\Fixtures\\Middlewares\\OneInterceptor',
+                '/terminator' => 'One\\Tests\\Fixtures\\Middlewares\\OneTerminator',
             ]
         ]);
     }

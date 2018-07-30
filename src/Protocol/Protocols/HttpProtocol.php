@@ -44,8 +44,7 @@ class HttpProtocol extends Protocol
             $responder = $this->getResponder();
 
             if ($responder->getAcceptHandler($request) === null) {
-                $this->throwException(
-                    'notAcceptable',
+                throw ProtocolException::notAcceptable(
                     $request->getHeaderLine('Accept'),
                     $request->getProtocol()
                 );
@@ -67,7 +66,7 @@ class HttpProtocol extends Protocol
                 $request,
                 $response,
                 new Payload(
-                    $e->getCode(),
+                    500,
                     $e->getMessage()
                 )
             );
