@@ -41,7 +41,7 @@ class ConfigTest extends \PHPUnit\Framework\TestCase
     public function testUndefinedRuntimePath()
     {
         Config::clear();
-        Config::setRootPath(CONFIG_PATH . '2');
+        Config::setRootPath(rtrim(CONFIG_PATH, 'A') . 'B');
         Config::addPlaceHolder('{ROOT_PATH}', ROOT_PATH);
 
         Config::load(true);

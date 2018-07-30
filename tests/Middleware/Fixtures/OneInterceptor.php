@@ -5,17 +5,18 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  *
- * @package     One\Middleware\Contracts
+ * @package     One\Tests\Middleware\Fixtures
  * @author      Allen Luo <movoin@gmail.com>
  * @since       0.1
  */
 
-namespace One\Middleware\Contracts;
+namespace One\Tests\Middleware\Fixtures;
 
 use One\Protocol\Contracts\Request;
 use One\Protocol\Contracts\Response;
+use One\Middleware\Contracts\Interceptor;
 
-interface Interceptor extends Middleware
+class OneInterceptor implements Interceptor
 {
     /**
      * 拦截请求，返回拦截后的请求和响应
@@ -25,5 +26,11 @@ interface Interceptor extends Middleware
      *
      * @return [\One\Protocol\Contracts\Request, \One\Protocol\Contracts\Response]
      */
-    public function doIntercept(Request $request, Response $response): array;
+    public function doIntercept(Request $request, Response $response): array
+    {
+        return [
+            $request,
+            $response
+        ];
+    }
 }

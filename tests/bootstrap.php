@@ -27,8 +27,8 @@ define('APP_PATH', ROOT_PATH);
 /**
  * 配置文件目录
  */
-define('CONFIG_PATH', ROOT_PATH . '/.fixtures/config');
+define('CONFIG_PATH', ROOT_PATH . '/Fixtures/Config/ModeA');
 /**
  * 运行时文件目录
  */
-define('RUNTIME_PATH', ROOT_PATH . '/.fixtures/runtime');
+define('RUNTIME_PATH', ROOT_PATH . '/Fixtures/Runtime');

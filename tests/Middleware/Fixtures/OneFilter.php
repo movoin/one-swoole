@@ -5,25 +5,32 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  *
- * @package     One\Middleware\Contracts
+ * @package     One\Tests\Middleware\Fixtures
  * @author      Allen Luo <movoin@gmail.com>
  * @since       0.1
  */
 
-namespace One\Middleware\Contracts;
+namespace One\Tests\Middleware\Fixtures;
 
 use One\Protocol\Contracts\Request;
 use One\Protocol\Contracts\Response;
+use One\Middleware\Contracts\Filter;
 
-interface Interceptor extends Middleware
+class OneFilter implements Filter
 {
     /**
-     * 拦截请求，返回拦截后的请求和响应
+     * 过滤请求，返回 null 则放行请求
      *
      * @param  \One\Protocol\Contracts\Request  $request
      * @param  \One\Protocol\Contracts\Response $response
      *
-     * @return [\One\Protocol\Contracts\Request, \One\Protocol\Contracts\Response]
+     * @return \One\Protocol\Contracts\Response|null
      */
-    public function doIntercept(Request $request, Response $response): array;
+    public function doFilter(Request $request, Response $response)
+    {
+        return $request->getAttribute('return') ?
+                null :
+                $response->withStatus(404)
+        ;
+    }
 }

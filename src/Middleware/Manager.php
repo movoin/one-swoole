@@ -33,12 +33,6 @@ class Manager
      */
     protected $config = [];
     /**
-     * 已注册的中间件
-     *
-     * @var array
-     */
-    protected $registed = [];
-    /**
      * 匹配请求的中间件
      *
      * @var array
@@ -64,18 +58,6 @@ class Manager
     }
 
     /**
-     * 注册中间件
-     *
-     * @param string $middleware
-     */
-    public function registerMiddleware(string $middleware)
-    {
-        if (! in_array($middleware, $this->registed)) {
-            $this->registed[] = $middleware;
-        }
-    }
-
-    /**
      * 获得指定请求对象的中间件管理对象
      *
      * @param \One\Protocol\Contracts\Request $request
@@ -96,10 +78,10 @@ class Manager
             foreach ($wildcards as $alias) {
                 if (isset($groups[$alias])) {
                     foreach ($groups[$alias] as $name) {
-                        $this->matched[] = $this->newMiddleware($name);
+                        $this->addMatched($name);
                     }
                 } else {
-                    $this->matched[] = $this->newMiddleware($alias);
+                    $this->addMatched($alias);
                 }
             }
 
@@ -113,7 +95,7 @@ class Manager
             // }}
             foreach ($matchs as $pattern => $name) {
                 if (preg_match("#{$pattern}#i", $uri)) {
-                    $this->matched[] = $this->newMiddleware($name);
+                    $this->addMatched($name);
                 }
             }
 
@@ -175,34 +157,47 @@ class Manager
      * @param \One\Protocol\Contracts\Request  $request
      * @param \One\Protocol\Contracts\Response $response
      *
-     * @return \One\Protocol\Contracts\Response|null
+     * @return \One\Protocol\Contracts\Response
      */
-    public function executeTerminators(Request $request, Response $response)
+    public function executeTerminators(Request $request, Response $response): Response
     {
         $middlewares = $this->filterMiddleware(Terminator::class);
 
         foreach ($middlewares as $middleware) {
-            if (($returnResponse = $middleware->doTerminate($request, $response)) !== null) {
-                return $returnResponse;
-            }
-            unset($returnResponse);
+            $response = $middleware->doTerminate($request, $response);
         }
 
         unset($middlewares);
+
+        return $response;
     }
 
     /**
      * 获得指定接口的中间件
      *
-     * @param string $interface
+     * @param string $abstract
      *
      * @return array
      */
-    protected function filterMiddleware(string $interface): array
+    protected function filterMiddleware(string $abstract): array
     {
-        return array_filter($this->registed, function ($middleware) {
-            return $middleware instanceof $interface;
+        return array_filter($this->matched, function ($middleware) use ($abstract) {
+            return $middleware instanceof $abstract;
         });
+    }
+
+    /**
+     * 添加已匹配的中间件
+     *
+     * @param string $name
+     *
+     * @throws \One\Middleware\Exceptions\MiddlewareException
+     */
+    protected function addMatched(string $name)
+    {
+        if (! isset($this->matched[$name])) {
+            $this->matched[$name] = $this->newMiddleware($name);
+        }
     }
 
     /**
