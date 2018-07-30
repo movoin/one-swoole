@@ -24,6 +24,8 @@
         <directory suffix=".php">src/Console/</directory>
         <directory suffix=".php">src/Swoole/</directory>
         <file>src/Protocol/Server.php</file>
+        <file>src/Protocol/Providers/Environment.php</file>
+        <file>src/Protocol/Providers/ExceptionHandler.php</file>
       </exclude>
     </whitelist>
   </filter>
