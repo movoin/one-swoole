@@ -21,7 +21,7 @@ use One\Swoole\Contracts\Server;
 
 abstract class Action implements ActionInterface
 {
-    use HasServer
+    use HasServer,
         HasServerContainer;
 
     /**
