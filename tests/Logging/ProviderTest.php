@@ -22,4 +22,12 @@ class ProviderTest extends ProviderTester
     {
         $this->assertTrue($this->getServer()->has('logger'));
     }
+
+    public function testInstance()
+    {
+        $this->assertInstanceOf(
+            'One\\Logging\\Logger',
+            $this->getServer()->get('logger')
+        );
+    }
 }

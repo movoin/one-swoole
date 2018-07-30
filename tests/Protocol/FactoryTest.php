@@ -34,6 +34,12 @@ class FactoryTest extends \PHPUnit\Framework\TestCase
         }
     }
 
+    public function testNewProtocol()
+    {
+        $protocol = Factory::newProtocol('http');
+        $this->assertInstanceOf('One\\Protocol\\Contracts\\Protocol', $protocol);
+    }
+
     public function testNewStream()
     {
         // String

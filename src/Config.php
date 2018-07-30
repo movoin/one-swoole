@@ -112,6 +112,9 @@ final class Config
     public static function clear()
     {
         static::$config = [];
+        static::$placeholders = [];
+        static::$root = null;
+        static::$path = null;
     }
 
     /**
@@ -131,13 +134,11 @@ final class Config
             static::addPlaceHolder('{ROOT_PATH}', ROOT_PATH);
         }
 
-        if (defined('RUNTIME_PATH') &&
-            ! isset(static::$placeholders['{RUNTIME_PATH}'])
-        ) {
+        if (! isset(static::$placeholders['{RUNTIME_PATH}'])) {
             static::addPlaceHolder('{RUNTIME_PATH}', RUNTIME_PATH);
         }
 
-        if (defined('CONFIG_PATH') && ! isset(static::$root)) {
+        if (! isset(static::$root)) {
             static::setRootPath(CONFIG_PATH);
         }
 
@@ -180,15 +181,11 @@ final class Config
                 }
 
                 // Protocol
-                $server['protocol'] = isset($server['protocol']) ?
-                                    strtolower($server['protocol']) :
-                                    'http';
+                $server['protocol'] = isset($server['protocol']) ? strtolower($server['protocol']) : 'http';
 
                 // Runtime
                 if (! isset($server['runtime_path'])) {
-                    $server['runtime_path'] = isset($conf['global']['runtime_path']) ?
-                                            $conf['global']['runtime_path'] :
-                                            '/tmp';
+                    $server['runtime_path'] = $conf['global']['runtime_path'];
                 }
 
                 // Swoole 日志

@@ -22,19 +22,9 @@ class Provider extends AbstractProvider
     public function register()
     {
         $this->bind('middleware', function ($server) {
-            $manager = new Manager(
+            return new Manager(
                 $this->config('middleware', [])
             );
-
-            $middlewares = $server->getProtocol()->getMiddlewares();
-
-            foreach ($middlewares as $middleware) {
-                $manager->registerMiddleware($middleware);
-            }
-
-            unset($middlewares);
-
-            return $manager;
         });
     }
 }

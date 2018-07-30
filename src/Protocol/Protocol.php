@@ -20,15 +20,13 @@ use One\Protocol\Exceptions\ProtocolException;
 use One\Protocol\Traits\HasServer;
 use One\Protocol\Traits\HasServerContainer;
 use One\Protocol\Traits\HasStartItem;
-use One\Protocol\Traits\HasMiddleware;
 use One\Support\Helpers\Reflection;
 
 abstract class Protocol implements ProtocolInterface
 {
     use HasServer,
         HasServerContainer,
-        HasStartItem,
-        HasMiddleware;
+        HasStartItem;
 
     /**
      * 协议处理

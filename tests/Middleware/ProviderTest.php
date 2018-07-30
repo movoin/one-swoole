@@ -22,4 +22,12 @@ class ProviderTest extends ProviderTester
     {
         $this->assertTrue($this->getServer()->has('middleware'));
     }
+
+    public function testInstance()
+    {
+        $this->assertInstanceOf(
+            'One\\Middleware\\Manager',
+            $this->getServer()->get('middleware')
+        );
+    }
 }

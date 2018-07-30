@@ -22,4 +22,12 @@ class ProviderTest extends ProviderTester
     {
         $this->assertTrue($this->getServer()->has('event'));
     }
+
+    public function testInstance()
+    {
+        $this->assertInstanceOf(
+            'One\\Event\\Emitter',
+            $this->getServer()->get('event')
+        );
+    }
 }
