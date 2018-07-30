@@ -12,7 +12,7 @@
 
 namespace One\Tests\Fixtures\App;
 
-use One\Context\Contracts\Action;
+use One\Context\Action;
 use One\Context\Contracts\Payload;
 use One\Protocol\Contracts\Request;
 
@@ -33,7 +33,7 @@ use One\Protocol\Contracts\Request;
  *        }
  * }
  */
-class TestAction implements Action
+class TestAction extends Action
 {
     /**
      * 响应动作请求
@@ -42,7 +42,7 @@ class TestAction implements Action
      *
      * @return \One\Context\Contracts\Payload
      */
-    public function __invoke(Request $request): Payload
+    protected function run(Request $request): Payload
     {
         return new One\Context\Payload();
     }
