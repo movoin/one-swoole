@@ -38,7 +38,7 @@ trait HasConfig
         }
 
         // 加载配置
-        Config::load();
+        Config::load(true);
     }
 
     /**
