@@ -90,6 +90,16 @@ class HttpProtocolTest extends ProtocolTester
         $this->assertEquals(404, $result->getStatusCode());
     }
 
+    public function testNoCache()
+    {
+        $request = $this->newRequest()->withHeader('Cache-Control', 'no-cache');
+        $response = $this->newResponse();
+
+        $result = $this->getProtocol()->onRequest($request, $response);
+
+        $this->assertEquals('no-store,no-cache,must-revalidate', $result->getHeaderLine('Cache-Control'));
+    }
+
     public function testBadMiddlewareHandler()
     {
         $this->middlewares = [
@@ -132,5 +142,11 @@ class HttpProtocolTest extends ProtocolTester
         $result = $this->getProtocol()->onRequest($request, $response);
 
         $this->assertEquals(404, $result->getStatusCode());
+    }
+
+    public function testProtocolTraits()
+    {
+        $this->assertEquals([], $this->getProtocol()->getServerStartItems());
+        $this->assertEquals([], $this->getProtocol()->getWorkerStartItems());
     }
 }
