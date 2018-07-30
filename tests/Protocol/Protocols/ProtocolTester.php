@@ -12,6 +12,7 @@
 
 namespace One\Tests\Protocol\Protocols;
 
+use One\Event\Emitter;
 use One\Logging\Logger;
 use One\Middleware\Manager;
 use One\Protocol\Factory;
@@ -39,6 +40,8 @@ class ProtocolTester extends \PHPUnit\Framework\TestCase
         $this->protocolName = 'http';
         $this->server = null;
         $this->protocol = null;
+
+        @unlink(RUNTIME_PATH . "/{$this->protocolName}.log");
     }
 
     protected function getServer()
@@ -62,6 +65,11 @@ class ProtocolTester extends \PHPUnit\Framework\TestCase
     protected function createServer()
     {
         $this->server = new Server('test', $this->protocolName);
+
+        // Event
+        $this->server->bind('event', function ($server) {
+            return new Emitter;
+        });
 
         // Logging
         $this->server->bind('logger', function ($server) {

@@ -44,6 +44,6 @@ class TestAction extends Action
      */
     protected function run(Request $request): Payload
     {
-        return new One\Context\Payload();
+        return new \One\Context\Payload();
     }
 }
