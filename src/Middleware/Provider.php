@@ -23,7 +23,7 @@ class Provider extends AbstractProvider
     {
         $this->bind('middleware', function ($server) {
             $manager = new Manager(
-                $server->get('config')->get('middleware', [])
+                $this->config('middleware', [])
             );
 
             $middlewares = $server->getProtocol()->getMiddlewares();

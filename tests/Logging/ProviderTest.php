@@ -16,11 +16,10 @@ use One\Tests\Fixtures\ProviderTester;
 
 class ProviderTest extends ProviderTester
 {
+    protected $target = 'One\\Logging\\Provider';
+
     public function testRegister()
     {
-        $provider = $this->provider('One\\Logging\\Provider');
-        $provider->register();
-
         $this->assertTrue($this->getServer()->has('logger'));
     }
 }

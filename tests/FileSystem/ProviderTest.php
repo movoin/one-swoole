@@ -17,12 +17,20 @@ use One\Tests\Fixtures\ProviderTester;
 
 class ProviderTest extends ProviderTester
 {
+    protected $target = 'One\\FileSystem\\Provider';
+
     public function testRegister()
     {
-        $provider = $this->provider('One\\FileSystem\\Provider');
-
-        $provider->register();
-
         $this->assertTrue($this->getServer()->has('fs'));
+    }
+
+    public function testInstance()
+    {
+        $this->assertInstanceOf(
+            'One\\FileSystem\\Manager',
+            $this->getServer()->get('fs')
+        );
+
+        @rmdir(RUNTIME_PATH . '/local');
     }
 }

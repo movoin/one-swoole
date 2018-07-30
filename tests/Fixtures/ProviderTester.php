@@ -19,26 +19,32 @@ class ProviderTester extends \PHPUnit\Framework\TestCase
 {
     protected $server;
     protected $provider;
+    protected $target;
 
     public function setUp()
     {
         Config::setRootPath(CONFIG_PATH);
         $this->server = new Server('test', 'http');
+
+        if ($this->target !== null) {
+            $this->provider($this->target)->register();
+        }
     }
 
     public function tearDown()
     {
         $this->server = null;
         $this->provider = null;
+        $this->target = null;
         Config::clear();
     }
 
-    public function getServer()
+    protected function getServer()
     {
         return $this->server;
     }
 
-    public function provider(string $name)
+    protected function provider(string $name)
     {
         if ($this->provider === null) {
             $this->provider = $this->getServer()->resolve($name, [$this->getServer()]);

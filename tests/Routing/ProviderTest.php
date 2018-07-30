@@ -12,15 +12,28 @@
 
 namespace One\Tests\Routing;
 
+use One\Annotation\Parser;
 use One\Tests\Fixtures\ProviderTester;
 
 class ProviderTest extends ProviderTester
 {
+    protected $target = 'One\\Routing\\Provider';
+
     public function testRegister()
     {
-        $provider = $this->provider('One\\Routing\\Provider');
-        $provider->register();
-
         $this->assertTrue($this->getServer()->has('router'));
+    }
+
+    public function testInstance()
+    {
+        $this->getServer()->bind('annotation', function ($server) {
+            return new Parser(APP_PATH . '/Fixtures');
+        });
+        $this->getServer()->get('annotation')->parse();
+
+        $this->assertInstanceOf(
+            'One\\Routing\\Router',
+            $this->getServer()->get('router')
+        );
     }
 }

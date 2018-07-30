@@ -91,7 +91,7 @@ class Provider extends AbstractProvider
                 throw new RuntimeException('Filesystem local adapter must set `path`');
             }
 
-            $config = $config['config']['path'];
+            $config = [$config['config']['path']];
         }
 
         return Reflection::newInstance(
