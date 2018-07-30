@@ -123,6 +123,7 @@ class HttpResponder implements Responder
             $preferred = $negotiator->getBest($encoding, ['gzip']);
 
             if (! empty($preferred)) {
+                $response = $response->withHeader('Content-Encoding', 'gzip');
                 $response->setGzip(1);
             }
             unset($negotiator, $preferred);

@@ -23,4 +23,15 @@ class FakeResponse extends Response
     {
         return $this;
     }
+
+    /**
+     * 设置 Gzip 压缩
+     *
+     * @param int $level
+     *
+     * @return void
+     */
+    public function setGzip(int $level = 1)
+    {
+    }
 }

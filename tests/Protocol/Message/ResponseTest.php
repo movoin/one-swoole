@@ -56,26 +56,6 @@ class ResponseTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals('My Bad', $response->getReasonPhrase());
     }
 
-    public function testIsOk()
-    {
-        $this->assertTrue($this->response->isOk());
-    }
-
-    public function testIsSuccessful()
-    {
-        $this->assertTrue($this->response->isSuccessful());
-    }
-
-    public function testIsClientError()
-    {
-        $this->assertFalse($this->response->isClientError());
-    }
-
-    public function testIsServerError()
-    {
-        $this->assertFalse($this->response->isServerError());
-    }
-
     public function testWithHeader()
     {
         $response = $this->response->withHeader('location', 'foobar');

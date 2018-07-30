@@ -100,6 +100,16 @@ class HttpProtocolTest extends ProtocolTester
         $this->assertEquals('no-store,no-cache,must-revalidate', $result->getHeaderLine('Cache-Control'));
     }
 
+    public function testSetGzip()
+    {
+        $request = $this->newRequest()->withHeader('Accept-Encoding', 'gzip');
+        $response = $this->newResponse();
+
+        $result = $this->getProtocol()->onRequest($request, $response);
+
+        $this->assertEquals('gzip', $result->getHeaderLine('Content-Encoding'));
+    }
+
     public function testBadMiddlewareHandler()
     {
         $this->middlewares = [

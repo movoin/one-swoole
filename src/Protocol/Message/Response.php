@@ -213,6 +213,18 @@ class Response implements ResponseInterface
     }
 
     /**
+     * 设置 Gzip 压缩
+     *
+     * @param int $level
+     */
+    public function setGzip(int $level = 1)
+    {
+        if (method_exists($this->swResponse, 'gzip')) {
+            $this->swResponse->gzip($level);
+        }
+    }
+
+    /**
      * 获得响应状态码
      *
      * @return int
@@ -308,46 +320,6 @@ class Response implements ResponseInterface
         $this->getBody()->write($data);
 
         return $this;
-    }
-
-    /**
-     * 判断是否响应 OK
-     *
-     * @return bool
-     */
-    public function isOk(): bool
-    {
-        return $this->getStatusCode() === 200;
-    }
-
-    /**
-     * 判断是否响应成功
-     *
-     * @return bool
-     */
-    public function isSuccessful(): bool
-    {
-        return $this->getStatusCode() >= 200 && $this->getStatusCode() < 300;
-    }
-
-    /**
-     * 判断是否客户端错误
-     *
-     * @return bool
-     */
-    public function isClientError(): bool
-    {
-        return $this->getStatusCode() >= 400 && $this->getStatusCode() < 500;
-    }
-
-    /**
-     * 判断是否服务端错误
-     *
-     * @return bool
-     */
-    public function isServerError(): bool
-    {
-        return $this->getStatusCode() >= 500 && $this->getStatusCode() < 600;
     }
 
     /**
