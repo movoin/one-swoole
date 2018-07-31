@@ -212,17 +212,17 @@ class Response implements ResponseInterface
         return $clone;
     }
 
-    /**
-     * 设置 Gzip 压缩
-     *
-     * @param int $level
-     */
-    public function setGzip(int $level = 1)
-    {
-        if (method_exists($this->swResponse, 'gzip')) {
-            $this->swResponse->gzip($level);
-        }
-    }
+    // /**
+    //  * 设置 Gzip 压缩
+    //  *
+    //  * @param int $level
+    //  */
+    // public function setGzip(int $level = 1)
+    // {
+    //     if (method_exists($this->swResponse, 'gzip')) {
+    //         $this->swResponse->gzip($level);
+    //     }
+    // }
 
     /**
      * 获得响应状态码

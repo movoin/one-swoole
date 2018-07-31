@@ -116,19 +116,22 @@ class HttpResponder implements Responder
         }
 
         // 处理 Gzip 请求
-        $encoding = $request->getHeaderLine('Accept-Encoding');
+        // 不知道为什么，老是出错，还需要再查查
+        // https://blog.csdn.net/cs958903980/article/details/76890034?locationNum=6&fps=1
+        //
+        // $encoding = $request->getHeaderLine('Accept-Encoding');
 
-        if (! empty($encoding)) {
-            $negotiator = new EncodingNegotiator;
-            $preferred = $negotiator->getBest($encoding, ['gzip']);
+        // if (! empty($encoding)) {
+        //     $negotiator = new EncodingNegotiator;
+        //     $preferred = $negotiator->getBest($encoding, ['gzip']);
 
-            if (! empty($preferred)) {
-                $response = $response->withHeader('Content-Encoding', 'gzip');
-                $response->setGzip(1);
-            }
-            unset($negotiator, $preferred);
-        }
-        unset($encoding);
+        //     if (! empty($preferred)) {
+        //         $response = $response->withHeader('Content-Encoding', 'gzip');
+        //         $response->setGzip(1);
+        //     }
+        //     unset($negotiator, $preferred);
+        // }
+        // unset($encoding);
 
         return $response;
     }
