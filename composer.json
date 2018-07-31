@@ -18,7 +18,8 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "One\\Tests\\": "tests/"
+      "One\\Tests\\": "tests/",
+      "One\\Example\\": "example/app/",
     }
   },
   "config": {
