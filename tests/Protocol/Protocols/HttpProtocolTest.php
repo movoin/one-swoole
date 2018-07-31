@@ -154,6 +154,17 @@ class HttpProtocolTest extends ProtocolTester
         $this->assertEquals(404, $result->getStatusCode());
     }
 
+    public function testRuntimeException()
+    {
+        $request = $this->newRequest()
+                        ->withUri(new Uri('http', 'foobar.com', null, '/test', 'exception=1'));
+        $response = $this->newResponse();
+
+        $result = $this->getProtocol()->onRequest($request, $response);
+
+        $this->assertEquals(500, $result->getStatusCode());
+    }
+
     public function testProtocolTraits()
     {
         $this->assertEquals([], $this->getProtocol()->getServerStartItems());

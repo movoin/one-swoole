@@ -12,6 +12,7 @@
 
 namespace One\Tests\Fixtures\App;
 
+use RuntimeException;
 use One\Context\Action;
 use One\Context\Contracts\Payload;
 use One\Protocol\Contracts\Request;
@@ -44,6 +45,10 @@ class TestAction extends Action
      */
     protected function run(Request $request): Payload
     {
+        if ((int) $request->get('exception', 0) === 1) {
+            $this->bad->dosomething();
+        }
+
         return new \One\Context\Payload(
             200,
             'OK',

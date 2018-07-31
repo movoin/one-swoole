@@ -12,7 +12,7 @@
 
 namespace One\Protocol\Traits;
 
-use Exception;
+use RuntimeException;
 
 trait HasServerContainer
 {
@@ -22,7 +22,7 @@ trait HasServerContainer
      * @param  string $name
      *
      * @return mixed
-     * @throws \Exception
+     * @throws \RuntimeException
      */
     public function __get($name)
     {
@@ -32,6 +32,6 @@ trait HasServerContainer
             return parent::__get($name);
         }
 
-        throw new Exception("Container identifier `{$name}` is not found.");
+        throw new RuntimeException("Container identifier `{$name}` is not found.");
     }
 }
