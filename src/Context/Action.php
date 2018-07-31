@@ -86,5 +86,5 @@ abstract class Action implements ActionInterface
      *
      * @return \One\Context\Contracts\Payload
      */
-    abstract protected function run(Request $request): PayloadInterface;
+    abstract protected function run(Request $request);
 }

@@ -23,7 +23,7 @@ use One\Protocol\Contracts\Request;
  * @summary TestCase
  * @description TestCase
  *
- * @method GET
+ * @methods GET
  * @route /test
  *
  * @rules {

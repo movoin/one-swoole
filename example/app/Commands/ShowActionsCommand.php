@@ -5,22 +5,19 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  *
- * @package     One\Console\Commands\Server
+ * @package     One\Example\Commands
  * @author      Allen Luo <movoin@gmail.com>
  * @since       0.1
  */
 
-namespace One\Console\Commands\Server;
+namespace One\Example\Commands;
 
-use One\Config;
-use One\Protocol\Server;
 use One\Console\Command;
-use Symfony\Component\Console\Input\InputArgument;
+use One\FileSystem\Finder;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Logger\ConsoleLogger;
 
-class RunCommand extends Command
+class ShowActionsCommand extends Command
 {
     /**
      * 配置命令
@@ -28,10 +25,8 @@ class RunCommand extends Command
     protected function configure()
     {
         $this
-            ->setName('server:run')
-            ->addArgument('cmd', InputArgument::REQUIRED, 'Server command')
-            ->addArgument('server', InputArgument::REQUIRED, 'Server process name')
-            ->setHidden(true)
+            ->setName('show:actions')
+            ->setDescription('显示所有方法')
         ;
     }
 
@@ -43,14 +38,10 @@ class RunCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $cmd        = $input->getArgument('cmd');
-        $process    = $input->getArgument('server');
+        $actions = new Finder(APP_PATH, 'One\\Context\\Contracts\\Action', 'php');
 
-        $server = new Server(
-            Config::get('name'),
-            $process
-        );
-
-        $server->$cmd();
+        foreach ($actions as $action) {
+            $this->info($action->getBasename('.php'));
+        }
     }
 }

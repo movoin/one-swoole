@@ -12,6 +12,7 @@
 
 namespace One\Console;
 
+use One\Console\Contracts\Command as CommandInterface;
 use One\Support\Helpers\Reflection;
 use Symfony\Component\Console\Command\Command as SymfonyCommand;
 use Symfony\Component\Console\Input\InputInterface;
@@ -20,7 +21,7 @@ use Symfony\Component\Console\Formatter\OutputFormatter;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-class Command extends SymfonyCommand
+class Command extends SymfonyCommand implements CommandInterface
 {
     /**
      * 输入对象

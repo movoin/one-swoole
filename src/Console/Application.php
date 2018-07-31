@@ -12,6 +12,7 @@
 
 namespace One\Console;
 
+use Exception;
 use DirectoryIterator;
 use ReflectionClass;
 use One\Config;
@@ -27,6 +28,8 @@ class Application extends SymfonyApplication
      */
     public function __construct($name = Config::NAME, $version = Config::VERSION)
     {
+        $this->checkRunEnv();
+
         Config::load();
 
         // {{
@@ -36,7 +39,32 @@ class Application extends SymfonyApplication
         );
         // }}
 
+        // 核心命令
         $this->addCommandInPath(__DIR__ . '/Commands');
+        // 自定义命令
+        $this->addCommandInPath(APP_PATH);
+    }
+
+    /**
+     * 检测运行环境
+     */
+    protected function checkRunEnv()
+    {
+        if (! defined('ROOT_PATH')) {
+            throw new Exception('"ROOT_PATH" is not defined');
+        }
+
+        if (! defined('APP_PATH')) {
+            throw new Exception('"APP_PATH" is not defined');
+        }
+
+        if (! defined('CONFIG_PATH')) {
+            throw new Exception('"CONFIG_PATH" is not defined');
+        }
+
+        if (! defined('RUNTIME_PATH')) {
+            throw new Exception('"RUNTIME_PATH" is not defined');
+        }
     }
 
     /**
@@ -63,6 +91,8 @@ class Application extends SymfonyApplication
                 }
             }
         }
+
+        unset($iterator);
     }
 
     /**
@@ -81,7 +111,7 @@ class Application extends SymfonyApplication
         $info = pathinfo($path);
         $command = new ReflectionClass($namespace . '\\' . $info['filename']);
 
-        if (! $command->isSubclassOf('\\Symfony\\Component\\Console\\Command\\Command')) {
+        if (! $command->implementsInterface('\\One\\Console\\Contracts\\Command')) {
             return false;
         }
 
@@ -97,7 +127,7 @@ class Application extends SymfonyApplication
      */
     private function lookupNamespace(string $path)
     {
-        $file = file_get_contents($path);
+        $content = file_get_contents($path);
 
         preg_match(
             '#' .
@@ -105,9 +135,11 @@ class Application extends SymfonyApplication
             '(.+?)' .
             preg_quote(';') .
             '#s',
-            $file,
+            $content,
             $matchs
         );
+
+        unset($content);
 
         return isset($matchs[1]) ? trim($matchs[1]): false;
     }

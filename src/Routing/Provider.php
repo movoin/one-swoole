@@ -26,7 +26,7 @@ class Provider extends AbstractProvider
             $docs = $server->get('annotation');
 
             foreach ($docs as $class => $doc) {
-                $router->addRoute($doc['method'], $doc['route'], $class);
+                $router->addRoute($doc['methods'], $doc['route'], $class);
             }
 
             unset($docs);

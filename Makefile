@@ -5,7 +5,7 @@ MAKEFLAGS += --silent
 # Docker machine states
 #############################
 
-build:
+rebuild:
 	docker build -t onelab/one_swoole $$(pwd)/
 
 up:	clean_runtime run

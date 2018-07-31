@@ -37,7 +37,7 @@ class Context implements Arrayable
      *
      * @return bool
      */
-    public function has(string $name): bool
+    public function has($name): bool
     {
         return isset($this->items[$name]);
     }
@@ -48,7 +48,7 @@ class Context implements Arrayable
      * @param string $name
      * @param mixed  $value
      */
-    public function set(string $name, $value)
+    public function set($name, $value)
     {
         $this->items[$name] = $value;
     }
@@ -61,7 +61,7 @@ class Context implements Arrayable
      *
      * @return mixed
      */
-    public function get(string $name, $default = null)
+    public function get($name, $default = null)
     {
         if ($this->has($name)) {
             return $this->items[$name];
