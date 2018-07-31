@@ -100,6 +100,7 @@ class HttpProtocolTest extends ProtocolTester
         $this->assertEquals('no-store,no-cache,must-revalidate', $result->getHeaderLine('Cache-Control'));
     }
 
+    // 暂时不支持 setGzip()
     // public function testSetGzip()
     // {
     //     $request = $this->newRequest()->withHeader('Accept-Encoding', 'gzip');

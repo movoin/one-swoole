@@ -29,7 +29,8 @@ class Request extends \Swoole\Http\Request
             'remote_addr' => '127.0.0.1',
             'request_method' => 'GET',
             'server_port' => 9501,
-            'request_uri' => '/path/to/file?q=key&filter=foo',
+            'request_uri' => '/path/to/file',
+            'query_string' => 'q=key&filter=foo',
             'server_protocol' => 'HTTP/1.1',
         ];
         $request->cookie = [
@@ -57,7 +58,8 @@ class Request extends \Swoole\Http\Request
             'remote_addr' => '127.0.0.1',
             'request_method' => 'GET',
             'server_port' => 9501,
-            'request_uri' => '/path/to/file?q=key&filter=foo',
+            'request_uri' => '/path/to/file',
+            'query_string' => 'q=key&filter=foo',
             'server_protocol' => 'HTTP/1.1',
         ];
         $request->cookie = [

@@ -12,7 +12,7 @@
 
 namespace One\Protocol\Protocols;
 
-use RuntimeException;
+use Exception;
 use One\Routing\Router;
 use One\Context\Payload;
 use One\Protocol\Protocol;
@@ -84,7 +84,7 @@ class HttpProtocol extends Protocol
             // }}
 
             $response = $e->makeResponse($request, $response, $responder);
-        } catch (RuntimeException $e) {
+        } catch (Exception $e) {
             // {{ log
             $this->logger->error(
                 '系统错误',
