@@ -94,6 +94,17 @@ class Finder implements IteratorAggregate, Arrayable
     }
 
     /**
+     * 析构
+     */
+    public function __destruct()
+    {
+        $this->path = null;
+        $this->interface = null;
+        $this->extension = null;
+        static::$namespace = null;
+    }
+
+    /**
      * 获得根目录路径
      *
      * @return string
@@ -284,6 +295,7 @@ class Finder implements IteratorAggregate, Arrayable
                 }
             }
         }
+
 
         unset($composer);
 

@@ -52,6 +52,14 @@ class FinderTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals('/tmp', $this->finder->getAppPath());
     }
 
+    public function testGetRootNamespace()
+    {
+        $finder = new Finder(ROOT_PATH . '/Fixtures');
+        $finder->setRootPath(ROOT_PATH . '/Fixtures');
+
+        $this->assertEquals('', $finder->getRootNamespace());
+    }
+
     /**
      * @dataProvider provideWithMethods
      */
