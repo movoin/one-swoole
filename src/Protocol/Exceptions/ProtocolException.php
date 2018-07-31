@@ -49,10 +49,7 @@ class ProtocolException extends \RuntimeException
      */
     public static function badRequest(string $message, string $protocol = Protocol::HTTP): self
     {
-        return new static(sprintf(
-            'Bad Request: `%s`',
-            $message
-        ), $protocol, 400);
+        return new static(sprintf('Bad Request: `%s`', $message), $protocol, 400);
     }
 
     /**
@@ -65,10 +62,7 @@ class ProtocolException extends \RuntimeException
      */
     public static function unauthorized(string $uri, string $protocol = Protocol::HTTP): self
     {
-        return new static(sprintf(
-            'Unauthorized: `%s`',
-            $uri
-        ), $protocol, 401);
+        return new static(sprintf('Unauthorized: `%s`', $uri), $protocol, 401);
     }
 
     /**
@@ -93,7 +87,7 @@ class ProtocolException extends \RuntimeException
      */
     public static function notFound(string $uri, string $protocol = Protocol::HTTP): self
     {
-        return new static('Not Found', $protocol, 404);
+        return new static(sprintf('Not Found: %s', $uri), $protocol, 404);
     }
 
     /**
@@ -107,11 +101,7 @@ class ProtocolException extends \RuntimeException
      */
     public static function methodNotAllowed(string $method, string $uri, string $protocol = Protocol::HTTP): self
     {
-        return new static(sprintf(
-            '`%s` not allowed `%s` method',
-            $uri,
-            $method
-        ), $protocol, 405);
+        return new static(sprintf('`%s` not allowed `%s` method', $uri, $method), $protocol, 405);
     }
 
     /**
@@ -124,10 +114,7 @@ class ProtocolException extends \RuntimeException
      */
     public static function notAcceptable(string $contentType, string $protocol = Protocol::HTTP): self
     {
-        return new static(sprintf(
-            'Content type `%s` not acceptable',
-            $contentType
-        ), $protocol, 406);
+        return new static(sprintf('Content type `%s` not acceptable', $contentType), $protocol, 406);
     }
 
     /**
@@ -192,6 +179,7 @@ class ProtocolException extends \RuntimeException
             $response,
             new Payload(
                 $this->getCode(),
+                '',
                 $this->getMessage()
             )
         );

@@ -15,6 +15,13 @@ namespace One\Context;
 use One\Context\Contracts\Payload as PayloadInterface;
 use One\Support\Helpers\Json;
 
+/**
+ * 响应载荷类
+ *
+ * @package     One\Context
+ * @author      Allen Luo <movoin@gmail.com>
+ * @since       0.1
+ */
 class Payload implements PayloadInterface
 {
     /**

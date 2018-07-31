@@ -17,6 +17,16 @@ use One\FileSystem\Finder;
 use One\Support\Collection;
 use Minime\Annotations\Reader;
 
+/**
+ * PHPDoc 解析类
+ *
+ * 此类实现有 `ArrayAccess`、`IteratorAggregate` 接口，可直接迭代使用，并实现了 `One\Support\Contracts\Collectable` 接口，
+ * 可以使用 `all`， `get`, `set`, `has` 等方法操作数据集，具体操作方法可以详见 `One\Support\Collection` 类。
+ *
+ * @package     One\Annotation
+ * @author      Allen Luo <movoin@gmail.com>
+ * @since       0.1
+ */
 class Parser extends Collection
 {
     /**

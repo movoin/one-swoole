@@ -17,6 +17,13 @@ use InvalidArgumentException;
 use One\Support\Helpers\Assert;
 use One\Support\Helpers\Reflection;
 
+/**
+ * 事件发射类
+ *
+ * @package     One\Event
+ * @author      Allen Luo <movoin@gmail.com>
+ * @since       0.1
+ */
 class Emitter
 {
     /**

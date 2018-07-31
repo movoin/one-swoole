@@ -14,6 +14,13 @@ namespace One\Event;
 
 use One\Support\Contracts\Arrayable;
 
+/**
+ * 事件上下文对象
+ *
+ * @package     One\Event
+ * @author      Allen Luo <movoin@gmail.com>
+ * @since       0.1
+ */
 class Context implements Arrayable
 {
     /**

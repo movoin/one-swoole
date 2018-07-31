@@ -19,6 +19,20 @@ use One\Protocol\Traits\HasServer;
 use One\Protocol\Traits\HasServerContainer;
 use One\Swoole\Contracts\Server;
 
+/**
+ * 请求响应动作基类
+ *
+ * 当接到请求时，协议层会将处理好的 `One\Protocol\Contracts\Request` 对象传入 `__invoke()` 方法，
+ * 而具体的执行逻辑，则由 `run()` 方法完成。
+ *
+ * 在运行前可以通过 `init()` 方法对动作初始化。
+ *
+ * 返回结果必须为 `One\Context\Contracts\Payload` 对象。
+ *
+ * @package     One\Context
+ * @author      Allen Luo <movoin@gmail.com>
+ * @since       0.1
+ */
 abstract class Action implements ActionInterface
 {
     use HasServer,
@@ -32,7 +46,6 @@ abstract class Action implements ActionInterface
     public function __construct(Server $server)
     {
         $this->setServer($server);
-        $this->init();
     }
 
     /**
@@ -44,6 +57,8 @@ abstract class Action implements ActionInterface
      */
     public function __invoke(Request $request): PayloadInterface
     {
+        $this->init();
+
         // {{ event: action.before
         $this->event->emit('action.before', $request);
         // }}
@@ -58,7 +73,7 @@ abstract class Action implements ActionInterface
     }
 
     /**
-     * 初始化
+     * 初始化方法
      */
     protected function init()
     {
