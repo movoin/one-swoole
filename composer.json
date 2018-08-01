@@ -1,5 +1,5 @@
 {
-  "name": "onelab/one",
+  "name": "one/swoole",
   "description": "Just one swoole framework.",
   "type": "library",
   "license": "Apache-2.0",
