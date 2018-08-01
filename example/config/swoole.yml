@@ -1,0 +1,44 @@
+---
+#
+# 全服务 Swoole 配置，可被各服务协议中的配置覆盖
+#
+
+# 守护进程
+daemonize: 1
+# 运行用户
+user: app
+# 工作进程的最大任务数，超过进程将销毁内存和资源将被释放
+max_request: 10
+# 最大允许连接数
+max_conn: 10000
+# 工作进程启动数
+worker_num: 4
+# 异步任务进程启动数
+task_worker_num: 8
+# 异步任务进程最大任务数，超过进程将销毁内存和资源将被释放
+task_max_request: 50
+# 异步任务进程与工作进程之间通信的方式 (1: UNIX Socket; 2: 内存消息队列; 3: 争抢型内存消息队列)
+task_ipc_mode: 2
+# 通信管道内存缓存区长度，只在 task_ipc_mode = 1 时有效
+pipe_buffer_size: 33554432
+# 内存消息队列名称，只在 task_ipc_mode = 2/3 时有效
+message_queue_key: one
+# 数据包分发策略 (1: 轮循; 2: 固定; 3: 抢占; 4: IP 分配; 5: UID 分配)
+dispatch_mode: 3
+# Listen 队列长度
+backlog: 1024
+# 心跳检测间隔时间，超过时间连接将被切断
+heartbeat_check_interval: 5
+# 连接最大允许空闲时间，心跳检测根据此时间切断连接
+heartbeat_idle_time: 10
+# CPU 亲和性，可提高多核 CPU 下的 CPU Cache 命中率
+open_cpu_affinity: 1
+# 关闭 Nagle 合并算法，可提高 HTTP 响应速度
+open_tcp_nodelay: 1
+# 异步重启开关
+reload_async: 1
+# 异步重启关闭 Worker 最大等待时间
+max_wait_time: 60
+# TCP 快速握手特性
+tcp_fastopen: 1
+...

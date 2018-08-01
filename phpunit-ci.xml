@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit
+  bootstrap="tests/bootstrap.php"
+  backupGlobals="false"
+  backupStaticAttributes="false"
+  colors="false"
+  verbose="true"
+  convertErrorsToExceptions="true"
+  convertNoticesToExceptions="true"
+  convertWarningsToExceptions="true"
+  processIsolation="false"
+  stopOnFailure="false"
+  beStrictAboutTestsThatDoNotTestAnything="true"
+>
+  <testsuites>
+    <testsuite name="One Test Suite">
+      <directory>tests</directory>
+    </testsuite>
+  </testsuites>
+  <filter>
+    <whitelist>
+      <directory suffix=".php">src/</directory>
+      <exclude>
+        <directory suffix=".php">src/Console/</directory>
+        <directory suffix=".php">src/Swoole/</directory>
+        <file>src/Run.php</file>
+        <file>src/Protocol/Server.php</file>
+        <file>src/Protocol/Providers/Environment.php</file>
+        <file>src/Protocol/Providers/ExceptionHandler.php</file>
+      </exclude>
+    </whitelist>
+  </filter>
+  <logging>
+    <log type="coverage-text" target="php://stdout"/>
+  </logging>
+</phpunit>

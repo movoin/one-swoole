@@ -1,0 +1,19 @@
+# Select image from https://hub.docker.com/r/movoin/devops-swoole/
+image: movoin/devops-swoole:2
+
+cache:
+  paths:
+  - vendor/
+
+before_script:
+- composer install
+- pecl install xdebug
+- echo 'zend_extension=xdebug.so' > /etc/php/conf.d/xdebug.ini
+- echo 'zlib.output_compression = 1' > /etc/php/conf.d/zlib.ini
+
+# Run PHPUnit
+phpunit:
+  script:
+  - vendor/bin/phpcs -p --standard=PSR2 --runtime-set ignore_errors_on_exit 1 --runtime-set ignore_warnings_on_exit 1 src
+  - vendor/bin/parallel-lint . --exclude vendor
+  - vendor/bin/phpunit -c phpunit-ci.xml

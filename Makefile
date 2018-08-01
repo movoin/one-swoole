@@ -5,7 +5,7 @@ MAKEFLAGS += --silent
 # Docker machine states
 #############################
 
-build:
+rebuild:
 	docker build -t onelab/one_swoole $$(pwd)/
 
 up:	clean_runtime run
@@ -31,14 +31,13 @@ root:
 tail:
 	docker logs -f one_swoole
 
+clean_ds:
+	find . -name .DS_Store -print0 | xargs -0 rm -f
+
 clean_runtime:
-	rm -f $$(pwd)/example/runtime/manager/*.log
-	rm -f $$(pwd)/example/runtime/manager/*.pid
-	rm -f $$(pwd)/example/runtime/manager/*.sock
-	rm -f $$(pwd)/example/runtime/protocol/*.log
-	rm -f $$(pwd)/example/runtime/protocol/*.pid
-	rm -f $$(pwd)/example/runtime/protocol/*.sock
-	rm -f $$(pwd)/example/runtime/resources/*.json
+	rm -f $$(pwd)/example/runtime/**/*.log
+	rm -f $$(pwd)/example/runtime/**/*.pid
+	rm -f $$(pwd)/example/runtime/**/*.sock
 
 #############################
 # Argument fix workaround

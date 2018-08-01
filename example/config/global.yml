@@ -1,0 +1,18 @@
+---
+#
+# 全局配置
+#
+
+# 服务名称
+name: one
+# 服务版本
+version: 0.1
+# 更新版本
+stripe_version: 2018-07-04
+# PHP 安装路径
+php_bin: /usr/local/bin/php
+# 运行时目录
+runtime_path: '{ROOT_PATH}/runtime'
+# 运行服务命令脚本路径
+run_command: '{ROOT_PATH}/one'
+...

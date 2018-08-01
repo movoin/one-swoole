@@ -9,7 +9,7 @@
   convertNoticesToExceptions="true"
   convertWarningsToExceptions="true"
   processIsolation="false"
-  stopOnFailure="false"
+  stopOnFailure="true"
   beStrictAboutTestsThatDoNotTestAnything="true"
 >
   <testsuites>
@@ -20,10 +20,17 @@
   <filter>
     <whitelist>
       <directory suffix=".php">src/</directory>
+      <exclude>
+        <directory suffix=".php">src/Console/</directory>
+        <directory suffix=".php">src/Swoole/</directory>
+        <file>src/Run.php</file>
+        <file>src/Protocol/Server.php</file>
+        <file>src/Protocol/Providers/Environment.php</file>
+        <file>src/Protocol/Providers/ExceptionHandler.php</file>
+      </exclude>
     </whitelist>
   </filter>
   <logging>
     <log type="coverage-html" target="build/coverage" charset="UTF-8" yui="true" highlight="true"/>
-    <log type="coverage-text" target="build/coverage.txt"/>
   </logging>
 </phpunit>

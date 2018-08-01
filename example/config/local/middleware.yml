@@ -1,0 +1,16 @@
+---
+#
+# 分组
+#
+# group:
+#   global:
+#     - One\Example\Middlewares\AccessTokenMiddleware
+
+#
+# 匹配规则
+#
+match:
+  '/middleware': One\Example\Middlewares\AcmeFilter
+  '/middleware/acme': One\Example\Middlewares\AcmeInterceptor
+  '/middleware/hello': One\Example\Middlewares\AcmeTerminator
+...

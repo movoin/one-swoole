@@ -75,5 +75,12 @@ GitHub.sublime-settings
 !.vscode/launch.json
 !.vscode/extensions.json
 
+### PHPUnit ###
+/build/
+
+### Example ###
+/example/runtime/local/*
+/example/runtime/logs/*
+/example/runtime/var/*
 
 # End of https://www.gitignore.io/api/macos,composer,sublimetext,visualstudiocode
