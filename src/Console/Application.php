@@ -21,6 +21,17 @@ use Symfony\Component\Console\Application as SymfonyApplication;
 class Application extends SymfonyApplication
 {
     /**
+     * LOGO
+     *
+     * @var string
+     */
+    private static $logo = '  ____   ____   ___
+ / __ \ / __ \ / _ \
+/ /_/ // / / //  __/
+\____//_/ /_/ \___/
+';
+
+    /**
      * 构造
      *
      * @param string $name
@@ -43,6 +54,16 @@ class Application extends SymfonyApplication
         $this->addCommandInPath(__DIR__ . '/Commands');
         // 自定义命令
         $this->addCommandInPath(APP_PATH);
+    }
+
+    /**
+     * Gets the help message.
+     *
+     * @return string A help message
+     */
+    public function getHelp()
+    {
+        return static::$logo . $this->getLongVersion();
     }
 
     /**
