@@ -6,12 +6,12 @@ MAKEFLAGS += --silent
 #############################
 
 rebuild:
-	docker build -t onelab/one_swoole $$(pwd)/
+	docker build -t one/swoole $$(pwd)/
 
-up:	clean_runtime run
+up:	clean_runtime clean_ds run
 
 run:
-	docker run -it -d --name one_swoole -p 9501:9501 -v $$(pwd):/app onelab/one_swoole
+	docker run -it -d --name one_swoole -p 9501:9501 -v $$(pwd):/app one/swoole
 
 down:
 	docker stop one_swoole && docker rm one_swoole

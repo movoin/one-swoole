@@ -11,6 +11,11 @@
       "homepage": "https://gitlab.com/onelab"
     }
   ],
+  "extra": {
+    "branch-alias": {
+      "dev-master": "0.2-dev"
+    }
+  },
   "autoload": {
     "psr-4": {
       "One\\": "src/"

@@ -25,11 +25,16 @@ class Application extends SymfonyApplication
      *
      * @var string
      */
-    private static $logo = '  ____   ____   ___
- / __ \ / __ \ / _ \
-/ /_/ // / / //  __/
-\____//_/ /_/ \___/
+    private static $logo = ' __________________
+ _  __ \_  __ \  _ \
+ / /_/ /  / / /  __/
+ \____//_/ /_/\___/
+
 ';
+    /**
+     * @var string
+     */
+    private $stripeVersion = '';
 
     /**
      * 构造
@@ -50,6 +55,8 @@ class Application extends SymfonyApplication
         );
         // }}
 
+        $this->stripeVersion = Config::get('stripe_version', '');
+
         // 核心命令
         $this->addCommandInPath(__DIR__ . '/Commands');
         // 自定义命令
@@ -57,13 +64,24 @@ class Application extends SymfonyApplication
     }
 
     /**
-     * Gets the help message.
-     *
-     * @return string A help message
+     * {@inheritDoc}
      */
     public function getHelp()
     {
-        return static::$logo . $this->getLongVersion();
+        return static::$logo . parent::getHelp();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getLongVersion()
+    {
+        return sprintf(
+            '<info>%s</info> version <comment>%s</comment> %s',
+            ucfirst($this->getName()),
+            $this->getVersion(),
+            ! empty($this->stripeVersion) ? $this->stripeVersion : 'dev'
+        );
     }
 
     /**
@@ -133,6 +151,10 @@ class Application extends SymfonyApplication
         $command = new ReflectionClass($namespace . '\\' . $info['filename']);
 
         if (! $command->implementsInterface('\\One\\Console\\Contracts\\Command')) {
+            return false;
+        }
+
+        if ($command->isAbstract()) {
             return false;
         }
 
