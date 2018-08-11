@@ -173,6 +173,16 @@ class Command extends SymfonyCommand implements CommandInterface
     }
 
     /**
+     * 输出内容
+     *
+     * @param string $message
+     */
+    public function writeln(string $message)
+    {
+        $this->output->writeln($message);
+    }
+
+    /**
      * 输出列表项目
      *
      * @param  string $message
