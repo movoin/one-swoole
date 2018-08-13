@@ -1,14 +1,14 @@
 {
-  "name": "one/swoole",
+  "name": "onelab/swoole",
   "description": "Just one swoole framework.",
   "type": "library",
   "license": "Apache-2.0",
-  "homepage": "https://gitlab.com/onelab/one.swoole",
+  "homepage": "https://github.com/movoin/one-swoole",
   "authors": [
     {
       "name": "Allen Luo",
       "email": "movoin@gmail.com",
-      "homepage": "https://gitlab.com/onelab"
+      "homepage": "https://github.com/movoin"
     }
   ],
   "extra": {
