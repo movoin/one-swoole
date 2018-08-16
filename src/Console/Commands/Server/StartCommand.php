@@ -48,10 +48,10 @@ class StartCommand extends Command
         $server = $input->getArgument('server');
 
         if ($server !== null && ! isset($servers[$server])) {
-            $this->symfony()->error('启动失败, 未定义 [' . $server . '] 服务');
+            $this->error('启动失败, 未定义 [' . $server . '] 服务');
             return 0;
         } elseif ($server === null && $servers === []) {
-            $this->symfony()->error('启动失败, 未定义任何服务');
+            $this->error('启动失败, 未定义任何服务');
             return 0;
         }
 
@@ -73,13 +73,11 @@ class StartCommand extends Command
                     $this->fail('<label>' . $server . '</> 处于运行中');
                 } else {
                     $ret = $runner->runCommand('start', $server);
-                    $msg = '启动 <label>' . $server . '</> 服务进程';
 
-                    if ($ret['code'] === 0) {
-                        $this->ok($msg);
-                    } else {
-                        $this->fail($msg);
-                    }
+                    $this->result(
+                        '启动 <label>' . $server . '</> 服务进程',
+                        $ret['code'] === 0
+                    );
                 }
 
                 $this->wait();

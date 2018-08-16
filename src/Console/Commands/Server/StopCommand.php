@@ -48,10 +48,10 @@ class StopCommand extends Command
         $server = $input->getArgument('server');
 
         if ($server !== null && ! isset($servers[$server])) {
-            $this->symfony()->error('关闭失败, 未定义 [' . $server . '] 服务');
+            $this->error('关闭失败, 未定义 [' . $server . '] 服务');
             return 0;
         } elseif ($server === null && $servers === []) {
-            $this->symfony()->error('关闭失败, 未定义任何服务');
+            $this->error('关闭失败, 未定义任何服务');
             return 0;
         }
 
@@ -73,13 +73,11 @@ class StopCommand extends Command
                     $this->fail('<label>' . $server . '</> 服务进程未启动');
                 } else {
                     $ret = $runner->runCommand('stop', $server);
-                    $msg = '关闭 <label>' . $server . '</> 服务进程';
 
-                    if ($ret['code'] === 0) {
-                        $this->ok($msg);
-                    } else {
-                        $this->fail($msg);
-                    }
+                    $this->result(
+                        '关闭 <label>' . $server . '</> 服务进程',
+                        $ret['code'] === 0
+                    );
                 }
 
                 $this->wait();

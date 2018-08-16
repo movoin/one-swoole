@@ -12,175 +12,22 @@
 
 namespace One\Console;
 
+use One\Console\OutputStyle;
 use One\Console\Contracts\Command as CommandInterface;
 use One\Support\Helpers\Reflection;
 use Symfony\Component\Console\Command\Command as SymfonyCommand;
+use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Formatter\OutputFormatter;
-use Symfony\Component\Console\Formatter\OutputFormatterStyle;
-use Symfony\Component\Console\Style\SymfonyStyle;
 
 class Command extends SymfonyCommand implements CommandInterface
 {
     /**
-     * 输入对象
-     *
-     * @var \Symfony\Component\Console\Input\InputInterface
-     */
-    protected $input;
-    /**
      * 输出对象
      *
-     * @var \Symfony\Component\Console\Output\OutputInterface
+     * @var \One\Console\OutputStyle
      */
     protected $output;
-    /**
-     * Symfony Style 对象
-     *
-     * @var \Symfony\Component\Console\Style\SymfonyStyle
-     */
-    protected $style;
-
-    /**
-     * 获得 Symfony Style 对象
-     *
-     * @return \Symfony\Component\Console\Style\SymfonyStyle
-     */
-    public function symfony()
-    {
-        if ($this->style === null) {
-            $this->style = new SymfonyStyle($this->input, $this->output);
-        }
-
-        return $this->style;
-    }
-
-    /**
-     * 输出标题
-     *
-     * @param  string $message
-     */
-    public function title(string $message)
-    {
-        $this->newLine();
-        $this->output->writeln(sprintf(
-            '<highlight>>></> <title>%s</>',
-            OutputFormatter::escapeTrailingBackslash(strtoupper($message))
-        ));
-        $this->newLine();
-    }
-
-    /**
-     * 输出段落
-     *
-     * @param  string $message
-     */
-    public function section(string $message)
-    {
-        $this->newLine();
-        $this->output->writeln(sprintf(
-            '<info>>></> <title>%s</>',
-            OutputFormatter::escapeTrailingBackslash($message)
-        ));
-        $this->newLine();
-    }
-
-    /**
-     * 输出成功状态信息
-     *
-     * @param  string $message
-     * @param  bool   $status
-     */
-    public function ok(string $message, bool $status = true)
-    {
-        $this->write('info', $message, $status);
-    }
-
-    /**
-     * 输出失败信息
-     *
-     * @param  string $message
-     * @param  bool   $status
-     */
-    public function fail(string $message, bool $status = true)
-    {
-        $this->write('erro', $message, $status);
-    }
-
-    /**
-     * 输出信息
-     *
-     * @param  string $message
-     * @param  bool   $status
-     */
-    public function info(string $message, bool $status = false)
-    {
-        $this->write('info', $message, $status);
-    }
-
-    /**
-     * 输出错误信息
-     *
-     * @param  string $message
-     * @param  bool   $status
-     */
-    public function error(string $message, bool $status = false)
-    {
-        $this->write('erro', $message, $status);
-    }
-
-    /**
-     * 输出警告信息
-     *
-     * @param  string $message
-     * @param  bool   $status
-     */
-    public function warn(string $message, bool $status = false)
-    {
-        $this->write('warn', $message, $status);
-    }
-
-    /**
-     * 输出内容
-     *
-     * @param  string $type
-     * @param  string $message
-     * @param  bool   $status
-     */
-    public function write(string $type, string $message, bool $status = true)
-    {
-        if ($type === 'info') {
-            $type = "<info>{$type}</>";
-            $text = '....<success>OK</>';
-        } else {
-            $type = "<{$type}>{$type}</>";
-            $text = '....<failure>FAIL</>';
-        }
-
-        if ($status === false) {
-            $text = '';
-        }
-
-        $this->output->writeln(
-            sprintf(
-                '%s: %s %s',
-                $type,
-                $message,
-                $text
-            )
-        );
-    }
-
-    /**
-     * 输出内容
-     *
-     * @param string $message
-     */
-    public function writeln(string $message)
-    {
-        $this->output->writeln($message);
-    }
 
     /**
      * 输出列表项目
@@ -204,23 +51,16 @@ class Command extends SymfonyCommand implements CommandInterface
     }
 
     /**
-     * 输出空行
+     * __call
      *
-     * @param  int $count
-     */
-    public function newLine($count = 1)
-    {
-        $this->output->write(str_repeat(PHP_EOL, $count));
-    }
-
-    /**
-     * 等待一定时间
+     * @param string $method
+     * @param array  $args
      *
-     * @param  int $mstime
+     * @return mixed
      */
-    public function wait($mstime = 10000)
+    public function __call($method, $args)
     {
-        usleep($mstime);
+        return call_user_func_array([$this->output, $method], $args);
     }
 
     /**
@@ -256,7 +96,6 @@ class Command extends SymfonyCommand implements CommandInterface
             );
         }
 
-        $this->input = $input;
-        $this->output = $output;
+        $this->output = new OutputStyle($input, $output);
     }
 }
