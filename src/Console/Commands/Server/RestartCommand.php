@@ -48,10 +48,10 @@ class RestartCommand extends Command
         $server = $input->getArgument('server');
 
         if ($server !== null && ! isset($servers[$server])) {
-            $this->symfony()->error('重启失败, 未定义 [' . $server . '] 服务');
+            $this->error('重启失败, 未定义 [' . $server . '] 服务');
             return 0;
         } elseif ($server === null && $servers === []) {
-            $this->symfony()->error('重启失败, 未定义任何服务');
+            $this->error('重启失败, 未定义任何服务');
             return 0;
         }
 
@@ -81,13 +81,11 @@ class RestartCommand extends Command
 
                 if ($ret['code'] === 0) {
                     $ret = $runner->runCommand('start', $server);
-                    $msg = '重启 <label>' . $server . '</> 服务进程';
 
-                    if ($ret['code'] === 0) {
-                        $this->ok($msg);
-                    } else {
-                        $this->fail($msg);
-                    }
+                    $this->result(
+                        '重启 <label>' . $server . '</> 服务进程',
+                        $ret['code'] === 0
+                    );
                 }
 
                 $this->wait();

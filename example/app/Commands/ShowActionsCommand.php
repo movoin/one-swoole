@@ -41,7 +41,7 @@ class ShowActionsCommand extends Command
         $actions = new Finder(APP_PATH, 'One\\Context\\Contracts\\Action', 'php');
 
         foreach ($actions as $action) {
-            $this->info($action->getBasename('.php'));
+            $this->output('Action', 'info', $action->getBasename('.php'), '');
         }
     }
 }
