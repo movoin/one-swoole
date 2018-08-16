@@ -48,10 +48,10 @@ class StatusCommand extends Command
         $server = $input->getArgument('server');
 
         if ($server !== null && ! isset($servers[$server])) {
-            $this->symfony()->error('关闭失败, 未定义 [' . $server . '] 服务');
+            $this->error('查看状态失败, 未找到 [' . $server . '] 服务');
             return 0;
         } elseif ($server === null && $servers === []) {
-            $this->symfony()->error('关闭失败, 未定义任何服务');
+            $this->error('查看状态失败, 未定义任何服务');
             return 0;
         }
 
@@ -69,15 +69,7 @@ class StatusCommand extends Command
 
         try {
             foreach ($servers as $server) {
-                $status = $runner->isRunning($server);
-
-                $this->status(
-                    sprintf('<label>%s</> 服务', strtoupper($server)),
-                    $status ? '<success>运行中</>' : '<failure>已关闭</>',
-                    $status ? 'success' : 'failure',
-                    $status ? '√' : '×'
-                );
-
+                $this->showStatus($runner, $server);
                 $this->wait();
             }
         } catch (\Exception $e) {
@@ -87,5 +79,23 @@ class StatusCommand extends Command
         $this->newLine();
 
         return 0;
+    }
+
+    /**
+     * 显示运行状态
+     *
+     * @param \One\Console\Runner   $runner
+     * @param string                $server
+     */
+    protected function showStatus(Runner $runner, string $server)
+    {
+        $status = $runner->isRunning($server);
+
+        $this->status(
+            sprintf('<label>%s</> 服务', strtoupper($server)),
+            $status ? '<success>运行中</>' : '<failure>已关闭</>',
+            $status ? 'success' : 'failure',
+            $status ? '√' : '×'
+        );
     }
 }
