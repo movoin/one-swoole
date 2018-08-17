@@ -5,12 +5,12 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  *
- * @package     One\Console\Commands\Route
+ * @package     One\Routing\Commands
  * @author      Allen Luo <movoin@gmail.com>
  * @since       0.1
  */
 
-namespace One\Console\Commands\Route;
+namespace One\Routing\Commands;
 
 use One\Annotation\Parser;
 use One\Console\Command;
@@ -52,11 +52,15 @@ class ListCommand extends Command
                     sprintf(
                         ' <info>-</> <success>%s</> <title>%s</> <info>-></> %s',
                         str_pad(strtoupper($method), 4),
-                        str_pad($doc['route'], 20),
+                        str_pad($doc['route'], 30),
                         $class
                     )
                 );
             }
         }
+
+        $this->newLine();
+
+        return 0;
     }
 }

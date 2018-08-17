@@ -58,7 +58,7 @@ class Application extends SymfonyApplication
         $this->stripeVersion = Config::get('stripe_version', '');
 
         // 核心命令
-        $this->addCommandInPath(__DIR__ . '/Commands');
+        $this->addCommandInPath(dirname(__DIR__));
         // 自定义命令
         $this->addCommandInPath(APP_PATH);
     }
@@ -125,7 +125,7 @@ class Application extends SymfonyApplication
             }
 
             if ($path->isFile() && $path->getExtension() === 'php') {
-                if ($command = $this->createCommand($path->getPathName())) {
+                if ($command = $this->createCommand($path)) {
                     $this->add($command);
                 }
             }
@@ -137,24 +137,23 @@ class Application extends SymfonyApplication
     /**
      * 创建命令对象
      *
-     * @param  string $path
+     * @param  \DirectoryIterator $path
      *
      * @return false|\Symfony\Component\Console\Command\Command
      */
-    protected function createCommand(string $path)
+    protected function createCommand(DirectoryIterator $path)
     {
-        if (! ($namespace = $this->lookupNamespace($path))) {
+        if (! ($namespace = $this->lookupNamespace($path->getPathName()))) {
             return false;
         }
 
-        $info = pathinfo($path);
-        $command = new ReflectionClass($namespace . '\\' . $info['filename']);
+        $command = new ReflectionClass($namespace . '\\' . $path->getBasename('.php'));
+
+        if ($command->isAbstract() || $command->isInterface() || $command->isTrait()) {
+            return false;
+        }
 
         if (! $command->implementsInterface('\\One\\Console\\Contracts\\Command')) {
-            return false;
-        }
-
-        if ($command->isAbstract()) {
             return false;
         }
 

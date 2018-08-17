@@ -20,7 +20,7 @@ use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class Command extends SymfonyCommand implements CommandInterface
+abstract class Command extends SymfonyCommand implements CommandInterface
 {
     /**
      * 输出对象

@@ -5,12 +5,12 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  *
- * @package     One\Console\Commands\Server
+ * @package     One\Swoole\Commands
  * @author      Allen Luo <movoin@gmail.com>
  * @since       0.1
  */
 
-namespace One\Console\Commands\Server;
+namespace One\Swoole\Commands;
 
 use One\Config;
 use One\Console\Runner;
@@ -19,7 +19,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class StatusCommand extends Command
+class StartCommand extends Command
 {
     /**
      * 配置命令
@@ -27,10 +27,10 @@ class StatusCommand extends Command
     protected function configure()
     {
         $this
-            ->setName('server:status')
+            ->setName('server:start')
             ->addArgument('server', InputArgument::OPTIONAL, '服务进程名称')
-            ->setDescription('查看运行状态')
-            ->setHelp('查看服务进程运行状态')
+            ->setDescription('启动服务进程')
+            ->setHelp('启动指定或全部服务进程')
         ;
     }
 
@@ -48,15 +48,15 @@ class StatusCommand extends Command
         $server = $input->getArgument('server');
 
         if ($server !== null && ! isset($servers[$server])) {
-            $this->error('查看状态失败, 未找到 [' . $server . '] 服务');
+            $this->error('启动失败, 未定义 [' . $server . '] 服务');
             return 0;
         } elseif ($server === null && $servers === []) {
-            $this->error('查看状态失败, 未定义任何服务');
+            $this->error('启动失败, 未定义任何服务');
             return 0;
         }
 
         // {{
-        $this->title('服务运行状态');
+        $this->title('启动服务进程');
         // }}
 
         if ($server !== null) {
@@ -65,11 +65,21 @@ class StatusCommand extends Command
 
         unset($server);
 
-        $runner = new Runner;
+        $runner = new Runner($output);
 
         try {
             foreach ($servers as $server) {
-                $this->showStatus($runner, $server);
+                if ($runner->isRunning($server)) {
+                    $this->fail('<label>' . $server . '</> 处于运行中');
+                } else {
+                    $ret = $runner->runCommand('start', $server);
+
+                    $this->result(
+                        '启动 <label>' . $server . '</> 服务进程',
+                        $ret['code'] === 0
+                    );
+                }
+
                 $this->wait();
             }
         } catch (\Exception $e) {
@@ -79,23 +89,5 @@ class StatusCommand extends Command
         $this->newLine();
 
         return 0;
-    }
-
-    /**
-     * 显示运行状态
-     *
-     * @param \One\Console\Runner   $runner
-     * @param string                $server
-     */
-    protected function showStatus(Runner $runner, string $server)
-    {
-        $status = $runner->isRunning($server);
-
-        $this->status(
-            sprintf('<label>%s</> 服务', strtoupper($server)),
-            $status ? '<success>运行中</>' : '<failure>已关闭</>',
-            $status ? 'success' : 'failure',
-            $status ? '√' : '×'
-        );
     }
 }

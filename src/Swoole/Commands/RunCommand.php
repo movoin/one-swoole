@@ -5,12 +5,12 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  *
- * @package     One\Console\Commands\Server
+ * @package     One\Swoole\Commands
  * @author      Allen Luo <movoin@gmail.com>
  * @since       0.1
  */
 
-namespace One\Console\Commands\Server;
+namespace One\Swoole\Commands;
 
 use One\Config;
 use One\Protocol\Server;
