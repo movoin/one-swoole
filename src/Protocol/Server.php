@@ -73,6 +73,7 @@ class Server extends AbstractServer
             );
             // }}
 
+            $this->bootServerStartItems();
             $this->runSwoole();
         }
     }
