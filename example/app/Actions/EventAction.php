@@ -19,7 +19,7 @@ use One\Protocol\Contracts\Request;
 /**
  * Event Action
  *
- * @methods GET
+ * @methods ["GET", "POST"]
  * @route /event
  */
 class EventAction extends Action
