@@ -12,7 +12,7 @@
 
 namespace One\Swoole;
 
-use One\Config;
+use One\Config\Config;
 use One\Swoole\Contracts\Server;
 use One\Swoole\Contracts\Provider as ProviderInterface;
 

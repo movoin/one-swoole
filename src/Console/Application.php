@@ -15,10 +15,10 @@ namespace One\Console;
 use Exception;
 use DirectoryIterator;
 use ReflectionClass;
-use One\Config;
-use Symfony\Component\Console\Application as SymfonyApplication;
+use One\Config\Config;
+use Symfony\Component\Console\Application as BaseApplication;
 
-class Application extends SymfonyApplication
+class Application extends BaseApplication
 {
     /**
      * LOGO

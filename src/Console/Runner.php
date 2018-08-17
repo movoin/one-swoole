@@ -12,7 +12,7 @@
 
 namespace One\Console;
 
-use One\Config;
+use One\Config\Config;
 use One\Protocol\Server;
 use Swoole\Process;
 use Symfony\Component\Console\Logger\ConsoleLogger;

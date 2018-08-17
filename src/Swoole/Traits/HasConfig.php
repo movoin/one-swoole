@@ -12,7 +12,7 @@
 
 namespace One\Swoole\Traits;
 
-use One\Config;
+use One\Config\Config;
 use One\Support\Helpers\Arr;
 use One\Swoole\Exceptions\SwooleException;
 

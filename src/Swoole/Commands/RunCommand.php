@@ -12,7 +12,7 @@
 
 namespace One\Swoole\Commands;
 
-use One\Config;
+use One\Config\Config;
 use One\Protocol\Server;
 use One\Console\Command;
 use Symfony\Component\Console\Input\InputArgument;
