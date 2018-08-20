@@ -62,16 +62,19 @@ class ShowCommand extends Command
                 $this->writeln(
                     sprintf(
                         '%s<info>- %s</>:',
-                        str_repeat(' ', $level * 4),
+                        str_repeat(' ', $level * 2),
                         $name
                     )
                 );
-                $this->treeView($value, $level++);
+
+                if (count($value) > 0) {
+                    $this->treeView($value, ++$level);
+                }
             } else {
                 $this->writeln(
                     sprintf(
                         '%s<info>- %s</> = %s',
-                        str_repeat(' ', $level * 4),
+                        str_repeat(' ', $level * 2),
                         $name,
                         $value
                     )
