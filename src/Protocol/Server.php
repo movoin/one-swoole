@@ -12,6 +12,7 @@
 
 namespace One\Protocol;
 
+use One\Config\Config;
 use One\Protocol\Factory;
 use One\Swoole\Server as AbstractServer;
 use Swoole\Server as SwServer;
@@ -475,7 +476,7 @@ class Server extends AbstractServer
         // 协议启动项
         $inherents = $this->getProtocol()->getServerStartItems();
         // 自定义启动项
-        $customs = $this->getConfig('startup.server', []);
+        $customs = Config::get('startup.server', []);
         $providers = array_merge($customs, $inherents);
 
         unset($inherents, $customs);
@@ -491,7 +492,7 @@ class Server extends AbstractServer
         // 协议启动项
         $inherents = $this->getProtocol()->getWorkerStartItems();
         // 自定义启动项
-        $customs = $this->getConfig('startup.worker', []);
+        $customs = Config::get('startup.worker', []);
         $providers = array_merge($customs, $inherents);
 
         unset($inherents, $customs);

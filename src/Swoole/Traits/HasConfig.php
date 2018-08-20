@@ -33,10 +33,6 @@ trait HasConfig
      */
     protected function prepareConfig()
     {
-        if (! defined('CONFIG_PATH')) {
-            throw new SwooleException('Undefined constant `CONFIG_PATH`');
-        }
-
         // 加载配置
         Config::load(true);
     }
