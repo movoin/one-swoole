@@ -84,12 +84,14 @@ class Server extends AbstractServer
      */
     public function stop()
     {
-        // {{
-        $this->initializeCoreProviders();
-        // }}
-
         if ($this->isRunning()) {
             $pid = $this->getPid();
+
+            // {{
+            $this->initializeCoreProviders();
+            $this->createProtocol($this->getConfig('protocol'));
+            $this->shutdownServerStartItems();
+            // }}
 
             // {{ log
             $this->get('logger')->info(
@@ -102,8 +104,6 @@ class Server extends AbstractServer
                 ]
             );
             // }}
-
-            $this->shutdownServerStartItems();
 
             posix_kill($pid, SIGTERM);
         }
@@ -544,7 +544,7 @@ class Server extends AbstractServer
     protected function bootItems(string $type, array $items)
     {
         if ($items !== []) {
-            array_walk($items, function ($item) {
+            array_walk($items, function ($item) use ($type) {
                 $provider = $this->make($item, [$this]);
                 $provider->register();
                 $provider->boot();
@@ -552,7 +552,7 @@ class Server extends AbstractServer
                 unset($boot);
 
                 // {{ log
-                $this->get('logger')->info('加载 ' . strtoupper($type) . ' 启动项 ' . $item);
+                $this->get('logger')->info('加载 ' . ucfirst($type) . ' 启动项 ' . $item);
                 // }}
             });
         }
@@ -567,14 +567,14 @@ class Server extends AbstractServer
     protected function shutdownItems(string $type, array $items)
     {
         if ($items !== []) {
-            array_walk($items, function ($item) {
+            array_walk($items, function ($item) use ($type) {
                 $provider = $this->make($item, [$this]);
                 $provider->shutdown();
 
                 unset($boot);
 
                 // {{ log
-                $this->get('logger')->info('关闭 ' . strtoupper($type) . ' 启动项 ' . $item);
+                $this->get('logger')->info('关闭 ' . ucfirst($type) . ' 启动项 ' . $item);
                 // }}
             });
         }
