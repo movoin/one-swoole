@@ -481,7 +481,7 @@ class Server extends AbstractServer
 
         unset($inherents, $customs);
 
-        $this->bootItems($providers);
+        $this->bootItems('server', $providers);
     }
 
     /**
@@ -497,15 +497,16 @@ class Server extends AbstractServer
 
         unset($inherents, $customs);
 
-        $this->bootItems($providers);
+        $this->bootItems('worker', $providers);
     }
 
     /**
      * 启动项目
      *
+     * @param  string $type
      * @param  array  $items
      */
-    protected function bootItems(array $items)
+    protected function bootItems(string $type, array $items)
     {
         if ($items !== []) {
             array_walk($items, function ($item) {
@@ -516,7 +517,7 @@ class Server extends AbstractServer
                 unset($boot);
 
                 // {{ log
-                $this->get('logger')->info('启动项 ' . $item);
+                $this->get('logger')->info('加载 ' strtoupper($type) ' 启动项 ' . $item);
                 // }}
             });
         }
