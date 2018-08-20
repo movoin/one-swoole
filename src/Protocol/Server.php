@@ -552,7 +552,7 @@ class Server extends AbstractServer
                 unset($boot);
 
                 // {{ log
-                $this->get('logger')->info('加载 ' strtoupper($type) ' 启动项 ' . $item);
+                $this->get('logger')->info('加载 ' . strtoupper($type) . ' 启动项 ' . $item);
                 // }}
             });
         }
@@ -574,7 +574,7 @@ class Server extends AbstractServer
                 unset($boot);
 
                 // {{ log
-                $this->get('logger')->info('关闭 ' strtoupper($type) ' 启动项 ' . $item);
+                $this->get('logger')->info('关闭 ' . strtoupper($type) . ' 启动项 ' . $item);
                 // }}
             });
         }
