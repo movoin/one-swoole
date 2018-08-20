@@ -1,0 +1,28 @@
+---
+#
+# OneHub 配置
+#
+
+# 注册服务配置
+register:
+  service:
+    host: redis
+
+# 服务引擎配置
+engines:
+  - log
+  # - trace
+  # - stats
+
+# 存储后端配置
+backends:
+  # MySQL 存储
+  mysql:
+    host: mysql
+  # MongoDB 存储
+  mongodb:
+    host: mongodb
+  # ElasticSearch 存储
+  elasticsearch:
+    host: elasticsearch
+...

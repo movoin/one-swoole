@@ -12,7 +12,7 @@
 
 namespace One\Tests;
 
-use One\Config;
+use One\Config\Config;
 
 class ConfigTest extends \PHPUnit\Framework\TestCase
 {

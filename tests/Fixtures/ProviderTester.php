@@ -12,7 +12,7 @@
 
 namespace One\Tests\Fixtures;
 
-use One\Config;
+use One\Config\Config;
 use One\Protocol\Server;
 
 class ProviderTester extends \PHPUnit\Framework\TestCase
