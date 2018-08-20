@@ -36,16 +36,23 @@ abstract class Provider implements ProviderInterface
     }
 
     /**
-     * 注册服务
+     * 注册
      */
     public function register()
     {
     }
 
     /**
-     * 启动服务
+     * 启动
      */
     public function boot()
+    {
+    }
+
+    /**
+     * 关闭
+     */
+    public function shutdown()
     {
     }
 

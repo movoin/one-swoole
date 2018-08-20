@@ -103,6 +103,8 @@ class Server extends AbstractServer
             );
             // }}
 
+            $this->shutdownServerStartItems();
+
             posix_kill($pid, SIGTERM);
         }
     }
@@ -210,6 +212,7 @@ class Server extends AbstractServer
         // }}
 
         if ($workerType === 'worker') {
+            $this->shutdownWorkerStartItems();
             $this->callProtocolMethod('onStop', $server, $workerId);
         }
 
@@ -485,6 +488,22 @@ class Server extends AbstractServer
     }
 
     /**
+     * 关闭服务进程启动项
+     */
+    protected function shutdownServerStartItems()
+    {
+        // 协议启动项
+        $inherents = $this->getProtocol()->getServerStartItems();
+        // 自定义启动项
+        $customs = Config::get('startup.server', []);
+        $providers = array_merge($customs, $inherents);
+
+        unset($inherents, $customs);
+
+        $this->shutdownItems('server', $providers);
+    }
+
+    /**
      * 启动工作进程启动项
      */
     protected function bootWorkerStartItems()
@@ -501,7 +520,23 @@ class Server extends AbstractServer
     }
 
     /**
-     * 启动项目
+     * 关闭工作进程启动项
+     */
+    protected function shutdownWorkerStartItems()
+    {
+        // 协议启动项
+        $inherents = $this->getProtocol()->getWorkerStartItems();
+        // 自定义启动项
+        $customs = Config::get('startup.worker', []);
+        $providers = array_merge($customs, $inherents);
+
+        unset($inherents, $customs);
+
+        $this->shutdownItems('worker', $providers);
+    }
+
+    /**
+     * 启动自定义启动项
      *
      * @param  string $type
      * @param  array  $items
@@ -518,6 +553,28 @@ class Server extends AbstractServer
 
                 // {{ log
                 $this->get('logger')->info('加载 ' strtoupper($type) ' 启动项 ' . $item);
+                // }}
+            });
+        }
+    }
+
+    /**
+     * 关闭自定义启动项
+     *
+     * @param  string $type
+     * @param  array  $items
+     */
+    protected function shutdownItems(string $type, array $items)
+    {
+        if ($items !== []) {
+            array_walk($items, function ($item) {
+                $provider = $this->make($item, [$this]);
+                $provider->unregister();
+
+                unset($boot);
+
+                // {{ log
+                $this->get('logger')->info('关闭 ' strtoupper($type) ' 启动项 ' . $item);
                 // }}
             });
         }
