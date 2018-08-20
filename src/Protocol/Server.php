@@ -569,7 +569,7 @@ class Server extends AbstractServer
         if ($items !== []) {
             array_walk($items, function ($item) {
                 $provider = $this->make($item, [$this]);
-                $provider->unregister();
+                $provider->shutdown();
 
                 unset($boot);
 
